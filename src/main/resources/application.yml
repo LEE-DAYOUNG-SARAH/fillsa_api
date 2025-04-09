@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: fillsa_api
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/fillsa_db
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+
+  jackson:
+    time-zone: Asia/Seoul
