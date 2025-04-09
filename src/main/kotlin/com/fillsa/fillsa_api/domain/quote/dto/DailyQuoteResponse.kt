@@ -22,8 +22,8 @@ data class DailyQuoteResponse(
     @Schema(description = "타이핑 영문 명언")
     val typingEngQuote: String?,
 
-    @Schema(description = "사진")
-    val image: MultipartFile?,
+    @Schema(description = "s3 이미지 경로")
+    val imagePath: String?,
 
     @Schema(description = "국문 저자")
     val korAuthor: String?,
