@@ -34,7 +34,7 @@ class Member(
     val birth: String? = null,
 
     @Column(nullable = true)
-    val locale: String,
+    val locale: String? = null,
 
     @Column(nullable = false, columnDefinition = "char(1)")
     var withdrawalYn: String = "N",
