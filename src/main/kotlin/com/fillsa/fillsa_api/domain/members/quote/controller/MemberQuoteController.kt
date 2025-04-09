@@ -1,11 +1,15 @@
 package com.fillsa.fillsa_api.domain.members.quote.controller
 
+import com.fillsa.fillsa_api.common.dto.PageResponse
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
+import com.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteListRequest
+import com.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteListResponse
 import com.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import com.fillsa.fillsa_api.domain.members.quote.service.useCase.MemberQuoteUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -41,5 +45,15 @@ class MemberQuoteController(
         @RequestPart("image") @Parameter(description = "이미지 파일(최대 1MB)") image: MultipartFile
     ): ResponseEntity<Long> = ResponseEntity.ok(
         memberQuoteUseCase.uploadImage(member, dailyQuoteSeq, image)
+    )
+
+    @GetMapping
+    @Operation(summary = "사용자 명언 목록 조회 api")
+    fun getMemberQuotes(
+//        @AuthenticationPrincipal member: Member,
+        pageable: Pageable,
+        request: MemberQuoteListRequest
+    ): ResponseEntity<PageResponse<MemberQuoteListResponse>> = ResponseEntity.ok(
+        memberQuoteUseCase.getMemberQuotes(member, pageable, request)
     )
 }

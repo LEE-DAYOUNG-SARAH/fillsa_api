@@ -17,7 +17,7 @@ class QuoteService(): QuoteUseCase {
             engQuote = "I'm not afraid of death; I just don't want to be there when it happens.",
             typingKorQuote = "나는 죽",
             typingEngQuote = "I'm not a",
-            image = null,
+            imagePath = null,
             korAuthor = "우디 앨런",
             engAuthor = "Woody Allen",
             authorUrl = "https://ko.wikipedia.org/wiki/우디 앨런"
