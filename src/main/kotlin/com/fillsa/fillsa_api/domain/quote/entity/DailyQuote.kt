@@ -17,4 +17,7 @@ class DailyQuote(
 
     @Column(nullable = false)
     var quoteDate: LocalDate,
+
+    @Column(nullable = false, columnDefinition = "char(1)")
+    var quoteDayOfWeek: String,
 ): BaseEntity()
