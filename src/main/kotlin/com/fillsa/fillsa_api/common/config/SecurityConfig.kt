@@ -12,6 +12,7 @@ class SecurityConfig {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .csrf { it.disable() }
             .authorizeHttpRequests { requests ->
                 requests
                     // Swagger 관련 엔드포인트는 인증 없이 접근 허용
