@@ -4,6 +4,7 @@ import com.fillsa.fillsa_api.common.dto.PageResponse
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteListRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteListResponse
+import com.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import com.fillsa.fillsa_api.domain.members.quote.service.useCase.MemberQuoteUseCase
 import org.springframework.data.domain.Pageable
@@ -61,5 +62,12 @@ class MemberQuoteService(): MemberQuoteUseCase {
             totalPages = 2,
             currentPage = 0
         )
+    }
+
+    override fun memo(member: Member, memberQuoteSeq: Long, request: MemoRequest): Long {
+        // TODO. 사용자 명언 조회
+        // TODO. 사용자 명언 메모 업데이트
+        // TODO. 사용자 명언 seq 반환
+        return memberQuoteSeq
     }
 }

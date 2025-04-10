@@ -4,6 +4,7 @@ import com.fillsa.fillsa_api.common.dto.PageResponse
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteListRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteListResponse
+import com.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import com.fillsa.fillsa_api.domain.members.quote.service.useCase.MemberQuoteUseCase
 import io.swagger.v3.oas.annotations.Operation
@@ -55,5 +56,15 @@ class MemberQuoteController(
         request: MemberQuoteListRequest
     ): ResponseEntity<PageResponse<MemberQuoteListResponse>> = ResponseEntity.ok(
         memberQuoteUseCase.getMemberQuotes(member, pageable, request)
+    )
+
+    @PostMapping("/{memberQuoteSeq}/memos")
+    @Operation(summary = "명언 메모 저장 api")
+    fun memo(
+//        @AuthenticationPrincipal member: Member,
+        @PathVariable @Parameter(description = "사용자 명언 일련번호") memberQuoteSeq: Long,
+        @RequestBody request: MemoRequest
+    ): ResponseEntity<Long> = ResponseEntity.ok(
+        memberQuoteUseCase.memo(member, memberQuoteSeq, request)
     )
 }
