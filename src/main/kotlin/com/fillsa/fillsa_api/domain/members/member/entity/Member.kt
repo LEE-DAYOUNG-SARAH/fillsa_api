@@ -2,6 +2,9 @@ package com.fillsa.fillsa_api.domain.members.member.entity
 
 import com.fillsa.fillsa_api.common.entity.BaseEntity
 import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDateTime
 
 @Entity
@@ -41,7 +44,41 @@ class Member(
 
     @Column(nullable = true)
     var withdrawalAt: LocalDateTime? = null
-): BaseEntity() {
+): BaseEntity(), UserDetails {
+    override fun getAuthorities(): Collection<GrantedAuthority> {
+        return listOf(SimpleGrantedAuthority("ROLE_USER"))
+    }
+
+    override fun getPassword(): String? = null
+
+    override fun getUsername(): String = memberSeq.toString()
+
+    override fun isAccountNonExpired(): Boolean = true
+
+    override fun isAccountNonLocked(): Boolean = true
+
+    override fun isCredentialsNonExpired(): Boolean = true
+
+    override fun isEnabled(): Boolean = true
+
+    companion object {
+        @JvmStatic
+        fun createOAuthMember(
+            oauthId: String,
+            oauthProvider: OauthProvider,
+            email: String,
+            nickname: String,
+            profileImageUrl: String? = null
+        ): Member {
+            return Member(
+                oauthId = oauthId,
+                oauthProvider = oauthProvider,
+                email = email,
+                nickname = nickname,
+                profileImageUrl = profileImageUrl
+            )
+        }
+    }
     enum class OauthProvider {
         KAKAO, GOOGLE
     }
