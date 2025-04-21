@@ -25,17 +25,16 @@ spring:
     multipart:
       max-file-size: 2MB
 
-  security:
-    oauth2:
-      client:
-        registration:
-          kakao:
-            client-id:
-            client-secret:
-            redirect-uri:
-            authorization-grant-type:
-
-        provider:
-          kakao:
-            token-uri:
-            user-info-uri:
+oauth:
+  kakao:
+    client-id:
+    client-secret:
+    redirect-uri:
+    token-uri:
+    user-info-uri:
+  google:
+    client-id:
+    client-secret:
+    redirect-uri:
+    token-uri:
+    user-info-uri:

@@ -16,7 +16,7 @@ class Member(
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val oauthProvider: OauthProvider,
+    val oauthProvider: OAuthProvider,
 
     @Column(nullable = false)
     val oauthId: String,
@@ -62,7 +62,7 @@ class Member(
         @JvmStatic
         fun createOAuthMember(
             oauthId: String,
-            oauthProvider: OauthProvider,
+            oauthProvider: OAuthProvider,
             nickname: String,
             profileImageUrl: String? = null
         ): Member {
@@ -74,7 +74,7 @@ class Member(
             )
         }
     }
-    enum class OauthProvider {
+    enum class OAuthProvider {
         KAKAO, GOOGLE
     }
 }

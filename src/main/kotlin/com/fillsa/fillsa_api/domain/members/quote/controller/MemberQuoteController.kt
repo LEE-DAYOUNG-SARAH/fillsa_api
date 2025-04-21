@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -23,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile
 class MemberQuoteController(
     private val memberQuoteUseCase: MemberQuoteUseCase
 ) {
-    val member = Member(oauthProvider = Member.OauthProvider.GOOGLE, oauthId = "")
+    val member = Member(oauthProvider = Member.OAuthProvider.GOOGLE, oauthId = "")
 
     @PostMapping("/{dailyQuoteSeq}/typing")
     @Operation(summary = "타이핑 명언 저장 api")
