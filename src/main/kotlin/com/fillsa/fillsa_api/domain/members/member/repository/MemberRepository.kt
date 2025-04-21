@@ -4,5 +4,5 @@ import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface MemberRepository: JpaRepository<Member, Long> {
-    fun findByMemberSeqAndOauthProvider(memberSeq: Long, oauthProvider: Member.OauthProvider): Member?
+    fun findByOauthIdAndOauthProvider(oauthId: String, oauthProvider: Member.OauthProvider): Member?
 }

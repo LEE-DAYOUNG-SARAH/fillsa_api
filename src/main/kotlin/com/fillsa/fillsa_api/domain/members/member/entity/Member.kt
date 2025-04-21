@@ -22,9 +22,6 @@ class Member(
     val oauthId: String,
 
     @Column(nullable = true)
-    val email: String? = null,
-
-    @Column(nullable = true)
     val nickname: String? = null,
 
     @Column(nullable = true)
@@ -66,14 +63,12 @@ class Member(
         fun createOAuthMember(
             oauthId: String,
             oauthProvider: OauthProvider,
-            email: String,
             nickname: String,
             profileImageUrl: String? = null
         ): Member {
             return Member(
                 oauthId = oauthId,
                 oauthProvider = oauthProvider,
-                email = email,
                 nickname = nickname,
                 profileImageUrl = profileImageUrl
             )

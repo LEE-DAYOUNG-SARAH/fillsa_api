@@ -36,6 +36,7 @@ dependencies {
     // spring
     implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-security:$springBootVersion")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:$springBootVersion")
 
     // database
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion")

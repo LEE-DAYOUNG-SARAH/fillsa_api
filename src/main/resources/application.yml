@@ -24,3 +24,18 @@ spring:
   servlet:
     multipart:
       max-file-size: 2MB
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id:
+            client-secret:
+            redirect-uri:
+            authorization-grant-type:
+
+        provider:
+          kakao:
+            token-uri:
+            user-info-uri:

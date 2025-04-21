@@ -13,3 +13,6 @@ class NotFoundException(message: String):
 
 class InvalidRequestException(message: String):
     BusinessException(HttpStatus.BAD_REQUEST, message)
+
+class OAuthLoginException(message: String) :
+    BusinessException(HttpStatus.UNAUTHORIZED, message)
