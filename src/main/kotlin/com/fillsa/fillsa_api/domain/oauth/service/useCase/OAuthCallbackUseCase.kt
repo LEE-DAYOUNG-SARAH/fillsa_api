@@ -2,7 +2,7 @@ package com.fillsa.fillsa_api.domain.oauth.service.useCase
 
 import com.fillsa.fillsa_api.domain.auth.dto.LoginResponse
 
-interface OAuthUseCase {
+interface OAuthCallbackUseCase {
     /**
      *  oauth 인증 응답
      */

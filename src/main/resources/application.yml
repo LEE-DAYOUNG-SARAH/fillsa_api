@@ -30,6 +30,19 @@ jwt:
   access-token-validity: 900000   # 15분
   refresh-token-validity: 604800000   # 7일
 
+logging:
+  level:
+    root: INFO
+    com.fillsa_fillsa_api: DEBUG
+    org.springframework.web: INFO
+    org.hibernate: INFO
+  file:
+    name: logs/fillsa_api.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+
 oauth:
   kakao:
     client-id:

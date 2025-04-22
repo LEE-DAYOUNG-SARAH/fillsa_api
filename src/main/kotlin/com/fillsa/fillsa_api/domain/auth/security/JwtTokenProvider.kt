@@ -27,14 +27,14 @@ class JwtTokenProvider(
         key = Keys.hmacShaKeyFor(keyBytes)
     }
 
-    fun createTokens(memberId: Long): TokenInfo {
+    fun createTokens(memberSeq: Long): TokenInfo {
         val now = Date()
         val accessTokenExpiresIn = accessTokenValidity
         val refreshTokenExpiresIn = refreshTokenValidity
 
         // 액세스 토큰 생성
         val accessToken = Jwts.builder()
-            .setSubject(memberId.toString())
+            .setSubject(memberSeq.toString())
             .setIssuedAt(now)
             .setExpiration(Date(now.time + accessTokenExpiresIn))
             .signWith(key, SignatureAlgorithm.HS256)
@@ -42,7 +42,7 @@ class JwtTokenProvider(
 
         // 리프레시 토큰 생성
         val refreshToken = Jwts.builder()
-            .setSubject(memberId.toString())
+            .setSubject(memberSeq.toString())
             .setIssuedAt(now)
             .setExpiration(Date(now.time + refreshTokenExpiresIn))
             .signWith(key, SignatureAlgorithm.HS256)
