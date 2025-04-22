@@ -25,6 +25,11 @@ spring:
     multipart:
       max-file-size: 2MB
 
+jwt:
+  secret:
+  access-token-validity: 900000   # 15분
+  refresh-token-validity: 604800000   # 7일
+
 oauth:
   kakao:
     client-id:
