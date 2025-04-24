@@ -6,9 +6,11 @@ import com.fillsa.fillsa_api.common.exception.OAuthLoginException
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthLoginUseCase
 import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthUserInfo
+import mu.KotlinLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
 
 
 abstract class OAuthLoginClient(
@@ -20,6 +22,9 @@ abstract class OAuthLoginClient(
     private val userInfoUri: String,
 ): OAuthLoginUseCase {
     protected abstract val provider: Member.OAuthProvider
+
+    val log = KotlinLogging.logger {  }
+
     override fun getAccessToken(code: String): String {
         val request = OAuthTokenRequest(
             clientId = clientId,
@@ -32,10 +37,19 @@ abstract class OAuthLoginClient(
             .uri(tokenUri)
             .bodyValue(request)
             .retrieve()
+            .onStatus({ it.isError }) { resp ->
+                resp.bodyToMono<String>()
+                    .flatMap { Mono.error(OAuthLoginException(
+                        "$provider 토큰 요청 실패: ${resp.statusCode()} - $it"
+                    )) }
+            }
             .bodyToMono<OAuthTokenResponse>()
+            .onErrorMap { e ->
+                OAuthLoginException("$provider 토큰 응답 처리 실패: ${e.message}")
+            }
             .map { it.accessToken }
             .block()
-            ?: throw OAuthLoginException("$provider 액세스 토큰을 받아오는데 실패했습니다.")
+            .orEmpty()
     }
 
     override fun getUserInfo(accessToken: String): OAuthUserInfo {
@@ -43,18 +57,28 @@ abstract class OAuthLoginClient(
             setBearerAuth(accessToken)
         }
 
-        val raw = webClient.get()
+        val rawJson = webClient.get()
             .uri(userInfoUri)
             .headers { it.addAll(headers) }
             .retrieve()
+            .onStatus({ it.isError }) { resp ->
+                resp.bodyToMono<String>()
+                    .flatMap { Mono.error(OAuthLoginException(
+                        "$provider 사용자 정보 요청 실패: ${resp.statusCode()} - $it"
+                    )) }
+            }
             .bodyToMono<JsonNode>()
+            .onErrorMap { e ->
+                OAuthLoginException("$provider 사용자 정보 응답 처리 실패: ${e.message}")
+            }
             .block()
-            ?: throw OAuthLoginException("$provider 사용자 정보를 받아오는데 실패했습니다.")
 
-        return parseUserInfo(raw)
+        log.info { "$provider 사용자 정보 응답: $rawJson" }
+
+        return parseUserInfo(rawJson)
     }
 
-    protected abstract fun parseUserInfo(json: JsonNode): OAuthUserInfo
+    protected abstract fun parseUserInfo(json: JsonNode?): OAuthUserInfo
 
     data class OAuthTokenRequest(
         @JsonProperty("grant_type")
