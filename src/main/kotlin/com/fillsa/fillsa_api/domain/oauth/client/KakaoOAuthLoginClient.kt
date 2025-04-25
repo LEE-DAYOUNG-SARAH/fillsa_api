@@ -1,37 +1,135 @@
 package com.fillsa.fillsa_api.domain.oauth.client
 
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fillsa.fillsa_api.common.exception.OAuthLoginException
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
+import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthLoginUseCase
 import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthUserInfo
+import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthUserResponse
+import mu.KotlinLogging
+import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
 
 @Component
 class KakaoOAuthLoginClient(
-    webClient: WebClient,
-    @Value("\${oauth.kakao.client-id}") clientId: String,
-    @Value("\${oauth.kakao.client-secret}") clientSecret: String,
-    @Value("\${oauth.kakao.redirect-uri}") redirectUri: String,
+    val webClient: WebClient,
+    @Value("\${oauth.kakao.client-id}")
+    val clientId: String,
+    @Value("\${oauth.kakao.client-secret}")
+    val clientSecret: String,
+    @Value("\${oauth.kakao.redirect-uri}")
+    val redirectUri: String,
+    @Value("\${oauth.kakao.token-uri}")
+    val tokenUri: String,
+    @Value("\${oauth.kakao.user-info-uri}")
+    val userInfoUri: String,
+): OAuthLoginUseCase {
+    val log = KotlinLogging.logger {  }
 
-    @Value("\${oauth.kakao.token-uri}") tokenUri: String,
-    @Value("\${oauth.kakao.user-info-uri}") userInfoUri: String,
-): OAuthLoginClient(
-    webClient, clientId, clientSecret, redirectUri, tokenUri, userInfoUri
-) {
-    override val provider = Member.OAuthProvider.KAKAO
+    override fun getAccessToken(code: String): String {
+        val request = BodyInserters.fromFormData("grant_type", "authorization_code")
+            .with("client_id", clientId)
+            .with("client_secret", clientSecret)
+            .with("redirect_uri", redirectUri)
+            .with("code", code)
 
-    override fun parseUserInfo(json: JsonNode?): OAuthUserInfo {
-        requireNotNull(json) { "$provider 사용자 정보가 없습니다." }
-        val profile = json["kakao_account"]?.get("profile")
-            ?: throw OAuthLoginException("$provider 프로필 정보가 없습니다.")
+        return webClient.post()
+            .uri(tokenUri)
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(request)
+            .retrieve()
+            .onStatus({ it.isError }) { resp ->
+                resp.bodyToMono<String>()
+                    .defaultIfEmpty(StringUtils.EMPTY)
+                    .flatMap {
+                        log.error { "${getOAuthProvider()} 토큰 요청 실패: ${resp.statusCode()} - $it" }
+                        Mono.error(OAuthLoginException("${getOAuthProvider()} 토큰 요청 실패"))
+                    }
+            }
+            .bodyToMono<KakaoOAuthTokenResponse>()
+            .onErrorMap({ e -> e !is OAuthLoginException }) { e ->
+                log.error { "${getOAuthProvider()} 토큰 응답 실패: ${e.message}" }
+                OAuthLoginException("${getOAuthProvider()} 토큰 응답 실패")
+            }
+            .blockOptional()                       // Optional<T>
+            .orElseThrow {
+                OAuthLoginException("${getOAuthProvider()} 토큰 응답이 없습니다")
+            }
+            .accessToken
+    }
 
-        return OAuthUserInfo(
-            id = json["id"].asText(),
-            nickname = profile["nickname"].asText(),
-            profileImageUrl = profile["profile_image_url"]?.asText(),
-            oAuthProvider = provider
+    override fun getUserInfo(accessToken: String): OAuthUserInfo {
+        val headers = HttpHeaders().apply {
+            setBearerAuth(accessToken)
+        }
+
+        return webClient.get()
+            .uri(userInfoUri)
+            .headers { it.addAll(headers) }
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .onStatus({ it.isError }) { resp ->
+                resp.bodyToMono<String>()
+                    .flatMap {
+                        log.error { "${getOAuthProvider()} 사용자 정보 요청 실패: ${resp.statusCode()} - $it" }
+                        Mono.error(OAuthLoginException("${getOAuthProvider()} 사용자 정보 요청 실패"))
+                    }
+            }
+            .bodyToMono<KakaoOAuthUserResponse>()
+            .onErrorMap({ e -> e !is OAuthLoginException }) { e ->
+                log.error { "${getOAuthProvider()} 사용자 정보 응답 실패: ${e.message}" }
+                OAuthLoginException("${getOAuthProvider()} 사용자 정보 응답 실패")
+            }
+            .blockOptional()                       // Optional<T>
+            .orElseThrow {
+                OAuthLoginException("${getOAuthProvider()} 사용자 정보 응답이 없습니다")
+            }
+            .toOAuthUserInfo()
+    }
+
+    override fun getOAuthProvider() = Member.OAuthProvider.KAKAO
+
+    data class KakaoOAuthTokenResponse(
+        @JsonProperty("access_token")
+        val accessToken: String,
+
+        @JsonProperty("token_type")
+        val tokenType: String,
+
+        @JsonProperty("refresh_token")
+        val refreshToken: String,
+
+        @JsonProperty("expires_in")
+        val expiresIn: Int,
+
+        @JsonProperty("refresh_token_expires_in")
+        val refreshTokenExpiresIn: Int
+    )
+
+    data class KakaoOAuthUserResponse(
+        val id: String,
+        val properties: KakaoProperties
+    ): OAuthUserResponse {
+
+        data class KakaoProperties(
+            val nickname: String,
+            @JsonProperty("thumbnail_image")
+            val thumbnailImage: String?
+        )
+
+        override fun toOAuthUserInfo() = OAuthUserInfo(
+            id = id,
+            nickname = properties.nickname,
+            profileImageUrl = properties.thumbnailImage,
+            oAuthProvider = Member.OAuthProvider.KAKAO
         )
     }
 }

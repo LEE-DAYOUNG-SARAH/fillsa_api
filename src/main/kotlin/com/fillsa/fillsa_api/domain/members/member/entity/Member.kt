@@ -58,22 +58,6 @@ class Member(
 
     override fun isEnabled(): Boolean = true
 
-    companion object {
-        @JvmStatic
-        fun createOAuthMember(
-            oauthId: String,
-            oauthProvider: OAuthProvider,
-            nickname: String,
-            profileImageUrl: String? = null
-        ): Member {
-            return Member(
-                oauthId = oauthId,
-                oauthProvider = oauthProvider,
-                nickname = nickname,
-                profileImageUrl = profileImageUrl
-            )
-        }
-    }
     enum class OAuthProvider {
         KAKAO, GOOGLE
     }

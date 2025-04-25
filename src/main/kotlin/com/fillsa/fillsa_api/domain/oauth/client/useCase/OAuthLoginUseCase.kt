@@ -12,6 +12,11 @@ interface OAuthLoginUseCase {
      *  사용자 정보 조회
      */
     fun getUserInfo(accessToken: String): OAuthUserInfo
+
+    /**
+     *  OAuth 공급자 반환
+     */
+    fun getOAuthProvider(): Member.OAuthProvider
 }
 
 data class OAuthUserInfo(
@@ -20,3 +25,7 @@ data class OAuthUserInfo(
     val profileImageUrl: String?,
     val oAuthProvider: Member.OAuthProvider
 )
+
+interface OAuthUserResponse {
+    fun toOAuthUserInfo(): OAuthUserInfo
+}
