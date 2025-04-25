@@ -31,6 +31,7 @@ val kotlinVersion = "1.8.22"
 val jacksonVersion = "2.14.2"
 val springDocVersion = "2.0.4"
 val kotlinLoggingVersion = "3.0.5"
+val kotestVersion = "5.5.4"
 
 dependencies {
     // spring
@@ -67,6 +68,14 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+//    // Kotest
+//    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+//    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+
+    // MockK
+    testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.9.2")
 }
 
 kotlin {

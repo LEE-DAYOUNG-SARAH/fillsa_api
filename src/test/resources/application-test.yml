@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: fillsa_api
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+
+  jackson:
+    time-zone: Asia/Seoul
+
+  servlet:
+    multipart:
+      max-file-size: 2MB
+
+jwt:
+  secret: Zm9vYmFyYmF6cXV4eW1wYWdkc2FtcGxla2V5Zm9vYmFyYmE=
+  access-token-validity: 900000   # 15분
+  refresh-token-validity: 604800000   # 7일
+
+oauth:
+  kakao:
+    client-id:
+    client-secret:
+    redirect-uri:
+    token-uri: https://kauth.kakao.com/oauth/token
+    user-info-uri: https://kapi.kakao.com/v2/user/me
+  google:
+    client-id:
+    client-secret:
+    redirect-uri:
+    token-uri: https://oauth2.googleapis.com/token
+    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
