@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <!-- 로그 파일 위치 -->
+        <Property name="LOG_PATH">logs</Property>
+        <Property name="LOG_FILE">${LOG_PATH}/fillsa_api.log</Property>
+        <!-- 롤링 사이즈 10MB, 보관 30일 -->
+        <Property name="FILE_PATTERN">${LOG_PATH}/fillsa_api-%d{yyyy-MM-dd}-%i.log.gz</Property>
+        <Property name="MAX_FILE_SIZE">10MB</Property>
+        <Property name="MAX_HISTORY">30</Property>
+        <Property name="logPattern">
+            %d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=Cyan bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <!-- 콘솔 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${logPattern}"/>
+        </Console>
+
+        <!-- 롤링 파일 -->
+        <RollingFile name="File" fileName="${LOG_FILE}" filePattern="${FILE_PATTERN}">
+            <PatternLayout pattern="${logPattern}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_HISTORY}"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- 패키지별 레벨 지정 -->
+        <Logger name="com.fillsa.fillsa_api" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+        <Logger name="org.springframework.web" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+        <Logger name="org.hibernate" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+
+        <!-- 루트 로거 -->
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
+    </Loggers>
+</Configuration>
