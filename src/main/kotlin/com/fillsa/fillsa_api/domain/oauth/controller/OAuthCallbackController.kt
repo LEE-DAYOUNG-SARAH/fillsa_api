@@ -1,6 +1,6 @@
 package com.fillsa.fillsa_api.domain.oauth.controller
 
-import com.fillsa.fillsa_api.domain.oauth.service.OAuthCallbackServiceFactory
+import com.fillsa.fillsa_api.domain.oauth.service.OAuthServiceFactory
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/oauth")
 class OAuthCallbackController(
-    private val oAuthCallbackServiceFactory: OAuthCallbackServiceFactory
+    private val oAuthServiceFactory: OAuthServiceFactory
 ) {
     // TODO. redirect 딥링크 앱이랑 상의
     // TODO. redis 붙여서 tempToken 보내기
@@ -22,7 +22,7 @@ class OAuthCallbackController(
         response: HttpServletResponse
     ) {
         try {
-            val loginResponse = oAuthCallbackServiceFactory.getService(Member.OAuthProvider.KAKAO)
+            val loginResponse = oAuthServiceFactory.getCallbackService(Member.OAuthProvider.KAKAO)
                 .processOAuthCallback(code)
             response.sendRedirect("fillsa://oauth/callback?temp_token=${loginResponse.accessToken}")
         } catch (e: Exception) {
@@ -36,7 +36,7 @@ class OAuthCallbackController(
         response: HttpServletResponse
     ) {
         try {
-            val loginResponse = oAuthCallbackServiceFactory.getService(Member.OAuthProvider.GOOGLE)
+            val loginResponse = oAuthServiceFactory.getCallbackService(Member.OAuthProvider.GOOGLE)
                 .processOAuthCallback(code)
             response.sendRedirect("fillsa://oauth/callback?temp_token=${loginResponse.accessToken}")
         } catch (e: Exception) {

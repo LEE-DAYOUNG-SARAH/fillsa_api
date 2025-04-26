@@ -42,6 +42,12 @@ class Member(
     @Column(nullable = true)
     var withdrawalAt: LocalDateTime? = null
 ): BaseEntity(), UserDetails {
+
+    fun withdrawal() {
+        this.withdrawalYn = "Y"
+        this.withdrawalAt = LocalDateTime.now()
+    }
+
     override fun getAuthorities(): Collection<GrantedAuthority> {
         return listOf(SimpleGrantedAuthority("ROLE_USER"))
     }

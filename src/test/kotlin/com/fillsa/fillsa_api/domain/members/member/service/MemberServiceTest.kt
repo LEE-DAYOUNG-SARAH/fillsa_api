@@ -2,7 +2,7 @@ package com.fillsa.fillsa_api.domain.members.member.service
 
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.member.repository.MemberRepository
-import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthUserInfo
+import com.fillsa.fillsa_api.domain.oauth.client.login.useCase.OAuthUserInfo
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

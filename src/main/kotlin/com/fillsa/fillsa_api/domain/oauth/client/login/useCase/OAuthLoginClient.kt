@@ -1,9 +1,9 @@
-package com.fillsa.fillsa_api.domain.oauth.client.useCase
+package com.fillsa.fillsa_api.domain.oauth.client.login.useCase
 
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import java.time.LocalDateTime
 
-interface OAuthLoginUseCase {
+interface OAuthLoginClient {
     /**
      *  access token 발급
      */

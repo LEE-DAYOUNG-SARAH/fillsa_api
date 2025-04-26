@@ -1,10 +1,10 @@
-package com.fillsa.fillsa_api.domain.oauth.service
+package com.fillsa.fillsa_api.domain.oauth.service.token
 
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
-import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthTokenInfo
+import com.fillsa.fillsa_api.domain.oauth.client.login.useCase.OAuthTokenInfo
 import com.fillsa.fillsa_api.domain.oauth.entity.OAuthToken
 import com.fillsa.fillsa_api.domain.oauth.respository.OAuthTokenRepository
-import com.fillsa.fillsa_api.domain.oauth.service.useCase.OAuthTokenUseCase
+import com.fillsa.fillsa_api.domain.oauth.service.token.useCase.OAuthTokenUseCase
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

@@ -1,4 +1,4 @@
-package com.fillsa.fillsa_api.domain.oauth.client
+package com.fillsa.fillsa_api.domain.oauth.client.login
 
 import com.fillsa.fillsa_api.common.exception.OAuthLoginException
 import okhttp3.mockwebserver.MockResponse
@@ -12,9 +12,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.client.WebClient
 
-class KakaoOAuthLoginClientTest {
+class KakaoOAuthLoginWebClientTest {
     lateinit var mockWebServer: MockWebServer
-    lateinit var sut: KakaoOAuthLoginClient
+    lateinit var sut: KakaoOAuthLoginWebClient
 
     @BeforeEach
     fun setup() {
@@ -25,7 +25,7 @@ class KakaoOAuthLoginClientTest {
             .baseUrl(baseUrl)
             .build()
 
-        sut = KakaoOAuthLoginClient(
+        sut = KakaoOAuthLoginWebClient(
             webClient     = webClient,
             clientId      = "",
             clientSecret  = "",

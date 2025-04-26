@@ -1,10 +1,11 @@
-package com.fillsa.fillsa_api.domain.oauth.client
+package com.fillsa.fillsa_api.domain.oauth.client.login
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fillsa.fillsa_api.common.exception.OAuthLoginException
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
-import com.fillsa.fillsa_api.domain.oauth.client.useCase.*
+import com.fillsa.fillsa_api.domain.oauth.client.login.useCase.*
 import mu.KotlinLogging
+import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -16,19 +17,19 @@ import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
 @Component
-class GoogleOAuthLoginClient(
+class KakaoOAuthLoginWebClient(
     val webClient: WebClient,
-    @Value("\${oauth.google.client-id}")
+    @Value("\${oauth.kakao.client-id}")
     val clientId: String,
-    @Value("\${oauth.google.client-secret}")
+    @Value("\${oauth.kakao.client-secret}")
     val clientSecret: String,
-    @Value("\${oauth.google.redirect-uri}")
+    @Value("\${oauth.kakao.redirect-uri}")
     val redirectUri: String,
-    @Value("\${oauth.google.token-uri}")
+    @Value("\${oauth.kakao.token-uri}")
     val tokenUri: String,
-    @Value("\${oauth.google.user-info-uri}")
+    @Value("\${oauth.kakao.user-info-uri}")
     val userInfoUri: String,
-): OAuthLoginUseCase {
+): OAuthLoginClient {
     val log = KotlinLogging.logger {  }
 
     override fun getAccessToken(code: String): OAuthTokenInfo {
@@ -46,15 +47,16 @@ class GoogleOAuthLoginClient(
             .retrieve()
             .onStatus({ it.isError }) { resp ->
                 resp.bodyToMono<String>()
+                    .defaultIfEmpty(StringUtils.EMPTY)
                     .flatMap {
                         log.error { "${getOAuthProvider()} 토큰 요청 실패: ${resp.statusCode()} - $it" }
                         Mono.error(OAuthLoginException("${getOAuthProvider()} 토큰 요청 실패"))
                     }
             }
-            .bodyToMono<GoogleOAuthTokenResponse>()
+            .bodyToMono<KakaoOAuthTokenResponse>()
             .onErrorMap({ e -> e !is OAuthLoginException }) { e ->
-                log.error { "${getOAuthProvider()} 토큰 응답 처리 실패: ${e.message}" }
-                OAuthLoginException("${getOAuthProvider()} 토큰 응답 처리 실패")
+                log.error { "${getOAuthProvider()} 토큰 응답 실패: ${e.message}" }
+                OAuthLoginException("${getOAuthProvider()} 토큰 응답 실패")
             }
             .blockOptional()                       // Optional<T>
             .orElseThrow {
@@ -80,10 +82,10 @@ class GoogleOAuthLoginClient(
                         Mono.error(OAuthLoginException("${getOAuthProvider()} 사용자 정보 요청 실패"))
                     }
             }
-            .bodyToMono<GoogleOAuthUserResponse>()
+            .bodyToMono<KakaoOAuthUserResponse>()
             .onErrorMap({ e -> e !is OAuthLoginException }) { e ->
-                log.error { "${getOAuthProvider()} 사용자 정보 응답 처리 실패: ${e.message}" }
-                OAuthLoginException("${getOAuthProvider()} 사용자 정보 응답 처리 실패")
+                log.error { "${getOAuthProvider()} 사용자 정보 응답 실패: ${e.message}" }
+                OAuthLoginException("${getOAuthProvider()} 사용자 정보 응답 실패")
             }
             .blockOptional()                       // Optional<T>
             .orElseThrow {
@@ -92,9 +94,9 @@ class GoogleOAuthLoginClient(
             .toOAuthUserInfo()
     }
 
-    override fun getOAuthProvider() = Member.OAuthProvider.GOOGLE
+    override fun getOAuthProvider() = Member.OAuthProvider.KAKAO
 
-    data class GoogleOAuthTokenResponse(
+    data class KakaoOAuthTokenResponse(
         @JsonProperty("access_token")
         val accessToken: String,
 
@@ -102,7 +104,10 @@ class GoogleOAuthLoginClient(
         val expiresIn: Long,
 
         @JsonProperty("refresh_token")
-        val refreshToken: String
+        val refreshToken: String,
+
+        @JsonProperty("refresh_token_expires_in")
+        val refreshTokenExpiresIn: Long
     ): OAuthTokenResponse {
         override fun toOAuthTokenInfo(): OAuthTokenInfo {
             val now = LocalDateTime.now()
@@ -111,21 +116,27 @@ class GoogleOAuthLoginClient(
                 accessToken = accessToken,
                 accessTokenExpiresAt = now.plusSeconds(expiresIn),
                 refreshToken = refreshToken,
-                refreshTokenExpiresAt = now.plusMonths(6)
+                refreshTokenExpiresAt = now.plusSeconds(refreshTokenExpiresIn)
             )
         }
     }
 
-    data class GoogleOAuthUserResponse(
+    data class KakaoOAuthUserResponse(
         val id: String,
-        val name: String,
-        val picture: String
+        val properties: KakaoProperties
     ): OAuthUserResponse {
+
+        data class KakaoProperties(
+            val nickname: String,
+            @JsonProperty("thumbnail_image")
+            val thumbnailImage: String?
+        )
+
         override fun toOAuthUserInfo() = OAuthUserInfo(
             id = id,
-            nickname = name,
-            profileImageUrl = picture,
-            oAuthProvider = Member.OAuthProvider.GOOGLE
+            nickname = properties.nickname,
+            profileImageUrl = properties.thumbnailImage,
+            oAuthProvider = Member.OAuthProvider.KAKAO
         )
     }
 }

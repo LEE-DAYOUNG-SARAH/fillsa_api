@@ -16,3 +16,6 @@ class InvalidRequestException(message: String):
 
 class OAuthLoginException(message: String) :
     BusinessException(HttpStatus.UNAUTHORIZED, message)
+
+class OAuthWithdrawalException(message: String) :
+    BusinessException(HttpStatus.UNAUTHORIZED, message)
