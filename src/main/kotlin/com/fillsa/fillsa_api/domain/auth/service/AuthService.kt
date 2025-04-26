@@ -1,6 +1,7 @@
 package com.fillsa.fillsa_api.domain.auth.service
 
 import com.fillsa.fillsa_api.common.exception.InvalidRequestException
+import com.fillsa.fillsa_api.domain.auth.dto.TokenRefreshRequest
 import com.fillsa.fillsa_api.domain.auth.security.JwtTokenProvider
 import com.fillsa.fillsa_api.domain.auth.security.TokenInfo
 import com.fillsa.fillsa_api.domain.auth.service.useCase.AuthUseCase
@@ -15,18 +16,15 @@ class AuthService(
     private val oauthServiceFactory: OAuthServiceFactory,
     private val memberUseCase: MemberUseCase
 ): AuthUseCase {
-    // 토큰 갱신
-    override fun refreshToken(refreshToken: String): TokenInfo {
-        // 1. 리프레시 토큰 검증
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
+
+    override fun refreshToken(request: TokenRefreshRequest): TokenInfo {
+        if (!jwtTokenProvider.validateToken(request.refreshToken)) {
             throw InvalidRequestException("유효하지 않은 리프레시 토큰입니다.")
         }
 
-        // 2. 토큰에서 사용자 ID 추출
-        val memberId = jwtTokenProvider.getMemberSeqFromToken(refreshToken)
+        val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
 
-        // 3. 새로운 토큰 발급
-        return jwtTokenProvider.createTokens(memberId)
+        return jwtTokenProvider.createTokens(memberSeq)
     }
 
     override fun withdrawal(member: Member) {

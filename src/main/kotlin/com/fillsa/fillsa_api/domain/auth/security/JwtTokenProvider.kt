@@ -50,8 +50,7 @@ class JwtTokenProvider(
 
         return TokenInfo(
             accessToken = accessToken,
-            refreshToken = refreshToken,
-            expiresIn = accessTokenExpiresIn / 1000 // 밀리초를 초로 변환
+            refreshToken = refreshToken
         )
     }
 
