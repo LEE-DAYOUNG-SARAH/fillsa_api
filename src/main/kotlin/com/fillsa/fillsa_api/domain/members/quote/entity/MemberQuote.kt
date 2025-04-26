@@ -13,11 +13,11 @@ class MemberQuote(
     val memberQuoteSeq: Long = 0L,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_SEQ")
+    @JoinColumn(name = "MEMBER_SEQ", nullable = false)
     val member: Member,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DAILY_QUOTE_SEQ")
+    @JoinColumn(name = "DAILY_QUOTE_SEQ", nullable = false)
     val dailyQuote: DailyQuote,
 
     @Column(nullable = true)

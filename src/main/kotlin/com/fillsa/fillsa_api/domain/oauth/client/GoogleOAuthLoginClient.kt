@@ -3,9 +3,7 @@ package com.fillsa.fillsa_api.domain.oauth.client
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fillsa.fillsa_api.common.exception.OAuthLoginException
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
-import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthLoginUseCase
-import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthUserInfo
-import com.fillsa.fillsa_api.domain.oauth.client.useCase.OAuthUserResponse
+import com.fillsa.fillsa_api.domain.oauth.client.useCase.*
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -15,6 +13,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import java.time.LocalDateTime
 
 @Component
 class GoogleOAuthLoginClient(
@@ -32,7 +31,7 @@ class GoogleOAuthLoginClient(
 ): OAuthLoginUseCase {
     val log = KotlinLogging.logger {  }
 
-    override fun getAccessToken(code: String): String {
+    override fun getAccessToken(code: String): OAuthTokenInfo {
         val request = BodyInserters.fromFormData("grant_type", "authorization_code")
             .with("client_id", clientId)
             .with("client_secret", clientSecret)
@@ -61,7 +60,7 @@ class GoogleOAuthLoginClient(
             .orElseThrow {
                 OAuthLoginException("${getOAuthProvider()} 토큰 응답이 없습니다")
             }
-            .accessToken
+            .toOAuthTokenInfo()
     }
 
     override fun getUserInfo(accessToken: String): OAuthUserInfo {
@@ -99,15 +98,23 @@ class GoogleOAuthLoginClient(
         @JsonProperty("access_token")
         val accessToken: String,
 
-        @JsonProperty("token_type")
-        val tokenType: String,
-
         @JsonProperty("expires_in")
-        val expiresIn: Int,
+        val expiresIn: Long,
 
-        @JsonProperty("scope")
-        val scope: String,
-    )
+        @JsonProperty("refresh_token")
+        val refreshToken: String
+    ): OAuthTokenResponse {
+        override fun toOAuthTokenInfo(): OAuthTokenInfo {
+            val now = LocalDateTime.now()
+
+            return OAuthTokenInfo(
+                accessToken = accessToken,
+                accessTokenExpiresAt = now.plusSeconds(expiresIn),
+                refreshToken = refreshToken,
+                refreshTokenExpiresAt = now.plusMonths(6)
+            )
+        }
+    }
 
     data class GoogleOAuthUserResponse(
         val id: String,
