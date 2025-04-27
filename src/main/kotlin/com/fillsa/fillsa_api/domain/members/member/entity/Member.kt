@@ -48,6 +48,8 @@ class Member(
         this.withdrawalAt = LocalDateTime.now()
     }
 
+    fun isWithdrawal() = this.withdrawalYn == "Y"
+
     override fun getAuthorities(): Collection<GrantedAuthority> {
         return listOf(SimpleGrantedAuthority("ROLE_USER"))
     }

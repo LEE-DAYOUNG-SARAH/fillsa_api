@@ -27,8 +27,8 @@ spring:
 
 jwt:
   secret:
-  access-token-validity: 900000   # 15분
-  refresh-token-validity: 604800000   # 7일
+  access-token-validity: 10800000   # 3시간
+  refresh-token-validity: 7776000000   # 90일
 
 logging:
   level:

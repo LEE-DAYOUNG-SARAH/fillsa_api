@@ -13,4 +13,9 @@ interface MemberUseCase {
      *  탈퇴
      */
     fun withdrawal(member: Member)
+
+    /**
+     *  정상회원 반환
+     */
+    fun getActiveMemberBySeq(memberSeq: Long): Member
 }

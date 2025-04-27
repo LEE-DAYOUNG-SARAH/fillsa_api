@@ -22,14 +22,14 @@ class AuthService(
             throw InvalidRequestException("유효하지 않은 리프레시 토큰입니다.")
         }
 
-        val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
+        val member = memberUseCase.getActiveMemberBySeq(
+            memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
+        )
 
-        return jwtTokenProvider.createTokens(memberSeq)
+        return jwtTokenProvider.createTokens(member.memberSeq)
     }
 
     override fun withdrawal(member: Member) {
-        if(member.withdrawalYn == "Y") throw InvalidRequestException("이미 탈퇴한 회원")
-
         val withdrawalService = oauthServiceFactory.getWithdrawalService(member.oauthProvider)
         withdrawalService.withdrawal(member)
 

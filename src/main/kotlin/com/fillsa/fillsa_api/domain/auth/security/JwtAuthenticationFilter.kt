@@ -1,5 +1,7 @@
 package com.fillsa.fillsa_api.domain.auth.security
 
+import com.fillsa.fillsa_api.domain.members.member.entity.Member
+import com.fillsa.fillsa_api.domain.members.member.service.useCase.MemberUseCase
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -11,7 +13,8 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthenticationFilter(
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
+    private val memberUseCase: MemberUseCase
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -23,7 +26,9 @@ class JwtAuthenticationFilter(
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             val memberSeq = jwtTokenProvider.getMemberSeqFromToken(token)
-            val authentication = createAuthentication(memberSeq)
+            val member = memberUseCase.getActiveMemberBySeq(memberSeq)
+
+            val authentication = createAuthentication(member)
             SecurityContextHolder.getContext().authentication = authentication
         }
 
@@ -37,9 +42,9 @@ class JwtAuthenticationFilter(
         } else null
     }
 
-    private fun createAuthentication(memberSeq: Long): Authentication {
+    private fun createAuthentication(member: Member): Authentication {
         return UsernamePasswordAuthenticationToken(
-            memberSeq,
+            member,
             null,
             emptyList()
         )

@@ -13,10 +13,8 @@ import java.util.*
 class JwtTokenProvider(
     @Value("\${jwt.secret}")
     private val secretKey: String,
-
     @Value("\${jwt.access-token-validity}")
     private val accessTokenValidity: Long,
-
     @Value("\${jwt.refresh-token-validity}")
     private val refreshTokenValidity: Long
 ) {
