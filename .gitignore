@@ -38,3 +38,10 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### yml
+application-local.yml
+application-prod.yml
+
+### log
+.log

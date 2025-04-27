@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service
 @Service
 class GoogleOAuthCallbackService(
     memberService: MemberService,
-    jwtTokenProvider: JwtTokenProvider,
     googleOAuthClient: GoogleOAuthLoginWebClient,
-    oAuthTokenUseCase: OAuthTokenUseCase
-): OAuthCallbackService(memberService, jwtTokenProvider, googleOAuthClient, oAuthTokenUseCase) {
+): OAuthCallbackService(memberService, googleOAuthClient) {
 }

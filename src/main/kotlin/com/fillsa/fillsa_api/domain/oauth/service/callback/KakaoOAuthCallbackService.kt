@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service
 @Service
 class KakaoOAuthCallbackService(
     memberService: MemberService,
-    jwtTokenProvider: JwtTokenProvider,
-    kakaoOAuthClient: KakaoOAuthLoginWebClient,
-    oAuthTokenUseCase: OAuthTokenUseCase
-): OAuthCallbackService(memberService, jwtTokenProvider, kakaoOAuthClient, oAuthTokenUseCase) {
+    kakaoOAuthClient: KakaoOAuthLoginWebClient
+): OAuthCallbackService(memberService, kakaoOAuthClient) {
 }
