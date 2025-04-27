@@ -1,11 +1,11 @@
-package com.fillsa.fillsa_api.domain.auth.service
+package com.fillsa.fillsa_api.domain.auth.service.auth
 
 import com.fillsa.fillsa_api.common.exception.InvalidRequestException
 import com.fillsa.fillsa_api.domain.auth.dto.*
 import com.fillsa.fillsa_api.domain.auth.security.JwtTokenProvider
 import com.fillsa.fillsa_api.domain.auth.security.TokenInfo
-import com.fillsa.fillsa_api.domain.auth.service.useCase.AuthUseCase
-import com.fillsa.fillsa_api.domain.auth.service.useCase.RedisTokenUseCase
+import com.fillsa.fillsa_api.domain.auth.service.auth.useCase.AuthUseCase
+import com.fillsa.fillsa_api.domain.auth.service.redis.useCase.RedisTokenUseCase
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.member.service.useCase.MemberUseCase
 import com.fillsa.fillsa_api.domain.oauth.service.OAuthServiceFactory

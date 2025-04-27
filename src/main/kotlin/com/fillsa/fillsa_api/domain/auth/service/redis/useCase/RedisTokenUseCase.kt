@@ -1,4 +1,4 @@
-package com.fillsa.fillsa_api.domain.auth.service.useCase
+package com.fillsa.fillsa_api.domain.auth.service.redis.useCase
 
 interface RedisTokenUseCase {
     /**

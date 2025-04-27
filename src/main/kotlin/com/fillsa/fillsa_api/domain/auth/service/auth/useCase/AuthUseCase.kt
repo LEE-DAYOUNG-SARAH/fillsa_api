@@ -1,4 +1,4 @@
-package com.fillsa.fillsa_api.domain.auth.service.useCase
+package com.fillsa.fillsa_api.domain.auth.service.auth.useCase
 
 import com.fillsa.fillsa_api.domain.auth.dto.*
 import com.fillsa.fillsa_api.domain.auth.security.TokenInfo

@@ -1,6 +1,6 @@
 package com.fillsa.fillsa_api.domain.oauth.controller
 
-import com.fillsa.fillsa_api.domain.auth.service.useCase.RedisTokenUseCase
+import com.fillsa.fillsa_api.domain.auth.service.redis.useCase.RedisTokenUseCase
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.oauth.service.OAuthServiceFactory
 import io.swagger.v3.oas.annotations.Operation

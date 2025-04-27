@@ -2,7 +2,7 @@ package com.fillsa.fillsa_api.domain.auth.controller
 
 import com.fillsa.fillsa_api.domain.auth.dto.*
 import com.fillsa.fillsa_api.domain.auth.security.TokenInfo
-import com.fillsa.fillsa_api.domain.auth.service.useCase.AuthUseCase
+import com.fillsa.fillsa_api.domain.auth.service.auth.useCase.AuthUseCase
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

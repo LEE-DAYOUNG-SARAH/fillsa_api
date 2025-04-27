@@ -1,6 +1,6 @@
-package com.fillsa.fillsa_api.domain.auth.service
+package com.fillsa.fillsa_api.domain.auth.service.redis
 
-import com.fillsa.fillsa_api.domain.auth.service.useCase.RedisTokenUseCase
+import com.fillsa.fillsa_api.domain.auth.service.redis.useCase.RedisTokenUseCase
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
