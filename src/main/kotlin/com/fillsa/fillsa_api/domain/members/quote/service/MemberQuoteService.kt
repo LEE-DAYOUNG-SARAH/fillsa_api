@@ -25,7 +25,15 @@ class MemberQuoteService(): MemberQuoteUseCase {
     override fun uploadImage(member: Member, dailyQuoteSeq: Long, image: MultipartFile): Long {
         // TODO. 사용자 명언 조회
         // TODO. 사용자 명언 생성 or 수정
-        // TODO. S3 이미지 업로드 및 삭제
+        // TODO. S3 이미지 업로드 및 수정
+        // TODO. 사용자 명언 수정
+        // TODO. 사용자 명언 seq 반환
+        return 1L
+    }
+
+    override fun deleteImage(member: Member, dailyQuoteSeq: Long): Long {
+        // TODO. 사용자 명언 조회
+        // TODO. S3 이미지 삭제
         // TODO. 사용자 명언 수정
         // TODO. 사용자 명언 seq 반환
         return 1L

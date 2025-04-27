@@ -47,6 +47,15 @@ class MemberQuoteController(
         memberQuoteUseCase.uploadImage(member, dailyQuoteSeq, image)
     )
 
+    @DeleteMapping("/{dailyQuoteSeq}/images")
+    @Operation(summary = "명언 이미지 삭제 api")
+    fun deleteImage(
+//        @AuthenticationPrincipal member: Member,
+        @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long
+    ): ResponseEntity<Long> = ResponseEntity.ok(
+        memberQuoteUseCase.deleteImage(member, dailyQuoteSeq)
+    )
+
     @GetMapping
     @Operation(summary = "사용자 명언 목록 조회 api")
     fun getMemberQuotes(

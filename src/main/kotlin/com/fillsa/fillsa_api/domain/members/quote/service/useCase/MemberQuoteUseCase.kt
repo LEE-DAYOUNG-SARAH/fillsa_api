@@ -21,6 +21,11 @@ interface MemberQuoteUseCase {
     fun uploadImage(member: Member, dailyQuoteSeq: Long, image: MultipartFile): Long
 
     /**
+     *  이미지 삭제
+     */
+    fun deleteImage(member: Member, dailyQuoteSeq: Long): Long
+
+    /**
      *  사용자 명언 목록 조회
      */
     fun getMemberQuotes(member: Member, pageable: Pageable, request: MemberQuoteListRequest):
