@@ -7,7 +7,7 @@ interface OAuthCallbackUseCase {
     /**
      *  oauth 인증 응답
      */
-    fun processOAuthCallback(code: String): LoginResponse
+    fun processOAuthCallback(code: String): Long
 
     /**
      * oauth provider 조회

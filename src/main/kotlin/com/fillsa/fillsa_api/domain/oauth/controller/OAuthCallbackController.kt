@@ -1,49 +1,38 @@
 package com.fillsa.fillsa_api.domain.oauth.controller
 
-import com.fillsa.fillsa_api.domain.oauth.service.OAuthServiceFactory
+import com.fillsa.fillsa_api.domain.auth.service.useCase.RedisTokenUseCase
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
+import com.fillsa.fillsa_api.domain.oauth.service.OAuthServiceFactory
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/oauth")
 @Tag(name = "로그인", description = "로그인 콜백 api")
 class OAuthCallbackController(
-    private val oAuthServiceFactory: OAuthServiceFactory
+    private val oAuthServiceFactory: OAuthServiceFactory,
+    private val redisTokenUseCase: RedisTokenUseCase
 ) {
-    // TODO. redirect 딥링크 앱이랑 상의
-    // TODO. redis 붙여서 tempToken 보내기
 
-    @GetMapping("/kakao/callback")
-    @Operation(summary = "카카오 로그인 콜백 api")
-    fun kakaoCallback(
+    @GetMapping("/{provider}/callback")
+    @Operation(summary = "간편 로그인 콜백 api")
+    fun oauthCallback(
+        @Parameter(description = "OAuth Provider(google/kakao)")
+        @PathVariable provider: String,
         @RequestParam code: String,
         response: HttpServletResponse
     ) {
         try {
-            val loginResponse = oAuthServiceFactory.getCallbackService(Member.OAuthProvider.KAKAO)
-                .processOAuthCallback(code)
-            response.sendRedirect("fillsa://oauth/callback?temp_token=${loginResponse.accessToken}")
-        } catch (e: Exception) {
-            response.sendRedirect("fillsa://oauth/error?message=${e.message}")
-        }
-    }
+            val callbackService = oAuthServiceFactory.getCallbackService(Member.OAuthProvider.fromPath(provider))
+            val memberSeq = callbackService.processOAuthCallback(code)
 
-    @GetMapping("/google/callback")
-    @Operation(summary = "구글 로그인 콜백 api")
-    fun googleCallback(
-        @RequestParam code: String,
-        response: HttpServletResponse
-    ) {
-        try {
-            val loginResponse = oAuthServiceFactory.getCallbackService(Member.OAuthProvider.GOOGLE)
-                .processOAuthCallback(code)
-            response.sendRedirect("fillsa://oauth/callback?temp_token=${loginResponse.accessToken}")
+            val tempToken = UUID.randomUUID().toString()
+            redisTokenUseCase.createTempToken(tempToken, memberSeq, 5 * 60 * 1000)
+            response.sendRedirect("fillsa://oauth/callback?temp_token=$tempToken")
         } catch (e: Exception) {
             response.sendRedirect("fillsa://oauth/error?message=${e.message}")
         }

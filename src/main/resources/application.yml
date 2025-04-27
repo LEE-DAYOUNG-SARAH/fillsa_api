@@ -25,6 +25,11 @@ spring:
     multipart:
       max-file-size: 2MB
 
+  data:
+    redis:
+      host: localhost
+      port: 80800
+
 jwt:
   secret:
   access-token-validity: 10800000   # 3시간

@@ -12,11 +12,11 @@ import java.util.*
 @Component
 class JwtTokenProvider(
     @Value("\${jwt.secret}")
-    private val secretKey: String,
+    val secretKey: String,
     @Value("\${jwt.access-token-validity}")
-    private val accessTokenValidity: Long,
+    val accessTokenValidity: Long,
     @Value("\${jwt.refresh-token-validity}")
-    private val refreshTokenValidity: Long
+    val refreshTokenValidity: Long
 ) {
     lateinit var key: Key
 

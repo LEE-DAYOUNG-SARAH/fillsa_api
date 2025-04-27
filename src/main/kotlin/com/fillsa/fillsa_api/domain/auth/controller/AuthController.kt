@@ -1,6 +1,6 @@
 package com.fillsa.fillsa_api.domain.auth.controller
 
-import com.fillsa.fillsa_api.domain.auth.dto.TokenRefreshRequest
+import com.fillsa.fillsa_api.domain.auth.dto.*
 import com.fillsa.fillsa_api.domain.auth.security.TokenInfo
 import com.fillsa.fillsa_api.domain.auth.service.useCase.AuthUseCase
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
@@ -31,8 +31,26 @@ class AuthController(
     @PostMapping("/withdrawal")
     @Operation(summary = "탈퇴 api")
     fun logout(
-        @AuthenticationPrincipal member: Member
+        @AuthenticationPrincipal member: Member,
+        @RequestBody request: WithdrawalRequest
     ) {
-        authUseCase.withdrawal(member)
+        authUseCase.withdrawal(member, request)
     }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃 api")
+    fun logout(
+        @AuthenticationPrincipal member: Member,
+        @RequestBody request: LogoutRequest
+    ) {
+        authUseCase.logout(member, request)
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "로그인 api")
+    fun login(
+        @RequestBody request: TempTokenRequest
+    ): ResponseEntity<LoginResponse> = ResponseEntity.ok(
+        authUseCase.login(request)
+    )
 }

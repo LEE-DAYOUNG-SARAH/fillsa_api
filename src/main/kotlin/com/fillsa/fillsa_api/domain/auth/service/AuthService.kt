@@ -1,10 +1,11 @@
 package com.fillsa.fillsa_api.domain.auth.service
 
 import com.fillsa.fillsa_api.common.exception.InvalidRequestException
-import com.fillsa.fillsa_api.domain.auth.dto.TokenRefreshRequest
+import com.fillsa.fillsa_api.domain.auth.dto.*
 import com.fillsa.fillsa_api.domain.auth.security.JwtTokenProvider
 import com.fillsa.fillsa_api.domain.auth.security.TokenInfo
 import com.fillsa.fillsa_api.domain.auth.service.useCase.AuthUseCase
+import com.fillsa.fillsa_api.domain.auth.service.useCase.RedisTokenUseCase
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.member.service.useCase.MemberUseCase
 import com.fillsa.fillsa_api.domain.oauth.service.OAuthServiceFactory
@@ -14,25 +15,67 @@ import org.springframework.stereotype.Service
 class AuthService(
     private val jwtTokenProvider: JwtTokenProvider,
     private val oauthServiceFactory: OAuthServiceFactory,
-    private val memberUseCase: MemberUseCase
+    private val memberUseCase: MemberUseCase,
+    private val redisTokenUseCase: RedisTokenUseCase
 ): AuthUseCase {
 
     override fun refreshToken(request: TokenRefreshRequest): TokenInfo {
-        if (!jwtTokenProvider.validateToken(request.refreshToken)) {
-            throw InvalidRequestException("유효하지 않은 리프레시 토큰입니다.")
-        }
+        val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
 
-        val member = memberUseCase.getActiveMemberBySeq(
-            memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
-        )
+        validateRefreshToken(memberSeq, request)
 
-        return jwtTokenProvider.createTokens(member.memberSeq)
+        val member = memberUseCase.getActiveMemberBySeq(memberSeq)
+        return createToken(member.memberSeq, request.deviceId)
     }
 
-    override fun withdrawal(member: Member) {
+    private fun validateRefreshToken(memberSeq: Long, request: TokenRefreshRequest) {
+        if (!jwtTokenProvider.validateToken(request.refreshToken)) {
+            throw InvalidRequestException("유효하지 않은 리프레시 토큰")
+        }
+
+        if (!redisTokenUseCase.validateRefreshToken(memberSeq, request.deviceId, request.refreshToken)) {
+            throw InvalidRequestException("유효하지 않은 리프레시 토큰")
+        }
+    }
+
+    private fun createToken(memberSeq: Long, deviceId: String): TokenInfo {
+        val token = jwtTokenProvider.createTokens(memberSeq)
+        redisTokenUseCase.createRefreshToken(
+            memberId = memberSeq,
+            deviceId = deviceId,
+            refreshToken = token.refreshToken,
+            ttlMillis = jwtTokenProvider.refreshTokenValidity
+        )
+
+        return token
+    }
+
+    override fun withdrawal(member: Member, request: WithdrawalRequest) {
         val withdrawalService = oauthServiceFactory.getWithdrawalService(member.oauthProvider)
         withdrawalService.withdrawal(member)
 
         memberUseCase.withdrawal(member)
+
+        redisTokenUseCase.deleteRefreshToken(member.memberSeq, request.deviceId)
+    }
+
+    override fun logout(member: Member, request: LogoutRequest) {
+        redisTokenUseCase.deleteRefreshToken(member.memberSeq, request.deviceId)
+    }
+
+    override fun login(request: TempTokenRequest): LoginResponse {
+        val memberSeq = redisTokenUseCase.getAndDeleteTempToken(request.tempToken)?.toLong()
+            ?: throw InvalidRequestException("만료되었거나 잘못된 임시 토큰입니다.")
+
+        val member = memberUseCase.getActiveMemberBySeq(memberSeq)
+        val token = createToken(memberSeq, request.deviceId)
+
+        return LoginResponse(
+            accessToken = token.accessToken,
+            refreshToken = token.refreshToken,
+            memberSeq = member.memberSeq,
+            nickname = member.nickname.orEmpty(),
+            profileImageUrl = member.profileImageUrl
+        )
     }
 }

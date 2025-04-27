@@ -67,6 +67,12 @@ class Member(
     override fun isEnabled(): Boolean = true
 
     enum class OAuthProvider {
-        KAKAO, GOOGLE
+        KAKAO, GOOGLE;
+
+        companion object {
+            fun fromPath(path: String): OAuthProvider =
+                entries.find { it.name.equals(path, ignoreCase = true) }
+                    ?: throw IllegalArgumentException("지원하지 않는 OAuth Provider: $path")
+        }
     }
 }
