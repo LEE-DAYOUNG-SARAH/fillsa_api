@@ -3,6 +3,8 @@ package com.fillsa.fillsa_api.domain.quote.service
 import com.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
 import com.fillsa.fillsa_api.domain.quote.dto.MonthlyQuoteResponse
 import com.fillsa.fillsa_api.domain.quote.service.useCase.QuoteUseCase
+import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.YearMonth
@@ -54,5 +56,9 @@ class QuoteService(): QuoteUseCase {
                 likeCount = 3
             )
         )
+    }
+
+    override fun images(quoteSeq: Long): Resource {
+        return ClassPathResource("test_img.JPG")
     }
 }
