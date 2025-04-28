@@ -24,7 +24,7 @@ class GoogleOAuthWithdrawalService(
 
         val accessToken = googleOAuthWithdrawalClient.getAccessToken(refreshToken)
 
-        googleOAuthWithdrawalClient.withdrawal(accessToken)
+        googleOAuthWithdrawalClient.withdraw(accessToken)
     }
 
     override fun getOAuthProvider(): Member.OAuthProvider {

@@ -13,7 +13,7 @@ interface AuthUseCase {
     /**
      *  탈퇴
      */
-    fun withdrawal(member: Member, request: WithdrawalRequest)
+    fun withdraw(member: Member, request: WithdrawalRequest)
 
     /**
      *  로그아웃

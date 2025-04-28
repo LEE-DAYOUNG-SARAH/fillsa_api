@@ -23,7 +23,7 @@ class KakaoOauthWithdrawalWebClient(
 ): KakaoOAuthWithdrawalClient {
     val log = KotlinLogging.logger {  }
 
-    override fun withdrawal(oauthId: String) {
+    override fun withdraw(oauthId: String) {
         val headers = HttpHeaders().apply {
             setBearerAuth("KakaoAK $adminKey")
         }

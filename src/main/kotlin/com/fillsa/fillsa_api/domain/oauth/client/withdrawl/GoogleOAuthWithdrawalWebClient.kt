@@ -56,7 +56,7 @@ class GoogleOAuthWithdrawalWebClient(
             ?: throw OAuthLoginException("${getOAuthProvider()} access token 없음")
     }
 
-    override fun withdrawal(accessToken: String) {
+    override fun withdraw(accessToken: String) {
         val response = webClient.post()
             .uri(withdrawalUri)
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)

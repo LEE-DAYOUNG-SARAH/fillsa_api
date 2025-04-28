@@ -50,7 +50,7 @@ class AuthService(
         return token
     }
 
-    override fun withdrawal(member: Member, request: WithdrawalRequest) {
+    override fun withdraw(member: Member, request: WithdrawalRequest) {
         oAuthWithdrawalService.withdraw(member)
 
         memberUseCase.withdraw(member)

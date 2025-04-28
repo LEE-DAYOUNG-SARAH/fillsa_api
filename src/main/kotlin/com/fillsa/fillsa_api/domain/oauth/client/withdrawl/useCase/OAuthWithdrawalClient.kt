@@ -11,7 +11,7 @@ interface GoogleOAuthWithdrawalClient {
     /**
      *  탈퇴
      */
-    fun withdrawal(accessToken: String)
+    fun withdraw(accessToken: String)
 
     /**
      *  OAuth 공급자 반환
@@ -23,7 +23,7 @@ interface KakaoOAuthWithdrawalClient {
     /**
      *  탈퇴
      */
-    fun withdrawal(oauthId: String)
+    fun withdraw(oauthId: String)
 
     /**
      *  OAuth 공급자 반환

@@ -10,7 +10,7 @@ class KakaoOAuthWithdrawalService(
     private val kakaoOauthWithdrawalClient: KakaoOAuthWithdrawalClient
 ): OAuthWithdrawalUseCase {
     override fun withdraw(member: Member) {
-        kakaoOauthWithdrawalClient.withdrawal(member.oauthId)
+        kakaoOauthWithdrawalClient.withdraw(member.oauthId)
     }
 
     override fun getOAuthProvider(): Member.OAuthProvider {
