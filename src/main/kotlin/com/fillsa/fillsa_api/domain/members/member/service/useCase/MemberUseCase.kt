@@ -12,7 +12,7 @@ interface MemberUseCase {
     /**
      *  탈퇴
      */
-    fun withdrawal(member: Member)
+    fun withdraw(member: Member)
 
     /**
      *  정상회원 반환

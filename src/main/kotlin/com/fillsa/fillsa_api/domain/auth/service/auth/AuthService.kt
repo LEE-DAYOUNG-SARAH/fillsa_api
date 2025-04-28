@@ -53,7 +53,7 @@ class AuthService(
     override fun withdrawal(member: Member, request: WithdrawalRequest) {
         oAuthWithdrawalService.withdraw(member)
 
-        memberUseCase.withdrawal(member)
+        memberUseCase.withdraw(member)
 
         redisTokenUseCase.deleteRefreshToken(member.memberSeq, request.deviceId)
     }

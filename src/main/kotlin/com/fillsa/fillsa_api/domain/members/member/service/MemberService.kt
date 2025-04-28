@@ -33,7 +33,7 @@ class MemberService(
     }
 
     @Transactional
-    override fun withdrawal(member: Member) {
+    override fun withdraw(member: Member) {
         val findMember = memberRepository.getReferenceById(member.memberSeq)
         findMember.withdrawal()
     }
