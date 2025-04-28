@@ -8,13 +8,13 @@ import com.fillsa.fillsa_api.domain.auth.service.auth.useCase.AuthUseCase
 import com.fillsa.fillsa_api.domain.auth.service.redis.useCase.RedisTokenUseCase
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.member.service.useCase.MemberUseCase
-import com.fillsa.fillsa_api.domain.oauth.service.OAuthServiceFactory
+import com.fillsa.fillsa_api.domain.oauth.service.withdrawal.OAuthWithdrawalService
 import org.springframework.stereotype.Service
 
 @Service
 class AuthService(
     private val jwtTokenProvider: JwtTokenProvider,
-    private val oauthServiceFactory: OAuthServiceFactory,
+    private val oAuthWithdrawalService: OAuthWithdrawalService,
     private val memberUseCase: MemberUseCase,
     private val redisTokenUseCase: RedisTokenUseCase
 ): AuthUseCase {
@@ -51,8 +51,7 @@ class AuthService(
     }
 
     override fun withdrawal(member: Member, request: WithdrawalRequest) {
-        val withdrawalService = oauthServiceFactory.getWithdrawalService(member.oauthProvider)
-        withdrawalService.withdrawal(member)
+        oAuthWithdrawalService.withdraw(member)
 
         memberUseCase.withdrawal(member)
 

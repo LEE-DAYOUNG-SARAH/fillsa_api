@@ -14,7 +14,7 @@ class GoogleOAuthWithdrawalService(
     private val oAuthTokenRepository: OAuthTokenRepository
 ): OAuthWithdrawalUseCase {
 
-    override fun withdrawal(member: Member) {
+    override fun withdraw(member: Member) {
         val oauthToken = oAuthTokenRepository.findTopByMemberOrderByOauthTokenSeqDesc(member)
             ?: throw OAuthWithdrawalException("OAuth 정보 없음")
 

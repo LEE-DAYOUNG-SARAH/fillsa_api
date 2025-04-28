@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 class KakaoOAuthWithdrawalService(
     private val kakaoOauthWithdrawalClient: KakaoOAuthWithdrawalClient
 ): OAuthWithdrawalUseCase {
-    override fun withdrawal(member: Member) {
+    override fun withdraw(member: Member) {
         kakaoOauthWithdrawalClient.withdrawal(member.oauthId)
     }
 

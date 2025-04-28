@@ -2,7 +2,7 @@ package com.fillsa.fillsa_api.domain.oauth.controller
 
 import com.fillsa.fillsa_api.domain.auth.service.redis.useCase.RedisTokenUseCase
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
-import com.fillsa.fillsa_api.domain.oauth.service.OAuthServiceFactory
+import com.fillsa.fillsa_api.domain.oauth.service.callback.OAuthCallbackService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -14,7 +14,7 @@ import java.util.*
 @RequestMapping("/oauth")
 @Tag(name = "로그인", description = "로그인 콜백 api")
 class OAuthCallbackController(
-    private val oAuthServiceFactory: OAuthServiceFactory,
+    private val oAuthCallbackService: OAuthCallbackService,
     private val redisTokenUseCase: RedisTokenUseCase
 ) {
 
@@ -27,11 +27,14 @@ class OAuthCallbackController(
         response: HttpServletResponse
     ) {
         try {
-            val callbackService = oAuthServiceFactory.getCallbackService(Member.OAuthProvider.fromPath(provider))
-            val memberSeq = callbackService.processOAuthCallback(code)
+            val memberSeq = oAuthCallbackService.processOAuthCallback(
+                provider = Member.OAuthProvider.fromPath(provider),
+                code = code
+            )
 
             val tempToken = UUID.randomUUID().toString()
             redisTokenUseCase.createTempToken(tempToken, memberSeq, 5 * 60 * 1000)
+
             response.sendRedirect("fillsa://oauth/callback?temp_token=$tempToken")
         } catch (e: Exception) {
             response.sendRedirect("fillsa://oauth/error?message=${e.message}")

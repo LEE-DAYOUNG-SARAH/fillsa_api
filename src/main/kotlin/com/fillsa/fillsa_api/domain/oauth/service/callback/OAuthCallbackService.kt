@@ -1,31 +1,33 @@
 package com.fillsa.fillsa_api.domain.oauth.service.callback
 
+import com.fillsa.fillsa_api.common.exception.InvalidRequestException
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.member.service.useCase.MemberUseCase
 import com.fillsa.fillsa_api.domain.oauth.client.login.useCase.OAuthLoginClient
 import com.fillsa.fillsa_api.domain.oauth.service.callback.useCase.OAuthCallbackUseCase
 import mu.KotlinLogging
+import org.springframework.stereotype.Service
 
-abstract class OAuthCallbackService(
+@Service
+class OAuthCallbackService(
     private val memberUseCase: MemberUseCase,
-    private val oAuthLoginClient: OAuthLoginClient,
+    private val clients: List<OAuthLoginClient>
 ): OAuthCallbackUseCase {
     val log = KotlinLogging.logger {  }
 
-    override fun processOAuthCallback(code: String): Long {
-        log .info { "${getOAuthProvider()} code: [$code]" }
+    override fun processOAuthCallback(provider: Member.OAuthProvider, code: String): Long {
+        log .info { "$provider code: [$code]" }
 
-        val oauthTokenInfo = oAuthLoginClient.getAccessToken(code)
-        log.info { "${getOAuthProvider()} oauthTokenInfo: [$oauthTokenInfo]" }
+        val client = clients.firstOrNull { it.getOAuthProvider() == provider }
+            ?: throw InvalidRequestException("Unsupported provider: $provider")
 
-        val userInfo = oAuthLoginClient.getUserInfo(oauthTokenInfo.accessToken)
-        log.info { "${getOAuthProvider()} userInfo: [$userInfo]" }
+        val oauthTokenInfo = client.getAccessToken(code)
+        log.info { "$provider oauthTokenInfo: [$oauthTokenInfo]" }
+
+        val userInfo = client.getUserInfo(oauthTokenInfo.accessToken)
+        log.info { "$provider userInfo: [$userInfo]" }
 
         val member = memberUseCase.processOauthLogin(userInfo)
         return member.memberSeq
-    }
-
-    override fun getOAuthProvider(): Member.OAuthProvider {
-        return oAuthLoginClient.getOAuthProvider()
     }
 }

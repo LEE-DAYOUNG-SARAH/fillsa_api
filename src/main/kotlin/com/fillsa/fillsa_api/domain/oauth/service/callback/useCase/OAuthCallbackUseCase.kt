@@ -7,10 +7,5 @@ interface OAuthCallbackUseCase {
     /**
      *  oauth 인증 응답
      */
-    fun processOAuthCallback(code: String): Long
-
-    /**
-     * oauth provider 조회
-     */
-    fun getOAuthProvider(): Member.OAuthProvider
+    fun processOAuthCallback(provider: Member.OAuthProvider, code: String): Long
 }

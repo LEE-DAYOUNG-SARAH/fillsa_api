@@ -6,7 +6,7 @@ interface OAuthWithdrawalUseCase {
     /**
      *  탈퇴
      */
-    fun withdrawal(member: Member)
+    fun withdraw(member: Member)
 
     /**
      * oauth provider 조회
