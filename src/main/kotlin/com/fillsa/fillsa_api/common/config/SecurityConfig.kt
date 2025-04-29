@@ -28,7 +28,7 @@ class SecurityConfig(
                         "/v3/api-docs/**",
                         "/oauth/**",
                         "/auth/refresh",
-                        "/quote/**/images",
+                        "/quote/**",
                         "/**"   // 시큐리티 설정 전 모든 요청 허용,
                     )
                     .permitAll()

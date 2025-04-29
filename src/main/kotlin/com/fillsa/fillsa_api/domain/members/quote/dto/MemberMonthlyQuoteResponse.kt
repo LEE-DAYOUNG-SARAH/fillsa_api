@@ -1,17 +1,17 @@
-package com.fillsa.fillsa_api.domain.quote.dto
+package com.fillsa.fillsa_api.domain.members.quote.dto
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
-data class MonthlyQuoteResponse(
+data class MemberMonthlyQuoteResponse(
     @Schema(description = "사용자 명언 정보")
-    val memerQuotes: List<MemberQuoteData> = listOf(),
+    val memerQuotes: List<MemberQuotesData> = listOf(),
 
     @Schema(description = "월별 요약 정보")
     val monthlySummary: MonthlySummaryData
 ) {
-    data class MemberQuoteData(
+    data class MemberQuotesData(
         @Schema(description = "일별 명언 일련번호")
         val dailyQuoteSeq: Long,
 

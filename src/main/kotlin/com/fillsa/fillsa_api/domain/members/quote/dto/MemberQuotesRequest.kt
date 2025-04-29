@@ -4,15 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
-data class MemberQuoteListRequest(
-    @Schema(description = "시작일자", example = "yyyy-MM-dd")
-    val startDate: LocalDate,
-
-    @Schema(description = "종료일자", example = "yyyy-MM-dd")
-    val endDate: LocalDate
+data class MemberQuotesRequest(
+    @Schema(description = "좋아요 여부")
+    val likeYn: String
 )
 
-data class MemberQuoteListResponse(
+data class MemberQuotesResponse(
     @Schema(description = "사용자 명언 일련번호")
     val memberQuoteSeq: Long,
 

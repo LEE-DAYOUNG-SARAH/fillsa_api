@@ -1,7 +1,6 @@
 package com.fillsa.fillsa_api.domain.quote.controller
 
 import com.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
-import com.fillsa.fillsa_api.domain.quote.dto.MonthlyQuoteResponse
 import com.fillsa.fillsa_api.domain.quote.service.useCase.QuoteUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
-import java.time.YearMonth
 
 
 @RestController
@@ -31,15 +29,6 @@ class QuoteController(
         quoteDate: LocalDate
     ): ResponseEntity<DailyQuoteResponse> = ResponseEntity.ok(
         quoteUseCase.getDailyQuote(quoteDate)
-    )
-
-    @GetMapping("/monthly")
-    @Operation(summary = "월별 명언 조회 api")
-    fun monthlyQuotes(
-        @Parameter(description = "조회 월", example = "yyyy-MM")
-        yearMonth: YearMonth
-    ): ResponseEntity<MonthlyQuoteResponse> = ResponseEntity.ok(
-        quoteUseCase.getMonthlyQuotes(yearMonth)
     )
 
     @GetMapping("/{quoteSeq}/images")
