@@ -32,6 +32,7 @@ val jacksonVersion = "2.14.2"
 val springDocVersion = "2.0.4"
 val kotlinLoggingVersion = "3.0.5"
 val kotestVersion = "5.5.4"
+val s3Version = "2.20.40"
 
 dependencies {
     // spring
@@ -60,6 +61,9 @@ dependencies {
 
     // redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion")
+
+    // AWS SDK v2 S3 모듈
+    implementation("software.amazon.awssdk:s3:$s3Version")
 
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
