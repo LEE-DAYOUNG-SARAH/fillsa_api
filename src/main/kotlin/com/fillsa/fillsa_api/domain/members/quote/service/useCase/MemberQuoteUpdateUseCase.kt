@@ -1,6 +1,7 @@
 package com.fillsa.fillsa_api.domain.members.quote.service.useCase
 
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
+import com.fillsa.fillsa_api.domain.members.quote.dto.LikeRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import com.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
@@ -25,4 +26,9 @@ interface MemberQuoteUpdateUseCase {
      *  이미지 경로 변경
      */
     fun updateImagePath(memberQuote: MemberQuote, imagePath: String?)
+
+    /**
+     *  좋아요 저장
+     */
+    fun like(member: Member, dailyQuoteSeq: Long, request: LikeRequest): Long
 }

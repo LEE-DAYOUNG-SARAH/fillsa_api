@@ -28,8 +28,7 @@ class MemberQuoteImageService(
             ?: memberQuoteUpdateUseCase.createMemberQuote(
                 MemberQuote(
                     member = member,
-                    dailyQuote = dailyQuote,
-                    likeYn = "N"
+                    dailyQuote = dailyQuote
                 )
             )
 

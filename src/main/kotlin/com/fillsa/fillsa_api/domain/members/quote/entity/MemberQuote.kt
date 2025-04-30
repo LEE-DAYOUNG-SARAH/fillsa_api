@@ -33,7 +33,7 @@ class MemberQuote(
     var memo: String? = null,
 
     @Column(nullable = false, columnDefinition = "char(1)")
-    var likeYn: String,
+    var likeYn: String = "N"
 ): BaseEntity() {
     fun updateImagePath(imagePath: String?) {
         this.imagePath = imagePath
@@ -50,5 +50,9 @@ class MemberQuote(
 
     fun getTypingYn(): String {
         return if(typingKorQuote != null && typingEngQuote != null) "Y" else "N"
+    }
+
+    fun updateLikeYn(likeYn: String) {
+        this.likeYn = likeYn
     }
 }

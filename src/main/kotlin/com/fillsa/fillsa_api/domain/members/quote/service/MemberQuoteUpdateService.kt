@@ -2,6 +2,7 @@ package com.fillsa.fillsa_api.domain.members.quote.service
 
 import com.fillsa.fillsa_api.common.exception.NotFoundException
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
+import com.fillsa.fillsa_api.domain.members.quote.dto.LikeRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import com.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
@@ -26,8 +27,7 @@ class MemberQuoteUpdateService(
             ?: createMemberQuote(
                 MemberQuote(
                     member = member,
-                    dailyQuote = dailyQuote,
-                    likeYn = "N"
+                    dailyQuote = dailyQuote
                 )
             )
 
@@ -57,5 +57,23 @@ class MemberQuoteUpdateService(
             .orElseThrow { NotFoundException("존재하지 않는 memberQuoteSeq: ${memberQuote.memberQuoteSeq}") }
 
         findMemberQuote.updateImagePath(imagePath)
+    }
+
+    @Transactional
+    override fun like(member: Member,  dailyQuoteSeq: Long, request: LikeRequest): Long {
+        val dailyQuote = dailyQuoteUseCase.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
+            ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+
+        val memberQuote = memberQuoteReadUseCase.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
+            ?: createMemberQuote(
+                MemberQuote(
+                    member = member,
+                    dailyQuote = dailyQuote
+                )
+            )
+
+        memberQuote.updateLikeYn(request.likeYn)
+
+        return memberQuote.memberQuoteSeq
     }
 }

@@ -1,6 +1,7 @@
 package com.fillsa.fillsa_api.domain.members.quote.controller
 
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
+import com.fillsa.fillsa_api.domain.members.quote.dto.LikeRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import com.fillsa.fillsa_api.domain.members.quote.service.useCase.MemberQuoteUpdateUseCase
@@ -35,5 +36,15 @@ class MemberQuoteUpdateController(
         @RequestBody request: MemoRequest
     ): ResponseEntity<Long> = ResponseEntity.ok(
         memberQuoteUpdateUseCase.memo(member, memberQuoteSeq, request)
+    )
+
+    @PostMapping("/{memberQuoteSeq}/like")
+    @Operation(summary = "명언 좋아요 저장 api")
+    fun like(
+        @AuthenticationPrincipal member: Member,
+        @PathVariable @Parameter(description = "사용자 명언 일련번호") memberQuoteSeq: Long,
+        @RequestBody request: LikeRequest
+    ): ResponseEntity<Long> = ResponseEntity.ok(
+        memberQuoteUpdateUseCase.like(member, memberQuoteSeq, request)
     )
 }
