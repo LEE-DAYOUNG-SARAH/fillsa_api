@@ -38,4 +38,9 @@ class MemberQuote(
     fun updateImagePath(imagePath: String?) {
         this.imagePath = imagePath
     }
+
+    fun updateTypingQuote(kor: String?, eng: String?) {
+        this.typingKorQuote = kor
+        this.typingEngQuote = eng
+    }
 }

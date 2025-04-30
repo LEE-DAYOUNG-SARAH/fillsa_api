@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -21,7 +22,7 @@ class MemberQuoteUpdateController(
     @PostMapping("/{dailyQuoteSeq}/typing")
     @Operation(summary = "타이핑 명언 저장 api")
     fun typing(
-//        @AuthenticationPrincipal member: Member,
+        @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long,
         @RequestBody request: TypingQuoteRequest
     ): ResponseEntity<Long> = ResponseEntity.ok(

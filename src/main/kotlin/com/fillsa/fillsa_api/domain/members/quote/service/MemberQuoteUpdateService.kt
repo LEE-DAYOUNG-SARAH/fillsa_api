@@ -6,16 +6,34 @@ import com.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
 import com.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import com.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import com.fillsa.fillsa_api.domain.members.quote.repository.MemberQuoteRepository
+import com.fillsa.fillsa_api.domain.members.quote.service.useCase.MemberQuoteReadUseCase
 import com.fillsa.fillsa_api.domain.members.quote.service.useCase.MemberQuoteUpdateUseCase
+import com.fillsa.fillsa_api.domain.quote.service.useCase.DailyQuoteUseCase
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 @Service
 class MemberQuoteUpdateService(
-    private val memberQuoteRepository: MemberQuoteRepository
+    private val memberQuoteRepository: MemberQuoteRepository,
+    private val dailyQuoteUseCase: DailyQuoteUseCase,
+    private val memberQuoteReadUseCase: MemberQuoteReadUseCase
 ): MemberQuoteUpdateUseCase {
     @Transactional
     override fun typingQuote(member: Member, dailyQuoteSeq: Long, request: TypingQuoteRequest): Long {
-        TODO("Not yet implemented")
+        val dailyQuote = dailyQuoteUseCase.getDailyQuote(dailyQuoteSeq)
+            ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+
+        val memberQuote = memberQuoteReadUseCase.getMemberQuote(member, dailyQuote.dailyQuoteSeq)
+            ?: createMemberQuote(
+                MemberQuote(
+                    member = member,
+                    dailyQuote = dailyQuote,
+                    likeYn = "N"
+                )
+            )
+
+        memberQuote.updateTypingQuote(request.typingKorQuote, request.typingEngQuote)
+
+        return memberQuote.memberQuoteSeq
     }
 
     @Transactional
