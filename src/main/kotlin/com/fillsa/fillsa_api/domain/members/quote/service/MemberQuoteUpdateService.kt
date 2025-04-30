@@ -19,7 +19,7 @@ class MemberQuoteUpdateService(
 ): MemberQuoteUpdateUseCase {
     @Transactional
     override fun typingQuote(member: Member, dailyQuoteSeq: Long, request: TypingQuoteRequest): Long {
-        val dailyQuote = dailyQuoteUseCase.getDailyQuote(dailyQuoteSeq)
+        val dailyQuote = dailyQuoteUseCase.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
             ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
         val memberQuote = memberQuoteReadUseCase.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)

@@ -70,3 +70,7 @@ cloud:
       static:
     s3:
       bucket:
+
+fillsa:
+  ko-author-url: https://ko.wikipedia.org/wiki/
+  en-author-url: https://en.wikipedia.org/wiki/

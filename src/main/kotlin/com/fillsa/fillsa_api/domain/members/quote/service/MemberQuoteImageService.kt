@@ -21,7 +21,7 @@ class MemberQuoteImageService(
     private val PATH = "member-quotes/"
 
     override fun uploadImage(member: Member, dailyQuoteSeq: Long, image: MultipartFile): Long {
-        val dailyQuote = dailyQuoteUseCase.getDailyQuote(dailyQuoteSeq)
+        val dailyQuote = dailyQuoteUseCase.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
             ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
         val memberQuote = memberQuoteReadUseCase.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)

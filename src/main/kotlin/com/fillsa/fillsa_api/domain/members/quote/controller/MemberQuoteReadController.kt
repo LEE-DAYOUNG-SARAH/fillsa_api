@@ -20,8 +20,6 @@ import java.time.YearMonth
 class MemberQuoteReadController(
     private val memberQuoteReadUseCase: MemberQuoteReadUseCase
 ) {
-    val member = Member(oauthProvider = Member.OAuthProvider.GOOGLE, oauthId = "")
-
     @GetMapping("/daily")
     @Operation(summary = "일별 명언 조회 api")
     fun dailyQuote(
@@ -45,7 +43,7 @@ class MemberQuoteReadController(
     @GetMapping
     @Operation(summary = "명언 목록 조회 api")
     fun memberQuotes(
-//        @AuthenticationPrincipal member: Member,
+        @AuthenticationPrincipal member: Member,
         pageable: Pageable,
         request: MemberQuotesRequest
     ): ResponseEntity<PageResponse<MemberQuotesResponse>> = ResponseEntity.ok(
