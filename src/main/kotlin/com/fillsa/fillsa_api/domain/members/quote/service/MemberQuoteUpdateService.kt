@@ -22,7 +22,7 @@ class MemberQuoteUpdateService(
         val dailyQuote = dailyQuoteUseCase.getDailyQuote(dailyQuoteSeq)
             ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
-        val memberQuote = memberQuoteReadUseCase.getMemberQuote(member, dailyQuote.dailyQuoteSeq)
+        val memberQuote = memberQuoteReadUseCase.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
             ?: createMemberQuote(
                 MemberQuote(
                     member = member,
@@ -38,7 +38,12 @@ class MemberQuoteUpdateService(
 
     @Transactional
     override fun memo(member: Member, memberQuoteSeq: Long, request: MemoRequest): Long {
-        TODO("Not yet implemented")
+        val memberQuote = memberQuoteReadUseCase.getMemberQuoteByMemberQuoteSeq(member, memberQuoteSeq)
+            ?: throw NotFoundException("존재하지 않는 memberQuoteSeq: $memberQuoteSeq")
+
+        memberQuote.updateMemo(request.memo)
+
+        return memberQuote.memberQuoteSeq
     }
 
     @Transactional

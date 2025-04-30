@@ -43,4 +43,8 @@ class MemberQuote(
         this.typingKorQuote = kor
         this.typingEngQuote = eng
     }
+
+    fun updateMemo(memo: String) {
+        this.memo = memo
+    }
 }

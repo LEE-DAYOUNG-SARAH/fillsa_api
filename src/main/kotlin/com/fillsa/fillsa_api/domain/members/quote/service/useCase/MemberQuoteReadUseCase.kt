@@ -33,5 +33,10 @@ interface MemberQuoteReadUseCase {
     /**
      *  사용자 명언 조회
      */
-    fun getMemberQuote(member: Member, dailyQuoteSeq: Long): MemberQuote?
+    fun getMemberQuoteByDailyQuoteSeq(member: Member, dailyQuoteSeq: Long): MemberQuote?
+
+    /**
+     *  사용자 명언 조회
+     */
+    fun getMemberQuoteByMemberQuoteSeq(member: Member, memberQuoteSeq: Long): MemberQuote?
 }

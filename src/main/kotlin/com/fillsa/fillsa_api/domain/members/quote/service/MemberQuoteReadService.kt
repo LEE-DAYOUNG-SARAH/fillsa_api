@@ -31,7 +31,11 @@ class MemberQuoteReadService(
         TODO("Not yet implemented")
     }
 
-    override fun getMemberQuote(member: Member, dailyQuoteSeq: Long): MemberQuote? {
+    override fun getMemberQuoteByDailyQuoteSeq(member: Member, dailyQuoteSeq: Long): MemberQuote? {
         return memberQuoteRepository.findByMemberAndDailyQuoteDailyQuoteSeq(member, dailyQuoteSeq)
+    }
+
+    override fun getMemberQuoteByMemberQuoteSeq(member: Member, memberQuoteSeq: Long): MemberQuote? {
+        return memberQuoteRepository.findByMemberAndMemberQuoteSeq(member, memberQuoteSeq)
     }
 }

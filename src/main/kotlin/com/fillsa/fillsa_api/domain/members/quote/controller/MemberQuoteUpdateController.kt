@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.*
 class MemberQuoteUpdateController(
     private val memberQuoteUpdateUseCase: MemberQuoteUpdateUseCase
 ) {
-    val member = Member(oauthProvider = Member.OAuthProvider.GOOGLE, oauthId = "")
-
     @PostMapping("/{dailyQuoteSeq}/typing")
     @Operation(summary = "타이핑 명언 저장 api")
     fun typing(
@@ -29,10 +27,10 @@ class MemberQuoteUpdateController(
         memberQuoteUpdateUseCase.typingQuote(member, dailyQuoteSeq, request)
     )
 
-    @PostMapping("/{memberQuoteSeq}/memos")
+    @PostMapping("/{memberQuoteSeq}/memo")
     @Operation(summary = "명언 메모 저장 api")
     fun memo(
-//        @AuthenticationPrincipal member: Member,
+        @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "사용자 명언 일련번호") memberQuoteSeq: Long,
         @RequestBody request: MemoRequest
     ): ResponseEntity<Long> = ResponseEntity.ok(

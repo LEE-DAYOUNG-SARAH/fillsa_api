@@ -24,7 +24,7 @@ class MemberQuoteImageService(
         val dailyQuote = dailyQuoteUseCase.getDailyQuote(dailyQuoteSeq)
             ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
-        val memberQuote = memberQuoteReadUseCase.getMemberQuote(member, dailyQuote.dailyQuoteSeq)
+        val memberQuote = memberQuoteReadUseCase.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
             ?: memberQuoteUpdateUseCase.createMemberQuote(
                 MemberQuote(
                     member = member,
@@ -44,7 +44,7 @@ class MemberQuoteImageService(
     }
 
     override fun deleteImage(member: Member, dailyQuoteSeq: Long): Long {
-        val memberQuote = memberQuoteReadUseCase.getMemberQuote(member, dailyQuoteSeq)
+        val memberQuote = memberQuoteReadUseCase.getMemberQuoteByDailyQuoteSeq(member, dailyQuoteSeq)
             ?: throw throw NotFoundException("존재하지 않는 memberQuote")
 
         memberQuote.imagePath?.let {
