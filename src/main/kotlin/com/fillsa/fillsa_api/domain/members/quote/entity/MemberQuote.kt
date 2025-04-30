@@ -34,4 +34,8 @@ class MemberQuote(
 
     @Column(nullable = false, columnDefinition = "char(1)")
     var likeYn: String,
-): BaseEntity()
+): BaseEntity() {
+    fun updateImagePath(imagePath: String?) {
+        this.imagePath = imagePath
+    }
+}

@@ -26,18 +26,20 @@ class S3Service(
     fun uploadFile(request: S3UploadRequest): S3UploadResponse {
         try {
             val fileName = generateUniqueFileName(request.fileName)
+            val filePath = "${request.path}/$fileName"
 
             val putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(request.path)
+                .key(filePath)
                 .contentType(request.contentType)
                 .build()
 
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(request.file))
 
-            val fileUrl = buildFileUrl(request.path)
+            val fileUrl = buildFileUrl(filePath)
             return S3UploadResponse(fileUrl, fileName)
         } catch (e: Exception) {
+            log.error { e }
             throw S3Exception("파일 업로드 중 오류가 발생했습니다.", e)
         }
     }
@@ -76,11 +78,7 @@ class S3Service(
         }
     }
 
-    private fun buildFileUrl(key: String): String {
-        // 타임스탬프를 버전 파라미터로 추가하여 캐시 무효화
-        val timestamp = Instant.now().toEpochMilli()
-        return "https://$bucketName.s3.$region.amazonaws.com/$key?v=$timestamp"
-    }
+    private fun buildFileUrl(key: String) = "https://$bucketName.s3.$region.amazonaws.com/$key"
 
     private fun generateUniqueFileName(originalFileName: String): String {
         val extension = originalFileName.substringAfterLast(".", "")
@@ -88,8 +86,6 @@ class S3Service(
     }
 
     private fun extractKeyFromUrl(fileUrl: String): String {
-        // URL에서 버전 파라미터 제거
-        val urlWithoutParams = fileUrl.substringBefore("?")
-        return urlWithoutParams.substringAfter("$bucketName.s3.$region.amazonaws.com/")
+        return fileUrl.substringAfter("$bucketName.s3.$region.amazonaws.com/")
     }
 }

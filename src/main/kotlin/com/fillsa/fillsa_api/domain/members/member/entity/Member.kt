@@ -27,15 +27,6 @@ class Member(
     @Column(nullable = true)
     val profileImageUrl: String? = null,
 
-    @Column(nullable = true)
-    val gender: String? = null,
-
-    @Column(nullable = true)
-    val birth: String? = null,
-
-    @Column(nullable = true)
-    val locale: String? = null,
-
     @Column(nullable = false, columnDefinition = "char(1)")
     var withdrawalYn: String = "N",
 

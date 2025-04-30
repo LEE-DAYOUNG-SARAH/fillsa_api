@@ -3,6 +3,7 @@ package com.fillsa.fillsa_api.domain.members.quote.service.useCase
 import com.fillsa.fillsa_api.common.dto.PageResponse
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.quote.dto.*
+import com.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import org.springframework.data.domain.Pageable
 import java.time.LocalDate
 import java.time.YearMonth
@@ -28,4 +29,9 @@ interface MemberQuoteReadUseCase {
      *  타이핑 명언 조회
      */
     fun typingQuote(member: Member, dailyQuoteSeq: Long): MemberTypingQuoteResponse
+
+    /**
+     *  사용자 명언 조회
+     */
+    fun getMemberQuote(member: Member, dailyQuoteSeq: Long): MemberQuote?
 }
