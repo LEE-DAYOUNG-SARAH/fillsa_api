@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 data class MemberMonthlyQuoteResponse(
     @Schema(description = "사용자 명언 정보")
-    val memerQuotes: List<MemberQuotesData> = listOf(),
+    val memerQuotes: List<MemberQuotesData>,
 
     @Schema(description = "월별 요약 정보")
     val monthlySummary: MonthlySummaryData
@@ -19,8 +19,11 @@ data class MemberMonthlyQuoteResponse(
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
         val quoteDate: LocalDate,
 
-        @Schema(description = "국문 명언")
-        val korAuthor: String,
+        @Schema(description = "명언")
+        val quote: String,
+
+        @Schema(description = "명언 저자")
+        val author: String,
 
         @Schema(description = "타이핑 여부", example = "Y/N")
         val typingYn: String,
@@ -30,7 +33,10 @@ data class MemberMonthlyQuoteResponse(
     )
 
     data class MonthlySummaryData(
+        @Schema(description = "타이핑 갯수")
         val typingCount: Int,
+
+        @Schema(description = "좋아요 갯수")
         val likeCount: Int
     )
 }

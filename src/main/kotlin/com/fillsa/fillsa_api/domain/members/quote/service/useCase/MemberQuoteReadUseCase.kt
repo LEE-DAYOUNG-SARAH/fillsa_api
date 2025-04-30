@@ -17,7 +17,7 @@ interface MemberQuoteReadUseCase {
     /**
      *  월별 명언 조회
      */
-    fun monthlyQuotes(yearMonth: YearMonth): MemberMonthlyQuoteResponse
+    fun monthlyQuotes(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponse
 
     /**
      *  사용자 명언 목록 조회

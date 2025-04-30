@@ -47,4 +47,8 @@ class MemberQuote(
     fun updateMemo(memo: String) {
         this.memo = memo
     }
+
+    fun getTypingYn(): String {
+        return if(typingKorQuote != null && typingEngQuote != null) "Y" else "N"
+    }
 }

@@ -46,8 +46,30 @@ class MemberQuoteReadService(
         )
     }
 
-    override fun monthlyQuotes(yearMonth: YearMonth): MemberMonthlyQuoteResponse {
-        TODO("Not yet implemented")
+    override fun monthlyQuotes(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponse {
+        val memberQuotes = memberQuoteRepository.findByMemberAndQuoteDateBetween(
+            member = member,
+            beginQuoteDate = yearMonth.atDay(1),
+            endQuoteDate = yearMonth.atEndOfMonth()
+        )
+
+        val memberQuoteData = memberQuotes.map {
+            MemberMonthlyQuoteResponse.MemberQuotesData(
+                dailyQuoteSeq = it.dailyQuote.dailyQuoteSeq,
+                quoteDate = it.dailyQuote.quoteDate,
+                quote = it.dailyQuote.quote.korQuote ?: it.dailyQuote.quote.engQuote.orEmpty(),
+                author = it.dailyQuote.quote.korAuthor ?: it.dailyQuote.quote.engAuthor.orEmpty(),
+                typingYn = it.getTypingYn(),
+                likeYn = it.likeYn
+            )
+        }
+
+        val monthlySummary = MemberMonthlyQuoteResponse.MonthlySummaryData(
+            typingCount = memberQuoteData.count { it.typingYn == "Y" },
+            likeCount = memberQuoteData.count { it.likeYn == "Y" }
+        )
+
+        return MemberMonthlyQuoteResponse(memberQuoteData, monthlySummary)
     }
 
     override fun memberQuotes(member: Member, pageable: Pageable, request: MemberQuotesRequest): PageResponse<MemberQuotesResponse> {

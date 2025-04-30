@@ -37,7 +37,7 @@ class MemberQuoteReadController(
         @Parameter(description = "조회 월", example = "yyyy-MM")
         yearMonth: YearMonth
     ): ResponseEntity<MemberMonthlyQuoteResponse> = ResponseEntity.ok(
-        memberQuoteReadUseCase.monthlyQuotes(yearMonth)
+        memberQuoteReadUseCase.monthlyQuotes(member, yearMonth)
     )
 
     @GetMapping
