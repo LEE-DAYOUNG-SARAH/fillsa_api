@@ -72,8 +72,39 @@ class MemberQuoteReadService(
         return MemberMonthlyQuoteResponse(memberQuoteData, monthlySummary)
     }
 
-    override fun memberQuotes(member: Member, pageable: Pageable, request: MemberQuotesRequest): PageResponse<MemberQuotesResponse> {
-        TODO("Not yet implemented")
+    @Transactional(readOnly = true)
+    override fun memberQuotes(
+        member: Member,
+        pageable: Pageable,
+        request: MemberQuotesRequest
+    ): PageResponse<MemberQuotesResponse> {
+        val memberQuotes = memberQuoteRepository.findByMemberAndLikeYnIn(
+            member = member,
+            likeYns = if(request.likeYn == "N") listOf("Y", "N") else listOf("Y"),
+            pageable = pageable
+        )
+
+        val responses = memberQuotes.content.map { memberQuote ->
+            MemberQuotesResponse(
+                memberQuoteSeq = memberQuote.memberQuoteSeq,
+                quoteDate = memberQuote.dailyQuote.quoteDate,
+                quoteDayOfWeek = memberQuote.dailyQuote.quoteDate.dayOfWeek.toString(),
+                quote = memberQuote.dailyQuote.quote.korQuote ?: memberQuote.dailyQuote.quote.engQuote.orEmpty(),
+                author = memberQuote.dailyQuote.quote.korAuthor ?: memberQuote.dailyQuote.quote.engAuthor.orEmpty(),
+                authorUrl = memberQuote.dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
+                    ?: "${enAuthorUrl}${memberQuote.dailyQuote.quote.engAuthor}",
+                memo = memberQuote.memo,
+                memoYn = if (memberQuote.memo.isNullOrBlank()) "N" else "Y",
+                likeYn = memberQuote.likeYn
+            )
+        }
+
+        return PageResponse(
+            content = responses,
+            totalElements = memberQuotes.totalElements,
+            totalPages = memberQuotes.totalPages,
+            currentPage = memberQuotes.number
+        )
     }
 
     override fun typingQuote(member: Member, dailyQuoteSeq: Long): MemberTypingQuoteResponse {

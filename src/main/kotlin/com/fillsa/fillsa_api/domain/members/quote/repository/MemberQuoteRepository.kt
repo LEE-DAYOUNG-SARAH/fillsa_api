@@ -3,6 +3,8 @@ package com.fillsa.fillsa_api.domain.members.quote.repository
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 import com.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import com.fillsa.fillsa_api.domain.quote.entity.DailyQuote
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.time.LocalDate
@@ -28,4 +30,20 @@ interface MemberQuoteRepository: JpaRepository<MemberQuote, Long> {
         beginQuoteDate: LocalDate,
         endQuoteDate: LocalDate
     ): List<MemberQuote>
+
+    @Query("""
+        select mq
+        from MemberQuote mq
+            join fetch mq.member m
+            join fetch mq.dailyQuote dq
+            join fetch dq.quote q
+        where m = :member
+            and mq.likeYn in :likeYns
+        order by dq.quoteDate desc
+    """)
+    fun findByMemberAndLikeYnIn(
+        member: Member,
+        likeYns: List<String>,
+        pageable: Pageable
+    ): Page<MemberQuote>
 }

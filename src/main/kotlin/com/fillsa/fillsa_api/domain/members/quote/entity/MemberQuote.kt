@@ -44,7 +44,7 @@ class MemberQuote(
         this.typingEngQuote = eng
     }
 
-    fun updateMemo(memo: String) {
+    fun updateMemo(memo: String?) {
         this.memo = memo
     }
 
