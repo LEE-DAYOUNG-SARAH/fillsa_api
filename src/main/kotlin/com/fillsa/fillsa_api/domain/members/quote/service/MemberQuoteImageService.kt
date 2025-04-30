@@ -44,6 +44,14 @@ class MemberQuoteImageService(
     }
 
     override fun deleteImage(member: Member, dailyQuoteSeq: Long): Long {
-        TODO("Not yet implemented")
+        val memberQuote = memberQuoteReadUseCase.getMemberQuote(member, dailyQuoteSeq)
+            ?: throw throw NotFoundException("존재하지 않는 memberQuote")
+
+        memberQuote.imagePath?.let {
+            fileService.deleteFile(it)
+            memberQuoteUpdateUseCase.updateImagePath(memberQuote, null)
+        }
+
+        return memberQuote.memberQuoteSeq
     }
 }
