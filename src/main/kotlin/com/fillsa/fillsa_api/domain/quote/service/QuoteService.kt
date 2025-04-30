@@ -2,8 +2,6 @@ package com.fillsa.fillsa_api.domain.quote.service
 
 import com.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
 import com.fillsa.fillsa_api.domain.quote.service.useCase.QuoteUseCase
-import org.springframework.core.io.ClassPathResource
-import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -18,9 +16,5 @@ class QuoteService(): QuoteUseCase {
             engAuthor = "Woody Allen",
             authorUrl = "https://ko.wikipedia.org/wiki/우디 앨런"
         )
-    }
-
-    override fun images(quoteSeq: Long): Resource {
-        return ClassPathResource("test_img.JPG")
     }
 }
