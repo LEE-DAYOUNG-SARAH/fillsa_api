@@ -107,8 +107,19 @@ class MemberQuoteReadService(
         )
     }
 
+    @Transactional(readOnly = true)
     override fun typingQuote(member: Member, dailyQuoteSeq: Long): MemberTypingQuoteResponse {
-        TODO("Not yet implemented")
+        val dailyQuote = dailyQuoteUseCase.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
+            ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+
+        val memberQuote = getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
+
+        return MemberTypingQuoteResponse(
+            korQuote = dailyQuote.quote.korQuote,
+            engQuote = dailyQuote.quote.engQuote,
+            typingKorQuote = memberQuote?.typingKorQuote,
+            typingEngQuote = memberQuote?.typingEngQuote
+        )
     }
 
     @Transactional(readOnly = true)
