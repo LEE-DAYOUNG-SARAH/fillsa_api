@@ -19,7 +19,6 @@ import java.time.YearMonth
 class MemberQuoteReadService(
     private val memberQuoteRepository: MemberQuoteRepository,
     private val dailyQuoteUseCase: DailyQuoteUseCase,
-
     @Value("\${fillsa.ko-author-url}")
     private val koAuthorUrl: String,
     @Value("\${fillsa.en-author-url}")
@@ -46,6 +45,7 @@ class MemberQuoteReadService(
         )
     }
 
+    @Transactional(readOnly = true)
     override fun monthlyQuotes(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponse {
         val memberQuotes = memberQuoteRepository.findByMemberAndQuoteDateBetween(
             member = member,
@@ -80,10 +80,12 @@ class MemberQuoteReadService(
         TODO("Not yet implemented")
     }
 
+    @Transactional(readOnly = true)
     override fun getMemberQuoteByDailyQuoteSeq(member: Member, dailyQuoteSeq: Long): MemberQuote? {
         return memberQuoteRepository.findByMemberAndDailyQuoteDailyQuoteSeq(member, dailyQuoteSeq)
     }
 
+    @Transactional(readOnly = true)
     override fun getMemberQuoteByMemberQuoteSeq(member: Member, memberQuoteSeq: Long): MemberQuote? {
         return memberQuoteRepository.findByMemberAndMemberQuoteSeq(member, memberQuoteSeq)
     }

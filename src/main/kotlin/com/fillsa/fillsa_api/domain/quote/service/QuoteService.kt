@@ -1,20 +1,36 @@
 package com.fillsa.fillsa_api.domain.quote.service
 
+import com.fillsa.fillsa_api.common.exception.NotFoundException
 import com.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
+import com.fillsa.fillsa_api.domain.quote.service.useCase.DailyQuoteUseCase
 import com.fillsa.fillsa_api.domain.quote.service.useCase.QuoteUseCase
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
-class QuoteService(): QuoteUseCase {
+class QuoteService(
+    private val dailyQuoteUseCase: DailyQuoteUseCase,
+    @Value("\${fillsa.ko-author-url}")
+    private val koAuthorUrl: String,
+    @Value("\${fillsa.en-author-url}")
+    private val enAuthorUrl: String,
+): QuoteUseCase {
+
+    @Transactional(readOnly = true)
     override fun getDailyQuote(quoteDate: LocalDate): DailyQuoteResponse {
+        val dailyQuote = dailyQuoteUseCase.getDailyQuoteByQuoteDate(quoteDate)
+            ?: throw NotFoundException("존재하지 않는 quoteDate: $quoteDate")
+
         return DailyQuoteResponse(
-            dailyQuoteSeq = 1,
-            korQuote = "나는 죽음을 두려워하지 않는다. 단지 그것이 일어날 때 거기에 있고 싶지 않을 뿐이다.",
-            engQuote = "I'm not afraid of death; I just don't want to be there when it happens.",
-            korAuthor = "우디 앨런",
-            engAuthor = "Woody Allen",
-            authorUrl = "https://ko.wikipedia.org/wiki/우디 앨런"
+            dailyQuoteSeq = dailyQuote.dailyQuoteSeq,
+            korQuote = dailyQuote.quote.korQuote,
+            engQuote = dailyQuote.quote.engQuote,
+            korAuthor = dailyQuote.quote.korAuthor,
+            engAuthor = dailyQuote.quote.engAuthor,
+            authorUrl = dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
+                ?: "${enAuthorUrl}${dailyQuote.quote.engAuthor}"
         )
     }
 }
