@@ -13,5 +13,5 @@ data class NoticeResponse(
 
     @Schema(description = "생성일시", example = "yyyy.MM.dd")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd", timezone = "Asia/Seoul")
-    val createAt: LocalDateTime
+    val createdAt: LocalDateTime
 )

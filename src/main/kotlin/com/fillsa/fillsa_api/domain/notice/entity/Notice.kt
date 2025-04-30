@@ -8,7 +8,7 @@ import jakarta.persistence.*
 class Notice(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val notice_seq: Long = 0L,
+    val noticeSeq: Long = 0L,
 
     @Column(nullable = false)
     var title: String,

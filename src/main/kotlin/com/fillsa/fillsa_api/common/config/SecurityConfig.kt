@@ -30,6 +30,7 @@ class SecurityConfig(
                         "/auth/refresh",
                         "/auth/login",
                         "/quotes/**",
+                        "/notices/**"
 //                        "/**"   // 시큐리티 설정 전 모든 요청 허용,
                     )
                     .permitAll()
