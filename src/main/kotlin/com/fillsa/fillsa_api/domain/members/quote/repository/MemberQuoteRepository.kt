@@ -16,6 +16,8 @@ interface MemberQuoteRepository: JpaRepository<MemberQuote, Long> {
 
     fun findByMemberAndDailyQuote(member: Member, dailyQuote: DailyQuote): MemberQuote?
 
+    fun findAllByMemberAndDailyQuoteIn(member: Member, dailyQuotes: List<DailyQuote>): List<MemberQuote>
+
     @Query("""
         select mq
         from MemberQuote mq

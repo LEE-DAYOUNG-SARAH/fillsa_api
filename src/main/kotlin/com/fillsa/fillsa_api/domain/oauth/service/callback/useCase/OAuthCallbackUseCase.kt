@@ -1,6 +1,5 @@
 package com.fillsa.fillsa_api.domain.oauth.service.callback.useCase
 
-import com.fillsa.fillsa_api.domain.auth.dto.LoginResponse
 import com.fillsa.fillsa_api.domain.members.member.entity.Member
 
 interface OAuthCallbackUseCase {

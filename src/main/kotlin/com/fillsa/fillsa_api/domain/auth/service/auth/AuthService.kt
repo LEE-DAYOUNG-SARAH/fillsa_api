@@ -62,19 +62,22 @@ class AuthService(
         redisTokenUseCase.deleteRefreshToken(member.memberSeq, request.deviceId)
     }
 
-    override fun login(request: TempTokenRequest): LoginResponse {
+    override fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse> {
         val memberSeq = redisTokenUseCase.getAndDeleteTempToken(request.tempToken)?.toLong()
             ?: throw InvalidRequestException("만료되었거나 잘못된 임시 토큰입니다.")
 
         val member = memberUseCase.getActiveMemberBySeq(memberSeq)
         val token = createToken(memberSeq, request.deviceId)
 
-        return LoginResponse(
-            accessToken = token.accessToken,
-            refreshToken = token.refreshToken,
-            memberSeq = member.memberSeq,
-            nickname = member.nickname.orEmpty(),
-            profileImageUrl = member.profileImageUrl
+        return Pair(
+            member,
+            LoginResponse(
+                accessToken = token.accessToken,
+                refreshToken = token.refreshToken,
+                memberSeq = member.memberSeq,
+                nickname = member.nickname.orEmpty(),
+                profileImageUrl = member.profileImageUrl
+            )
         )
     }
 }

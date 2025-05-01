@@ -23,5 +23,5 @@ interface AuthUseCase {
     /**
      *  로그인
      */
-    fun login(request: TempTokenRequest): LoginResponse
+    fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse>
 }

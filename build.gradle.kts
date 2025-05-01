@@ -33,6 +33,8 @@ val springDocVersion = "2.0.4"
 val kotlinLoggingVersion = "3.0.5"
 val kotestVersion = "5.5.4"
 val s3Version = "2.20.40"
+val coroutineVersion = "1.7.3"
+val jwtVersion = "0.11.5"
 
 dependencies {
     // spring
@@ -65,10 +67,14 @@ dependencies {
     // AWS SDK v2 S3 모듈
     implementation("software.amazon.awssdk:s3:$s3Version")
 
+    // coroutine
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
+
     // JWT
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+    implementation("io.jsonwebtoken:jjwt-api:$jwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jwtVersion")
+
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")

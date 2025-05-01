@@ -38,13 +38,13 @@ class MemberQuoteUpdateController(
         memberQuoteUpdateUseCase.memo(member, memberQuoteSeq, request)
     )
 
-    @PostMapping("/{memberQuoteSeq}/like")
+    @PostMapping("/{dailyQuoteSeq}/like")
     @Operation(summary = "명언 좋아요 저장 api")
     fun like(
         @AuthenticationPrincipal member: Member,
-        @PathVariable @Parameter(description = "사용자 명언 일련번호") memberQuoteSeq: Long,
+        @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long,
         @RequestBody request: LikeRequest
     ): ResponseEntity<Long> = ResponseEntity.ok(
-        memberQuoteUpdateUseCase.like(member, memberQuoteSeq, request)
+        memberQuoteUpdateUseCase.like(member, dailyQuoteSeq, request)
     )
 }
