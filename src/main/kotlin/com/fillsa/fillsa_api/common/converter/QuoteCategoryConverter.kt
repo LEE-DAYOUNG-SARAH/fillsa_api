@@ -6,6 +6,7 @@ import jakarta.persistence.Converter
 
 @Converter(autoApply = true)
 class QuoteCategoryConverter : AttributeConverter<Quote.QuoteCategory, String> {
+    // TODO. converter 적용 확인하기
     override fun convertToDatabaseColumn(attribute: Quote.QuoteCategory?): String? {
         return attribute?.value
     }

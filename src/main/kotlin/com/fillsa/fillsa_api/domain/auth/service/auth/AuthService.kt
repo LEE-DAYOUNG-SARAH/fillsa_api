@@ -19,6 +19,7 @@ class AuthService(
     private val redisTokenUseCase: RedisTokenUseCase
 ): AuthUseCase {
 
+    // TODO. usecase 레이어 적용 다시 생각해보기
     override fun refreshToken(request: TokenRefreshRequest): TokenInfo {
         val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
 

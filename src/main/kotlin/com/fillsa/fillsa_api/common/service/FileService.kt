@@ -13,6 +13,7 @@ class FileService(
 ) {
     val log = KotlinLogging.logger {  }
 
+    // TODO. interface 두기
     fun uploadFile(path: String, file: MultipartFile): String {
         try {
             val s3Request = createS3UploadRequest(path, file)
