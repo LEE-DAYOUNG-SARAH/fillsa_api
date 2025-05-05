@@ -74,3 +74,6 @@ cloud:
 fillsa:
   ko-author-url: https://ko.wikipedia.org/wiki/
   en-author-url: https://en.wikipedia.org/wiki/
+
+swagger:
+  server-url: http://localhost:8080

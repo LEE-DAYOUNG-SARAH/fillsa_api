@@ -1,5 +1,6 @@
 package store.fillsa.fillsa_api.common.config
 
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest
 import store.fillsa.fillsa_api.domain.auth.security.CustomUserDetailsService
 import store.fillsa.fillsa_api.domain.auth.security.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
@@ -22,6 +23,7 @@ class SecurityConfig(
             .csrf { it.disable() }
             .authorizeHttpRequests { requests ->
                 requests
+                    .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                     // Swagger 관련 엔드포인트는 인증 없이 접근 허용
                     .requestMatchers(
                         "/swagger-ui/**",
@@ -30,7 +32,7 @@ class SecurityConfig(
                         "/auth/refresh",
                         "/auth/login",
                         "/quotes/**",
-                        "/notices/**"
+                        "/notices/**",
 //                        "/**"   // 시큐리티 설정 전 모든 요청 허용,
                     )
                     .permitAll()

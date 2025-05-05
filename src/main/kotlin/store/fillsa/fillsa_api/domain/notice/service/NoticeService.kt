@@ -1,20 +1,19 @@
 package store.fillsa.fillsa_api.domain.notice.service
 
-import store.fillsa.fillsa_api.common.dto.PageResponse
-import store.fillsa.fillsa_api.domain.notice.dto.NoticeResponse
-import store.fillsa.fillsa_api.domain.notice.repository.NoticeRepository
-import store.fillsa.fillsa_api.domain.notice.service.useCase.NoticeUseCase
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import store.fillsa.fillsa_api.common.dto.PageResponse
+import store.fillsa.fillsa_api.domain.notice.dto.NoticeResponse
+import store.fillsa.fillsa_api.domain.notice.repository.NoticeRepository
 
 @Service
 class NoticeService(
     private val noticeRepository: NoticeRepository
-): NoticeUseCase {
+) {
 
     @Transactional(readOnly = true)
-    override fun getNotices(pageable: Pageable): PageResponse<NoticeResponse> {
+    fun getNotices(pageable: Pageable): PageResponse<NoticeResponse> {
         val notices = noticeRepository.findByPageable(pageable)
 
         val responses = notices.content.map {
