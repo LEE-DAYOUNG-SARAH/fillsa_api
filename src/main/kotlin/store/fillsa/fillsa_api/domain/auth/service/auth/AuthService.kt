@@ -18,7 +18,6 @@ class AuthService(
     private val redisTokenService: RedisTokenService
 ) {
 
-    // TODO. usecase 레이어 적용 다시 생각해보기
     fun refreshToken(request: TokenRefreshRequest): TokenInfo {
         val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
 

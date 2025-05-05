@@ -28,7 +28,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 80800
+      port: 6379
 
 jwt:
   secret:

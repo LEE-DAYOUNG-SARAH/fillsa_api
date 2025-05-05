@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile
 import store.fillsa.fillsa_api.common.exception.NotFoundException
 import store.fillsa.fillsa_api.common.service.FileService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
+import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import store.fillsa.fillsa_api.domain.quote.service.DailyQuoteService
 
 @Service
@@ -22,7 +23,7 @@ class MemberQuoteImageService(
 
         val memberQuote = memberQuoteReadService.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
             ?: memberQuoteUpdateService.createMemberQuote(
-                store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote(
+                MemberQuote(
                     member = member,
                     dailyQuote = dailyQuote
                 )

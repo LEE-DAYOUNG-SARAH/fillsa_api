@@ -24,6 +24,11 @@ spring:
     multipart:
       max-file-size: 2MB
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 jwt:
   secret: Zm9vYmFyYmF6cXV4eW1wYWdkc2FtcGxla2V5Zm9vYmFyYmE=
   access-token-validity: 900000   # 15분
@@ -31,14 +36,28 @@ jwt:
 
 oauth:
   kakao:
-    client-id:
-    client-secret:
-    redirect-uri:
+    client-id: test
+    client-secret: test
+    redirect-uri: test
     token-uri: https://kauth.kakao.com/oauth/token
     user-info-uri: https://kapi.kakao.com/v2/user/me
   google:
-    client-id:
-    client-secret:
-    redirect-uri:
+    client-id: test
+    client-secret: test
+    redirect-uri: test
     token-uri: https://oauth2.googleapis.com/token
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+
+cloud:
+  aws:
+    credentials:
+      access-key: test
+      secret-key: test
+    region:
+      static: test
+    s3:
+      bucket: test
+
+fillsa:
+  ko-author-url: https://ko.wikipedia.org/wiki/
+  en-author-url: https://en.wikipedia.org/wiki/

@@ -64,7 +64,7 @@ class KakaoOAuthLoginWebClientTest {
         val accessToken = sut.getAccessToken("dummy-code")
 
         // then
-        assertThat(accessToken).isEqualTo("ATOK")
+        assertThat(accessToken.accessToken).isEqualTo("ATOK")
     }
 
     @Test
