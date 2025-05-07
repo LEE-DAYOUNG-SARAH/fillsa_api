@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import store.fillsa.fillsa_api.domain.auth.dto.*
-import store.fillsa.fillsa_api.domain.auth.security.TokenInfo
+import store.fillsa.fillsa_api.common.security.TokenInfo
 import store.fillsa.fillsa_api.domain.auth.service.auth.AuthService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteDataSyncService

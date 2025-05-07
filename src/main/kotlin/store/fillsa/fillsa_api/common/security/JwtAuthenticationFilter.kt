@@ -1,6 +1,5 @@
-package store.fillsa.fillsa_api.domain.auth.security
+package store.fillsa.fillsa_api.common.security
 
-import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -9,6 +8,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
+import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.service.MemberService
 
 @Component
@@ -48,5 +48,9 @@ class JwtAuthenticationFilter(
             null,
             emptyList()
         )
+    }
+
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        return PublicEndpoint.allPublicPatterns().any { request.servletPath.startsWith(it) }
     }
 }

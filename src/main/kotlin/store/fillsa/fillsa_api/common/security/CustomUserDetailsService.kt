@@ -1,4 +1,4 @@
-package store.fillsa.fillsa_api.domain.auth.security
+package store.fillsa.fillsa_api.common.security
 
 import store.fillsa.fillsa_api.domain.members.member.repository.MemberRepository
 import org.springframework.security.core.userdetails.UserDetails

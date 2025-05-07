@@ -3,8 +3,8 @@ package store.fillsa.fillsa_api.domain.auth.service.auth
 import org.springframework.stereotype.Service
 import store.fillsa.fillsa_api.common.exception.InvalidRequestException
 import store.fillsa.fillsa_api.domain.auth.dto.*
-import store.fillsa.fillsa_api.domain.auth.security.JwtTokenProvider
-import store.fillsa.fillsa_api.domain.auth.security.TokenInfo
+import store.fillsa.fillsa_api.common.security.JwtTokenProvider
+import store.fillsa.fillsa_api.common.security.TokenInfo
 import store.fillsa.fillsa_api.domain.auth.service.redis.RedisTokenService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.service.MemberService

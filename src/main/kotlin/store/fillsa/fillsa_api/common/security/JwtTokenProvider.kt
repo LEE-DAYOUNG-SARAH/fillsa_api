@@ -1,4 +1,4 @@
-package store.fillsa.fillsa_api.domain.auth.security
+package store.fillsa.fillsa_api.common.security
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -53,15 +53,12 @@ class JwtTokenProvider(
     }
 
     fun validateToken(token: String): Boolean {
-        return try {
-            Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-            true
-        } catch (e: Exception) {
-            false
-        }
+        Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+
+        return true
     }
 
     fun getMemberSeqFromToken(token: String): Long {
