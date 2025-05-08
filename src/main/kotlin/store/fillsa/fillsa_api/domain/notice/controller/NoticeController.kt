@@ -13,12 +13,12 @@ import store.fillsa.fillsa_api.domain.notice.service.NoticeService
 
 @RestController
 @RequestMapping("/notices")
-@Tag(name = "공지사항", description = "공지사항 조회 api")
+@Tag(name = "공지사항")
 class NoticeController(
     private val noticeService: NoticeService
 ) {
     @GetMapping
-    @Operation(summary = "공지사항 목록 조회 api")
+    @Operation(summary = "[2-3. write] 공지사항 목록 조회 api")
     fun notices(
         pageable: Pageable
     ): ResponseEntity<PageResponse<NoticeResponse>> = ResponseEntity.ok(

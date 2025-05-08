@@ -18,7 +18,7 @@ import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteDataSyncS
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "권한", description = "권한 api")
+@Tag(name = "권한")
 class AuthController(
     private val authService: AuthService,
     private val memberQuoteDataSyncService: MemberQuoteDataSyncService
@@ -29,7 +29,7 @@ class AuthController(
         REDIS_REFRESH_TOKEN_INVALID
     )
     @PostMapping("/refresh")
-    @Operation(summary = "토큰 재발급 api")
+    @Operation(summary = "토큰 재발급 api", description = "errorCode 3003인 경우 호출")
     fun refreshToken(
         @RequestBody request: TokenRefreshRequest
     ): ResponseEntity<TokenInfo> = ResponseEntity.ok(
@@ -45,7 +45,7 @@ class AuthController(
         OAUTH_WITHDRAWAL_REQUEST_FAILED
     )
     @DeleteMapping("/withdraw")
-    @Operation(summary = "탈퇴 api")
+    @Operation(summary = "[modal_delete ID] 탈퇴 api")
     fun logout(
         @AuthenticationPrincipal member: Member,
         @RequestBody request: WithdrawalRequest
@@ -54,7 +54,7 @@ class AuthController(
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "로그아웃 api")
+    @Operation(summary = "[5. my page_login] 로그아웃 api")
     fun logout(
         @AuthenticationPrincipal member: Member,
         @RequestBody request: LogoutRequest
@@ -68,7 +68,7 @@ class AuthController(
         WITHDRAWAL_USER
     )
     @PostMapping("/login")
-    @Operation(summary = "로그인 api")
+    @Operation(summary = "[1.login] 로그인 api")
     fun login(
         @RequestBody request: LoginRequest
     ): ResponseEntity<LoginResponse> {

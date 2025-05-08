@@ -15,7 +15,7 @@ import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteImageServ
 
 @RestController
 @RequestMapping("/member-quotes")
-@Tag(name = "사용자별 명언", description = "사용자별 명언 api")
+@Tag(name = "명언 이미지")
 class MemberQuoteImageController(
     private val memberQuoteImageService: MemberQuoteImageService
 ) {
@@ -30,7 +30,7 @@ class MemberQuoteImageController(
         "/{dailyQuoteSeq}/images",
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
-    @Operation(summary = "명언 이미지 업로드 api")
+    @Operation(summary = "[2-2. img_check/upload] 명언 이미지 업로드 api")
     fun uploadImage(
         @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long,
@@ -44,7 +44,7 @@ class MemberQuoteImageController(
         FILE_DELETE_FAILED
     )
     @DeleteMapping("/{dailyQuoteSeq}/images")
-    @Operation(summary = "명언 이미지 삭제 api")
+    @Operation(summary = "[2-2. img_check/upload] 명언 이미지 삭제 api")
     fun deleteImage(
         @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long

@@ -16,14 +16,14 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/quotes")
-@Tag(name = "명언", description = "명언 조회 api")
+@Tag(name = "(비회원) 명언 조회")
 class QuoteController(
     private val quoteService: QuoteService
 ) {
 
     @ApiErrorResponses(NOT_FOUND)
     @GetMapping("/daily")
-    @Operation(summary = "일별 명언 조회 api")
+    @Operation(summary = "[2.home] 일별 명언 조회 api")
     fun dailyQuote(
         @Parameter(description = "조회 일자", example = "yyyy-MM-dd")
         quoteDate: LocalDate

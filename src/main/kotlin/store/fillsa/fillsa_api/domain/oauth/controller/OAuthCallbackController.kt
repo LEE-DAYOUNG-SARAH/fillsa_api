@@ -15,7 +15,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/oauth")
-@Tag(name = "로그인", description = "로그인 콜백 api")
+@Tag(name = "간편 로그인")
 class OAuthCallbackController(
     private val oAuthCallbackService: OAuthCallbackService,
     private val redisTokenService: RedisTokenService

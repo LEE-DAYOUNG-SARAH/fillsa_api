@@ -16,13 +16,13 @@ import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteUpdateSer
 
 @RestController
 @RequestMapping("/member-quotes")
-@Tag(name = "사용자별 명언", description = "사용자별 명언 api")
+@Tag(name = "명언 저장")
 class MemberQuoteUpdateController(
     private val memberQuoteUpdateService: MemberQuoteUpdateService
 ) {
     @ApiErrorResponses(NOT_FOUND)
     @PostMapping("/{dailyQuoteSeq}/typing")
-    @Operation(summary = "타이핑 명언 저장 api")
+    @Operation(summary = "[2-3. write] 타이핑 명언 저장 api")
     fun typing(
         @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long,
@@ -33,7 +33,7 @@ class MemberQuoteUpdateController(
 
     @ApiErrorResponses(NOT_FOUND)
     @PostMapping("/{memberQuoteSeq}/memo")
-    @Operation(summary = "명언 메모 저장 api")
+    @Operation(summary = "[4-1. memo] 명언 메모 저장 api")
     fun memo(
         @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "사용자 명언 일련번호") memberQuoteSeq: Long,
@@ -44,7 +44,7 @@ class MemberQuoteUpdateController(
 
     @ApiErrorResponses(NOT_FOUND)
     @PostMapping("/{dailyQuoteSeq}/like")
-    @Operation(summary = "명언 좋아요 저장 api")
+    @Operation(summary = "[2.home/2-3. write] 명언 좋아요 저장 api")
     fun like(
         @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long,

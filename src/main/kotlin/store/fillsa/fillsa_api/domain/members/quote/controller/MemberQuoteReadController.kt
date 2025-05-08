@@ -21,13 +21,13 @@ import java.time.YearMonth
 
 @RestController
 @RequestMapping("/member-quotes")
-@Tag(name = "사용자별 명언", description = "사용자별 명언 api")
+@Tag(name = "(회원) 명언 조회")
 class MemberQuoteReadController(
     private val memberQuoteReadService: MemberQuoteReadService
 ) {
     @ApiErrorResponses(NOT_FOUND)
     @GetMapping("/daily")
-    @Operation(summary = "일별 명언 조회 api")
+    @Operation(summary = "[2.home] 일별 명언 조회 api")
     fun dailyQuote(
         @AuthenticationPrincipal member: Member,
         @Parameter(description = "조회 일자", example = "yyyy-MM-dd")
@@ -37,7 +37,7 @@ class MemberQuoteReadController(
     )
 
     @GetMapping("/monthly")
-    @Operation(summary = "월별 명언 조회 api")
+    @Operation(summary = "[3. calendar] 월별 명언 조회 api")
     fun monthlyQuotes(
         @AuthenticationPrincipal member: Member,
         @Parameter(description = "조회 월", example = "yyyy-MM")
@@ -47,7 +47,7 @@ class MemberQuoteReadController(
     )
 
     @GetMapping
-    @Operation(summary = "명언 목록 조회 api")
+    @Operation(summary = "[4. list] 명언 목록 조회 api")
     fun memberQuotes(
         @AuthenticationPrincipal member: Member,
         pageable: Pageable,
@@ -58,7 +58,7 @@ class MemberQuoteReadController(
 
     @ApiErrorResponses(NOT_FOUND)
     @GetMapping("/{dailyQuoteSeq}/typing")
-    @Operation(summary = "타이핑 명언 조회 api")
+    @Operation(summary = "[2-3. write] 타이핑 명언 조회 api")
     fun typingQuote(
         @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long,
