@@ -23,6 +23,7 @@ class Quote (
     var engAuthor: String? = null,
 
     @Column(nullable = true)
+    @Enumerated(EnumType.STRING)
     var category: QuoteCategory? = null,
 ): BaseEntity() {
     enum class QuoteCategory(val value: String) {
