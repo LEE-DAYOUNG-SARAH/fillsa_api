@@ -3,6 +3,7 @@ package store.fillsa.fillsa_api.common.security
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import mu.KotlinLogging
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -16,6 +17,7 @@ class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider,
     private val memberService: MemberService
 ) : OncePerRequestFilter() {
+    val log = KotlinLogging.logger {  }
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -26,6 +28,8 @@ class JwtAuthenticationFilter(
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             val memberSeq = jwtTokenProvider.getMemberSeqFromToken(token)
+            log.info { "REQUEST memberSeq: $memberSeq" }
+
             val member = memberService.getActiveMemberBySeq(memberSeq)
 
             val authentication = createAuthentication(member)

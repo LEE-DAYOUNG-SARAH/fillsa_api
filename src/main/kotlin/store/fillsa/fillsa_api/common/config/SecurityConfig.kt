@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
+import store.fillsa.fillsa_api.common.filter.RequestLoggingFilter
 import store.fillsa.fillsa_api.common.security.AuthenticationErrorFilter
 import store.fillsa.fillsa_api.common.security.CustomUserDetailsService
 import store.fillsa.fillsa_api.common.security.JwtAuthenticationFilter
@@ -17,7 +19,8 @@ import store.fillsa.fillsa_api.common.security.PublicEndpoint
 class SecurityConfig(
     private val customUserDetailsService: CustomUserDetailsService,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-    private val authenticationErrorFilter: AuthenticationErrorFilter
+    private val authenticationErrorFilter: AuthenticationErrorFilter,
+    private val requestLoggingFilter: RequestLoggingFilter
 ) {
 
     @Bean
@@ -31,6 +34,7 @@ class SecurityConfig(
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .userDetailsService(customUserDetailsService)
+            .addFilterBefore(requestLoggingFilter, WebAsyncManagerIntegrationFilter::class.java)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(authenticationErrorFilter, JwtAuthenticationFilter::class.java)
 
