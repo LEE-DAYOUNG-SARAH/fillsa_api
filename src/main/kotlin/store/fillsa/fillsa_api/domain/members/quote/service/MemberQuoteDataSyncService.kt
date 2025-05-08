@@ -31,9 +31,15 @@ class MemberQuoteDataSyncService(
                         member = member
                     )
 
-                memberQuote.updateTypingQuote(data.typingQuoteRequest.typingKorQuote, data.typingQuoteRequest.typingEngQuote)
-                memberQuote.updateMemo(data.memoRequest.memo)
-                memberQuote.updateLikeYn(data.likeRequest.likeYn)
+                data.typingQuoteRequest?.let {
+                    memberQuote.updateTypingQuote(it.typingKorQuote, it.typingEngQuote)
+                }
+                data.memoRequest?.let {
+                    memberQuote.updateMemo(it.memo)
+                }
+                data.likeRequest?.let {
+                    memberQuote.updateLikeYn(it.likeYn)
+                }
 
                 memberQuote
             }

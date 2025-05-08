@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.web.multipart.MultipartFile
 
 open class DailyQuoteResponse(
-    @Schema(description = "일별 명언 일련번호")
+    @Schema(description = "일별 명언 일련번호", required = true)
     val dailyQuoteSeq: Long,
 
     @Schema(description = "국문 명언")

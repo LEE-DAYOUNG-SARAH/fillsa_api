@@ -5,38 +5,38 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
 data class MemberMonthlyQuoteResponse(
-    @Schema(description = "사용자 명언 정보")
+    @Schema(description = "사용자 명언 정보", required = true)
     val memerQuotes: List<MemberQuotesData>,
 
-    @Schema(description = "월별 요약 정보")
+    @Schema(description = "월별 요약 정보", required = true)
     val monthlySummary: MonthlySummaryData
 ) {
     data class MemberQuotesData(
-        @Schema(description = "일별 명언 일련번호")
+        @Schema(description = "일별 명언 일련번호", required = true)
         val dailyQuoteSeq: Long,
 
-        @Schema(description = "명언 일자")
+        @Schema(description = "명언 일자", required = true)
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
         val quoteDate: LocalDate,
 
-        @Schema(description = "명언")
+        @Schema(description = "명언", required = true)
         val quote: String,
 
-        @Schema(description = "명언 저자")
+        @Schema(description = "명언 저자", required = true)
         val author: String,
 
         @Schema(description = "타이핑 여부", example = "Y/N")
         val typingYn: String,
 
-        @Schema(description = "좋아요 여부", example = "Y/N")
+        @Schema(description = "좋아요 여부", example = "Y/N", required = true)
         val likeYn: String
     )
 
     data class MonthlySummaryData(
-        @Schema(description = "타이핑 갯수")
+        @Schema(description = "타이핑 갯수", required = true)
         val typingCount: Int,
 
-        @Schema(description = "좋아요 갯수")
+        @Schema(description = "좋아요 갯수", required = true)
         val likeCount: Int
     )
 }

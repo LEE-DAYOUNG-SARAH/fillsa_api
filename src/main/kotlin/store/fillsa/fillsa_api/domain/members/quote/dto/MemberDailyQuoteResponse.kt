@@ -4,7 +4,7 @@ import store.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
 import io.swagger.v3.oas.annotations.media.Schema
 
 class MemberDailyQuoteResponse(
-    @Schema(description = "좋아요 여부")
+    @Schema(description = "좋아요 여부(Y/N)", required = true)
     val likeYn: String,
 
     @Schema(description = "s3 이미지 경로")
