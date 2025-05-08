@@ -26,19 +26,21 @@ class Quote (
     var category: QuoteCategory? = null,
 ): BaseEntity() {
     enum class QuoteCategory(val value: String) {
+        DEATH("death"),
+        FAITH("faith"),
+        HOPE("hope"),
         HUMOR("humor"),
         INSPIRATIONAL("inspirational"),
-        LIVE_QUOTES("live-quotes"),
         LIVE("live"),
+        LIVE_QUOTES("live-quotes"),
         LOVE("love"),
         MOTIVATIONAL("motivational"),
-        SUCCESS("success"),
-        WISDOM("wisdom"),
-        SCIENCE("science"),
         POETRY("poetry"),
-        WRITING("writing"),
-        FAITH("faith"),
-        TIME("time");
+        SCIENCE("science"),
+        SUCCESS("success"),
+        TIME("time"),
+        WISDOM("wisdom"),
+        WRITING("writing");
 
         override fun toString(): String = value
 
