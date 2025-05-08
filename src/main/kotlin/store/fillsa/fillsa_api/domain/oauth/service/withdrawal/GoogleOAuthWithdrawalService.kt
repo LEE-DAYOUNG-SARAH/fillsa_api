@@ -1,11 +1,13 @@
 package store.fillsa.fillsa_api.domain.oauth.service.withdrawal
 
-import store.fillsa.fillsa_api.common.exception.OAuthWithdrawalException
+import org.springframework.stereotype.Service
+import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
+import store.fillsa.fillsa_api.common.exception.ErrorCode.OAUTH_REFRESH_TOKEN_EXPIRED
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.oauth.client.withdrawl.useCase.GoogleOAuthWithdrawalClient
 import store.fillsa.fillsa_api.domain.oauth.respository.OAuthTokenRepository
 import store.fillsa.fillsa_api.domain.oauth.service.withdrawal.useCase.OAuthWithdrawalUseCase
-import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
 @Service
@@ -16,11 +18,11 @@ class GoogleOAuthWithdrawalService(
 
     override fun withdraw(member: Member) {
         val oauthToken = oAuthTokenRepository.findTopByMemberOrderByOauthTokenSeqDesc(member)
-            ?: throw OAuthWithdrawalException("OAuth 정보 없음")
+            ?: throw BusinessException(NOT_FOUND, "OAuth 정보 없음")
 
         val refreshToken = if(oauthToken.refreshTokenExpiresAt > LocalDateTime.now()) {
             oauthToken.refreshToken
-        } else throw OAuthWithdrawalException("OAuth refresh token 만료")
+        } else throw BusinessException(OAUTH_REFRESH_TOKEN_EXPIRED)
 
         val accessToken = googleOAuthWithdrawalClient.getAccessToken(refreshToken)
 

@@ -12,7 +12,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.*
 import org.springframework.web.multipart.MultipartFile
-import store.fillsa.fillsa_api.common.exception.FileException
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.storage.useCase.StorageUseCase
 
 @ExtendWith(MockitoExtension::class)
@@ -62,7 +62,7 @@ class FileServiceTest {
         doThrow(RuntimeException("fail")).`when`(mockStorage).upload(anyString(), any(), anyString(), anyString())
 
         // when & then
-        assertThrows(FileException::class.java) {
+        assertThrows(BusinessException::class.java) {
             sut.uploadFile(path, mockFile)
         }
     }
@@ -110,7 +110,7 @@ class FileServiceTest {
         doThrow(RuntimeException("err")).`when`(mockStorage).delete(fileUrl)
 
         // when & then
-        assertThrows(FileException::class.java) {
+        assertThrows(BusinessException::class.java) {
             sut.deleteFile(fileUrl)
         }
     }

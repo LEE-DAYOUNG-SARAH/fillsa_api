@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
 import org.springframework.web.bind.annotation.*
+import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.domain.auth.service.redis.RedisTokenService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.oauth.service.callback.OAuthCallbackService
@@ -20,6 +22,13 @@ class OAuthCallbackController(
 ) {
     val log = KotlinLogging.logger {  }
 
+    @ApiErrorResponses(
+        INVALID_REQUEST,
+        OAUTH_TOKEN_REQUEST_FAILED,
+        OAUTH_TOKEN_RESPONSE_PROCESS_FAILED,
+        OAUTH_USER_REQUEST_FAILED,
+        OAUTH_USER_RESPONSE_PROCESS_FAILED
+    )
     @GetMapping("/{provider}/callback")
     @Operation(summary = "간편 로그인 콜백 api")
     fun oauthCallback(

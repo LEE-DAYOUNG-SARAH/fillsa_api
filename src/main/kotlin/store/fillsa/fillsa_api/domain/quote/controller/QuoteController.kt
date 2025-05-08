@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
+import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
 import store.fillsa.fillsa_api.domain.quote.service.QuoteService
 import java.time.LocalDate
@@ -19,6 +21,7 @@ class QuoteController(
     private val quoteService: QuoteService
 ) {
 
+    @ApiErrorResponses(NOT_FOUND)
     @GetMapping("/daily")
     @Operation(summary = "일별 명언 조회 api")
     fun dailyQuote(

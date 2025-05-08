@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import store.fillsa.fillsa_api.common.dto.PageResponse
+import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.dto.*
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteReadService
@@ -23,6 +25,7 @@ import java.time.YearMonth
 class MemberQuoteReadController(
     private val memberQuoteReadService: MemberQuoteReadService
 ) {
+    @ApiErrorResponses(NOT_FOUND)
     @GetMapping("/daily")
     @Operation(summary = "일별 명언 조회 api")
     fun dailyQuote(
@@ -53,6 +56,7 @@ class MemberQuoteReadController(
         memberQuoteReadService.memberQuotes(member, pageable, request)
     )
 
+    @ApiErrorResponses(NOT_FOUND)
     @GetMapping("/{dailyQuoteSeq}/typing")
     @Operation(summary = "타이핑 명언 조회 api")
     fun typingQuote(

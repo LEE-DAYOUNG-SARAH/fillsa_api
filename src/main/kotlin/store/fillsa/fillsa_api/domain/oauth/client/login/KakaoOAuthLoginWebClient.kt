@@ -11,7 +11,8 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import store.fillsa.fillsa_api.common.exception.OAuthLoginException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.oauth.client.login.useCase.*
 import java.time.LocalDateTime
@@ -50,17 +51,18 @@ class KakaoOAuthLoginWebClient(
                     .defaultIfEmpty(StringUtils.EMPTY)
                     .flatMap {
                         log.error { "${getOAuthProvider()} 토큰 요청 실패: ${resp.statusCode()} - $it" }
-                        Mono.error(OAuthLoginException("${getOAuthProvider()} 토큰 요청 실패"))
+                        Mono.error(
+                            BusinessException(OAUTH_TOKEN_REQUEST_FAILED, "${getOAuthProvider()} 토큰 요청 실패"))
                     }
             }
             .bodyToMono<KakaoOAuthTokenResponse>()
-            .onErrorMap({ e -> e !is OAuthLoginException }) { e ->
+            .onErrorMap({ e -> e !is BusinessException }) { e ->
                 log.error { "${getOAuthProvider()} 토큰 응답 실패: ${e.message}" }
-                OAuthLoginException("${getOAuthProvider()} 토큰 응답 실패")
+                BusinessException(OAUTH_TOKEN_RESPONSE_PROCESS_FAILED, "${getOAuthProvider()} 토큰 응답 실패")
             }
             .blockOptional()                       // Optional<T>
             .orElseThrow {
-                OAuthLoginException("${getOAuthProvider()} 토큰 응답이 없습니다")
+                BusinessException(OAUTH_TOKEN_RESPONSE_PROCESS_FAILED, "${getOAuthProvider()} 토큰 응답 없음")
             }
             .toOAuthTokenInfo()
     }
@@ -79,17 +81,18 @@ class KakaoOAuthLoginWebClient(
                 resp.bodyToMono<String>()
                     .flatMap {
                         log.error { "${getOAuthProvider()} 사용자 정보 요청 실패: ${resp.statusCode()} - $it" }
-                        Mono.error(OAuthLoginException("${getOAuthProvider()} 사용자 정보 요청 실패"))
+                        Mono.error(
+                            BusinessException(OAUTH_USER_REQUEST_FAILED, "${getOAuthProvider()} 사용자 정보 요청 실패"))
                     }
             }
             .bodyToMono<KakaoOAuthUserResponse>()
-            .onErrorMap({ e -> e !is OAuthLoginException }) { e ->
+            .onErrorMap({ e -> e !is BusinessException }) { e ->
                 log.error { "${getOAuthProvider()} 사용자 정보 응답 실패: ${e.message}" }
-                OAuthLoginException("${getOAuthProvider()} 사용자 정보 응답 실패")
+                BusinessException(OAUTH_USER_RESPONSE_PROCESS_FAILED, "${getOAuthProvider()} 사용자 정보 응답 실패")
             }
             .blockOptional()                       // Optional<T>
             .orElseThrow {
-                OAuthLoginException("${getOAuthProvider()} 사용자 정보 응답이 없습니다")
+                BusinessException(OAUTH_USER_RESPONSE_PROCESS_FAILED, "${getOAuthProvider()} 사용자 정보 응답 없음")
             }
             .toOAuthUserInfo()
     }

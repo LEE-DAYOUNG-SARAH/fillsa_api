@@ -11,6 +11,9 @@ import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import store.fillsa.fillsa_api.common.exception.ErrorCode
+import store.fillsa.fillsa_api.common.exception.ErrorCode.JWT_ACCESS_TOKEN_EXPIRED
+import store.fillsa.fillsa_api.common.exception.ErrorCode.JWT_ACCESS_TOKEN_INVALID
 import java.time.LocalDateTime
 
 @Component
@@ -27,14 +30,14 @@ class AuthenticationErrorFilter: HttpFilter() {
             chain.doFilter(request, response)
         } catch (e: ExpiredJwtException) {
             log.error { "만료된 토큰: ${e.message}" }
-            createErrorResponse(response, "토큰이 만료되었습니다. 토큰을 갱신해주세요.")
+            createErrorResponse(response, JWT_ACCESS_TOKEN_EXPIRED)
         } catch (e: JwtException) {
             log.warn { "유효하지 않은 토큰: ${e.message}" }
-            createErrorResponse(response, "유효하지 않은 토큰입니다. 다시 로그인 해주세요.")
+            createErrorResponse(response, JWT_ACCESS_TOKEN_INVALID)
         }
     }
 
-    private fun createErrorResponse(response: HttpServletResponse, message: String) {
+    private fun createErrorResponse(response: HttpServletResponse, errorCode: ErrorCode) {
         response.status = HttpStatus.UNAUTHORIZED.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.characterEncoding = Charsets.UTF_8.name()
@@ -43,7 +46,8 @@ class AuthenticationErrorFilter: HttpFilter() {
             "timestamp" to LocalDateTime.now().toString(),
             "status"    to response.status,
             "error"     to HttpStatus.UNAUTHORIZED.reasonPhrase,
-            "message"   to message
+            "errorCode" to errorCode.code,
+            "message"   to errorCode.message
         )
 
         response.writer.write(gson.toJson(body))

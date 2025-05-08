@@ -2,7 +2,8 @@ package store.fillsa.fillsa_api.domain.members.quote.service
 
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import store.fillsa.fillsa_api.common.exception.NotFoundException
+import store.fillsa.fillsa_api.common.exception.BusinessException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.common.service.FileService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
@@ -19,7 +20,7 @@ class MemberQuoteImageService(
 
     fun uploadImage(member: Member, dailyQuoteSeq: Long, image: MultipartFile): Long {
         val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
-            ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
         val memberQuote = memberQuoteReadService.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
             ?: memberQuoteUpdateService.createMemberQuote(
@@ -41,7 +42,7 @@ class MemberQuoteImageService(
 
     fun deleteImage(member: Member, dailyQuoteSeq: Long): Long {
         val memberQuote = memberQuoteReadService.getMemberQuoteByDailyQuoteSeq(member, dailyQuoteSeq)
-            ?: throw throw NotFoundException("존재하지 않는 memberQuote")
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 memberQuote")
 
         memberQuote.imagePath?.let {
             fileService.deleteFile(it)

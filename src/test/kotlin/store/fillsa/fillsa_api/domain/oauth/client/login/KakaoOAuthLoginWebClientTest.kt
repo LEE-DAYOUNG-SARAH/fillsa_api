@@ -1,6 +1,6 @@
 package store.fillsa.fillsa_api.domain.oauth.client.login
 
-import store.fillsa.fillsa_api.common.exception.OAuthLoginException
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
@@ -79,7 +79,7 @@ class KakaoOAuthLoginWebClientTest {
 
         // when & then
         assertThatThrownBy { sut.getAccessToken("dummy-code") }
-            .isInstanceOf(OAuthLoginException::class.java)
+            .isInstanceOf(BusinessException::class.java)
             .hasMessage("KAKAO 토큰 요청 실패")
     }
 
@@ -99,7 +99,7 @@ class KakaoOAuthLoginWebClientTest {
 
         // when & then
         assertThatThrownBy { sut.getAccessToken("dummy-code") }
-            .isInstanceOf(OAuthLoginException::class.java)
+            .isInstanceOf(BusinessException::class.java)
             .hasMessage("KAKAO 토큰 응답 실패")
     }
 
@@ -144,7 +144,7 @@ class KakaoOAuthLoginWebClientTest {
 
         // when & then
         assertThatThrownBy { sut.getUserInfo("dummy-token") }
-            .isInstanceOf(OAuthLoginException::class.java)
+            .isInstanceOf(BusinessException::class.java)
             .hasMessage("KAKAO 사용자 정보 요청 실패")
     }
 
@@ -164,7 +164,7 @@ class KakaoOAuthLoginWebClientTest {
 
         // when & then
         assertThatThrownBy { sut.getUserInfo("dummy-token") }
-            .isInstanceOf(OAuthLoginException::class.java)
+            .isInstanceOf(BusinessException::class.java)
             .hasMessage("KAKAO 사용자 정보 응답 실패")
     }
 

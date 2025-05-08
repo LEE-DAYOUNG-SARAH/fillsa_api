@@ -3,7 +3,8 @@ package store.fillsa.fillsa_api.domain.quote.service
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import store.fillsa.fillsa_api.common.exception.NotFoundException
+import store.fillsa.fillsa_api.common.exception.ErrorCode
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
 import java.time.LocalDate
 
@@ -19,7 +20,7 @@ class QuoteService(
     @Transactional(readOnly = true)
     fun getDailyQuote(quoteDate: LocalDate): DailyQuoteResponse {
         val dailyQuote = dailyQuoteService.getDailyQuoteByQuoteDate(quoteDate)
-            ?: throw NotFoundException("존재하지 않는 quoteDate: $quoteDate")
+            ?: throw BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 quoteDate: $quoteDate")
 
         return DailyQuoteResponse(
             dailyQuoteSeq = dailyQuote.dailyQuoteSeq,

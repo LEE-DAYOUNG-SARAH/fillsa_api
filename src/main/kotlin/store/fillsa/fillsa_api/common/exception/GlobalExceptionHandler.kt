@@ -20,11 +20,12 @@ class GlobalExceptionHandler {
 
         val response = ErrorResponse(
             timestamp = LocalDateTime.now(),
-            status = ex.status.value(),
-            error = ex.status.reasonPhrase,
-            message = ex.message ?: "비즈니스 오류가 발생했습니다"
+            httpStatus = ex.errorCode.httpStatus.value(),
+            error = ex.errorCode.httpStatus.reasonPhrase,
+            errorCode = ex.errorCode.code,
+            message = ex.errorCode.message
         )
-        return ResponseEntity(response, ex.status)
+        return ResponseEntity(response, ex.errorCode.httpStatus)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
@@ -35,8 +36,9 @@ class GlobalExceptionHandler {
 
         val response = ErrorResponse(
             timestamp = LocalDateTime.now(),
-            status = HttpStatus.BAD_REQUEST.value(),
+            httpStatus = HttpStatus.BAD_REQUEST.value(),
             error = HttpStatus.BAD_REQUEST.reasonPhrase,
+            errorCode = ErrorCode.INVALID_REQUEST.code,
             message = errorMessage
         )
         return ResponseEntity(response, HttpStatus.BAD_REQUEST)
@@ -48,8 +50,9 @@ class GlobalExceptionHandler {
 
         val response = ErrorResponse(
             timestamp = LocalDateTime.now(),
-            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             error = HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase,
+            errorCode = ErrorCode.SERVER_ERROR.code,
             message = ex.message ?: "예상치 못한 오류가 발생했습니다"
         )
         return ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR)
@@ -58,7 +61,8 @@ class GlobalExceptionHandler {
 
 data class ErrorResponse(
     val timestamp: LocalDateTime,
-    val status: Int,
+    val httpStatus: Int,
     val error: String,
+    val errorCode: Int,
     val message: String
 )

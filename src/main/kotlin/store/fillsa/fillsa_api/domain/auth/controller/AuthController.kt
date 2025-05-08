@@ -8,6 +8,8 @@ import kotlinx.coroutines.launch
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.domain.auth.dto.*
 import store.fillsa.fillsa_api.common.security.TokenInfo
 import store.fillsa.fillsa_api.domain.auth.service.auth.AuthService
@@ -21,14 +23,27 @@ class AuthController(
     private val authService: AuthService,
     private val memberQuoteDataSyncService: MemberQuoteDataSyncService
 ) {
+    @ApiErrorResponses(
+        JWT_REFRESH_TOKEN_EXPIRED,
+        JWT_REFRESH_TOKEN_INVALID,
+        REDIS_REFRESH_TOKEN_INVALID
+    )
     @PostMapping("/refresh")
-    @Operation(summary = "토큰 발급 api")
+    @Operation(summary = "토큰 재발급 api")
     fun refreshToken(
         @RequestBody request: TokenRefreshRequest
     ): ResponseEntity<TokenInfo> = ResponseEntity.ok(
         authService.refreshToken(request)
     )
 
+    @ApiErrorResponses(
+        INVALID_REQUEST,
+        NOT_FOUND,
+        OAUTH_REFRESH_TOKEN_EXPIRED,
+        OAUTH_TOKEN_REQUEST_FAILED,
+        OAUTH_TOKEN_RESPONSE_PROCESS_FAILED,
+        OAUTH_WITHDRAWAL_REQUEST_FAILED
+    )
     @DeleteMapping("/withdraw")
     @Operation(summary = "탈퇴 api")
     fun logout(
@@ -47,6 +62,11 @@ class AuthController(
         authService.logout(member, request)
     }
 
+    @ApiErrorResponses(
+        REDIS_TEMP_TOKEN_INVALID,
+        NOT_FOUND,
+        WITHDRAWAL_USER
+    )
     @PostMapping("/login")
     @Operation(summary = "로그인 api")
     fun login(

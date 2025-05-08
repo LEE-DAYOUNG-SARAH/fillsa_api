@@ -9,7 +9,8 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import store.fillsa.fillsa_api.common.exception.OAuthLoginException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.oauth.client.withdrawl.useCase.GoogleOAuthWithdrawalClient
 
@@ -43,17 +44,18 @@ class GoogleOAuthWithdrawalWebClient(
                 resp.bodyToMono<String>()
                     .flatMap {
                         log.error { "${getOAuthProvider()} 토큰 요청 실패: ${resp.statusCode()} - $it" }
-                        Mono.error(OAuthLoginException("${getOAuthProvider()} 토큰 요청 실패"))
+                        Mono.error(
+                            BusinessException(OAUTH_TOKEN_REQUEST_FAILED, "${getOAuthProvider()} 토큰 요청 실패"))
                     }
             }
             .bodyToMono<JsonNode>()
-            .onErrorMap({ e -> e !is OAuthLoginException }) { e ->
+            .onErrorMap({ e -> e !is BusinessException }) { e ->
                 log.error { "${getOAuthProvider()} 토큰 응답 처리 실패: ${e.message}" }
-                OAuthLoginException("${getOAuthProvider()} 토큰 응답 처리 실패")
+                BusinessException(OAUTH_TOKEN_RESPONSE_PROCESS_FAILED, "${getOAuthProvider()} 토큰 응답 처리 실패")
             }
             .map { it.path("access_token").asText() }
             .block()
-            ?: throw OAuthLoginException("${getOAuthProvider()} access token 없음")
+            ?: throw BusinessException(OAUTH_TOKEN_RESPONSE_PROCESS_FAILED, "${getOAuthProvider()} access token 없음")
     }
 
     override fun withdraw(accessToken: String) {
@@ -67,7 +69,8 @@ class GoogleOAuthWithdrawalWebClient(
                 resp.bodyToMono<String>()
                     .flatMap {
                         log.error { "${getOAuthProvider()} 탈퇴 요청 실패: ${resp.statusCode()} - $it" }
-                        Mono.error(OAuthLoginException("${getOAuthProvider()} 탈퇴 요청 실패"))
+                        Mono.error(
+                            BusinessException(OAUTH_WITHDRAWAL_REQUEST_FAILED, "${getOAuthProvider()} 탈퇴 요청 실패"))
                     }
             }
             .bodyToMono<String>()

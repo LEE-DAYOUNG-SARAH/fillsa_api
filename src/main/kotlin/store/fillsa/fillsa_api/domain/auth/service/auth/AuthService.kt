@@ -1,10 +1,12 @@
 package store.fillsa.fillsa_api.domain.auth.service.auth
 
+import io.jsonwebtoken.ExpiredJwtException
 import org.springframework.stereotype.Service
-import store.fillsa.fillsa_api.common.exception.InvalidRequestException
-import store.fillsa.fillsa_api.domain.auth.dto.*
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.security.JwtTokenProvider
 import store.fillsa.fillsa_api.common.security.TokenInfo
+import store.fillsa.fillsa_api.domain.auth.dto.*
 import store.fillsa.fillsa_api.domain.auth.service.redis.RedisTokenService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.service.MemberService
@@ -28,12 +30,16 @@ class AuthService(
     }
 
     private fun validateRefreshToken(memberSeq: Long, request: TokenRefreshRequest) {
-        if (!jwtTokenProvider.validateToken(request.refreshToken)) {
-            throw InvalidRequestException("유효하지 않은 리프레시 토큰")
+        try {
+            jwtTokenProvider.validateToken(request.refreshToken)
+        } catch (e: ExpiredJwtException) {
+            throw BusinessException(JWT_REFRESH_TOKEN_EXPIRED)
+        } catch (e: Exception) {
+            throw BusinessException(JWT_REFRESH_TOKEN_INVALID)
         }
 
         if (!redisTokenService.validateRefreshToken(memberSeq, request.deviceId, request.refreshToken)) {
-            throw InvalidRequestException("유효하지 않은 리프레시 토큰")
+            throw BusinessException(REDIS_REFRESH_TOKEN_INVALID)
         }
     }
 
@@ -63,7 +69,7 @@ class AuthService(
 
     fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse> {
         val memberSeq = redisTokenService.getAndDeleteTempToken(request.tempToken)?.toLong()
-            ?: throw InvalidRequestException("만료되었거나 잘못된 임시 토큰입니다.")
+            ?: throw BusinessException(REDIS_TEMP_TOKEN_INVALID, "만료되었거나 잘못된 임시 토큰")
 
         val member = memberService.getActiveMemberBySeq(memberSeq)
         val token = createToken(memberSeq, request.deviceId)

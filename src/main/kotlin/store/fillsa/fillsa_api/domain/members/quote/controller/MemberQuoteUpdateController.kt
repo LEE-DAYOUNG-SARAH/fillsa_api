@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
+import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.dto.LikeRequest
 import store.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
@@ -18,6 +20,7 @@ import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteUpdateSer
 class MemberQuoteUpdateController(
     private val memberQuoteUpdateService: MemberQuoteUpdateService
 ) {
+    @ApiErrorResponses(NOT_FOUND)
     @PostMapping("/{dailyQuoteSeq}/typing")
     @Operation(summary = "타이핑 명언 저장 api")
     fun typing(
@@ -28,6 +31,7 @@ class MemberQuoteUpdateController(
         memberQuoteUpdateService.typingQuote(member, dailyQuoteSeq, request)
     )
 
+    @ApiErrorResponses(NOT_FOUND)
     @PostMapping("/{memberQuoteSeq}/memo")
     @Operation(summary = "명언 메모 저장 api")
     fun memo(
@@ -38,6 +42,7 @@ class MemberQuoteUpdateController(
         memberQuoteUpdateService.memo(member, memberQuoteSeq, request)
     )
 
+    @ApiErrorResponses(NOT_FOUND)
     @PostMapping("/{dailyQuoteSeq}/like")
     @Operation(summary = "명언 좋아요 저장 api")
     fun like(

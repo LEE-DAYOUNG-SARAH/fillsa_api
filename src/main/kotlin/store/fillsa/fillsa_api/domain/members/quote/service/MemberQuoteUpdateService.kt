@@ -2,7 +2,8 @@ package store.fillsa.fillsa_api.domain.members.quote.service
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import store.fillsa.fillsa_api.common.exception.NotFoundException
+import store.fillsa.fillsa_api.common.exception.BusinessException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.dto.LikeRequest
 import store.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
@@ -20,7 +21,7 @@ class MemberQuoteUpdateService(
     @Transactional
     fun typingQuote(member: Member, dailyQuoteSeq: Long, request: TypingQuoteRequest): Long {
         val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
-            ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
         val memberQuote = memberQuoteReadService.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
             ?: createMemberQuote(
@@ -38,7 +39,7 @@ class MemberQuoteUpdateService(
     @Transactional
     fun memo(member: Member, memberQuoteSeq: Long, request: MemoRequest): Long {
         val memberQuote = memberQuoteReadService.getMemberQuoteByMemberQuoteSeq(member, memberQuoteSeq)
-            ?: throw NotFoundException("존재하지 않는 memberQuoteSeq: $memberQuoteSeq")
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 memberQuoteSeq: $memberQuoteSeq")
 
         memberQuote.updateMemo(request.memo)
 
@@ -53,7 +54,7 @@ class MemberQuoteUpdateService(
     @Transactional
     fun updateImagePath(memberQuote: MemberQuote, imagePath: String?) {
         val findMemberQuote = memberQuoteRepository.findById(memberQuote.memberQuoteSeq)
-            .orElseThrow { NotFoundException("존재하지 않는 memberQuoteSeq: ${memberQuote.memberQuoteSeq}") }
+            .orElseThrow { BusinessException(NOT_FOUND, "존재하지 않는 memberQuoteSeq: ${memberQuote.memberQuoteSeq}") }
 
         findMemberQuote.updateImagePath(imagePath)
     }
@@ -61,7 +62,7 @@ class MemberQuoteUpdateService(
     @Transactional
     fun like(member: Member, dailyQuoteSeq: Long, request: LikeRequest): Long {
         val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
-            ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
         val memberQuote = memberQuoteReadService.getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
             ?: createMemberQuote(

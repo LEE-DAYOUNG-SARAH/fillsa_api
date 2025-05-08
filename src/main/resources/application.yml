@@ -75,5 +75,13 @@ fillsa:
   ko-author-url: https://ko.wikipedia.org/wiki/
   en-author-url: https://en.wikipedia.org/wiki/
 
+springdoc:
+  default-produces-media-type: application/json
+  swagger-ui:
+    enabled: true
+    tags-sorter: alpha
+  enable-spring-security: true
+  writer-with-order-by-keys: false
+
 swagger:
   server-url: http://localhost:8080

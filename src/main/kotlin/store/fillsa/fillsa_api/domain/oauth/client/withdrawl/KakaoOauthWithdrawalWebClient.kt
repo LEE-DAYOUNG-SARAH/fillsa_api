@@ -9,7 +9,8 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import store.fillsa.fillsa_api.common.exception.OAuthLoginException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.OAUTH_WITHDRAWAL_REQUEST_FAILED
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.oauth.client.withdrawl.useCase.KakaoOAuthWithdrawalClient
 
@@ -41,7 +42,8 @@ class KakaoOauthWithdrawalWebClient(
                 resp.bodyToMono<String>()
                     .flatMap {
                         log.error { "${getOAuthProvider()} 탈퇴 요청 실패: ${resp.statusCode()} - $it" }
-                        Mono.error(OAuthLoginException("${getOAuthProvider()} 탈퇴 요청 실패"))
+                        Mono.error(
+                            BusinessException(OAUTH_WITHDRAWAL_REQUEST_FAILED, "${getOAuthProvider()} 탈퇴 요청 실패"))
                     }
             }
             .bodyToMono<String>()

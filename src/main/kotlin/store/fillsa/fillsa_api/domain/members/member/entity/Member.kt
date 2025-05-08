@@ -1,10 +1,12 @@
 package store.fillsa.fillsa_api.domain.members.member.entity
 
-import store.fillsa.fillsa_api.common.entity.BaseEntity
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
+import store.fillsa.fillsa_api.common.entity.BaseEntity
+import store.fillsa.fillsa_api.common.exception.ErrorCode.INVALID_VALUE
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import java.time.LocalDateTime
 
 @Entity
@@ -63,7 +65,7 @@ class Member(
         companion object {
             fun fromPath(path: String): OAuthProvider =
                 entries.find { it.name.equals(path, ignoreCase = true) }
-                    ?: throw IllegalArgumentException("지원하지 않는 OAuth Provider: $path")
+                    ?: throw BusinessException(INVALID_VALUE, "지원하지 않는 OAuth Provider: $path")
         }
     }
 }

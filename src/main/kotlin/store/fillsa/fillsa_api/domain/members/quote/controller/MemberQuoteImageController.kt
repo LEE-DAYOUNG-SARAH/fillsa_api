@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteImageService
 
@@ -19,6 +21,11 @@ class MemberQuoteImageController(
 ) {
     val member = Member(oauthProvider = Member.OAuthProvider.GOOGLE, oauthId = "")
 
+    @ApiErrorResponses(
+        NOT_FOUND,
+        FILE_UPDATE_FAILED,
+        FILE_UPLOAD_FAILED
+    )
     @PostMapping(
         "/{dailyQuoteSeq}/images",
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
@@ -32,6 +39,10 @@ class MemberQuoteImageController(
         memberQuoteImageService.uploadImage(member, dailyQuoteSeq, image)
     )
 
+    @ApiErrorResponses(
+        NOT_FOUND,
+        FILE_DELETE_FAILED
+    )
     @DeleteMapping("/{dailyQuoteSeq}/images")
     @Operation(summary = "명언 이미지 삭제 api")
     fun deleteImage(

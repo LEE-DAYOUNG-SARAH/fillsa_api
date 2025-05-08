@@ -7,7 +7,9 @@ import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
-import store.fillsa.fillsa_api.common.exception.S3Exception
+import store.fillsa.fillsa_api.common.exception.ErrorCode.STORAGE_DELETE_FAILED
+import store.fillsa.fillsa_api.common.exception.ErrorCode.STORAGE_UPLOAD_FAILED
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.storage.useCase.StorageUseCase
 import java.util.*
 
@@ -34,7 +36,7 @@ class S3StorageService(
             return "https://$bucket.s3.$region.amazonaws.com/$key"
         } catch (e: Exception) {
             log.error(e) { "S3 upload failed: $key" }
-            throw S3Exception("파일 업로드 중 오류가 발생했습니다.", e)
+            throw BusinessException(STORAGE_UPLOAD_FAILED)
         }
     }
 
@@ -59,7 +61,7 @@ class S3StorageService(
             )
         } catch (e: Exception) {
             log.error(e) { "S3 delete failed: $fileUrl" }
-            throw S3Exception("파일 삭제 중 오류가 발생했습니다.", e)
+            throw BusinessException(STORAGE_DELETE_FAILED)
         }
     }
 }

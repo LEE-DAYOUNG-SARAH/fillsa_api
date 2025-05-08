@@ -5,7 +5,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.common.dto.PageResponse
-import store.fillsa.fillsa_api.common.exception.NotFoundException
+import store.fillsa.fillsa_api.common.exception.BusinessException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.dto.*
 import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
@@ -27,7 +28,7 @@ class MemberQuoteReadService(
     @Transactional(readOnly = true)
     fun dailyQuote(member: Member, quoteDate: LocalDate): MemberDailyQuoteResponse {
         val dailyQuote = dailyQuoteService.getDailyQuoteByQuoteDate(quoteDate)
-            ?: throw NotFoundException("존재하지 않는 quoteDate: $quoteDate")
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 quoteDate: $quoteDate")
 
         val memberQuote = memberQuoteRepository.findByMemberAndDailyQuote(member, dailyQuote)
 
@@ -109,7 +110,7 @@ class MemberQuoteReadService(
     @Transactional(readOnly = true)
     fun typingQuote(member: Member, dailyQuoteSeq: Long): MemberTypingQuoteResponse {
         val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
-            ?: throw NotFoundException("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
         val memberQuote = getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
 
