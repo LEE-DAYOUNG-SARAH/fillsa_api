@@ -1,6 +1,5 @@
 package store.fillsa.fillsa_api.domain.quote.entity
 
-import store.fillsa.fillsa_api.common.converter.QuoteCategoryConverter
 import store.fillsa.fillsa_api.common.entity.BaseEntity
 import jakarta.persistence.*
 
@@ -24,7 +23,6 @@ class Quote (
     var engAuthor: String? = null,
 
     @Column(nullable = true)
-    @Convert(converter = QuoteCategoryConverter::class)
     var category: QuoteCategory? = null,
 ): BaseEntity() {
     enum class QuoteCategory(val value: String) {
