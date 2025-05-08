@@ -9,6 +9,9 @@ enum class PublicEndpoint(val patterns: List<String>) {
         "/auth/login",
         "/auth/refresh"
     )),
+    OAUTH(listOf(
+        "/oauth/**"
+    )),
     QUOTES(listOf(
         "/quotes/**"
     )),
