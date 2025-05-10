@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 data class MemberMonthlyQuoteResponse(
     @Schema(description = "사용자 명언 정보", required = true)
-    val memerQuotes: List<MemberQuotesData>,
+    val memberQuotes: List<MemberQuotesData>,
 
     @Schema(description = "월별 요약 정보", required = true)
     val monthlySummary: MonthlySummaryData
