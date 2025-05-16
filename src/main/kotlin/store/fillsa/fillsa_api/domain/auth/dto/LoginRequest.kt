@@ -1,6 +1,8 @@
 package store.fillsa.fillsa_api.domain.auth.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
+import store.fillsa.fillsa_api.common.security.TokenInfo
+import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.dto.LikeRequest
 import store.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
 import store.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
@@ -49,4 +51,14 @@ data class LoginResponse(
 
     @Schema(description = "프로필 이미지 url")
     val profileImageUrl: String?
-)
+) {
+    companion object {
+        fun from(token: TokenInfo, member: Member) = LoginResponse(
+            accessToken = token.accessToken,
+            refreshToken = token.refreshToken,
+            memberSeq = member.memberSeq,
+            nickname = member.nickname.orEmpty(),
+            profileImageUrl = member.profileImageUrl
+        )
+    }
+}

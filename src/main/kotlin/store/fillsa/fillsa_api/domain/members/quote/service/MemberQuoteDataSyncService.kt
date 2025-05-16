@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.domain.auth.dto.LoginRequest
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
+import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import store.fillsa.fillsa_api.domain.members.quote.repository.MemberQuoteRepository
 import store.fillsa.fillsa_api.domain.quote.repository.DailyQuoteRepository
 
@@ -26,7 +27,7 @@ class MemberQuoteDataSyncService(
                     ?: return@mapNotNull null
 
                 val memberQuote = memberQuotes.find { it.dailyQuote == dailyQuote }
-                    ?: store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote(
+                    ?: MemberQuote(
                         dailyQuote = dailyQuote,
                         member = member
                     )

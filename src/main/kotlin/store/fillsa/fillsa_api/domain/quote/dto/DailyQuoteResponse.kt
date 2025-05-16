@@ -1,7 +1,7 @@
 package store.fillsa.fillsa_api.domain.quote.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
-import org.springframework.web.multipart.MultipartFile
+import store.fillsa.fillsa_api.domain.quote.entity.DailyQuote
 
 open class DailyQuoteResponse(
     @Schema(description = "일별 명언 일련번호", required = true)
@@ -21,4 +21,20 @@ open class DailyQuoteResponse(
 
     @Schema(description = "저자 url")
     val authorUrl: String?
-)
+) {
+    companion object {
+        fun from(
+            koAuthorUrl: String,
+            enAuthorUrl: String,
+            dailyQuote: DailyQuote,
+        ) = DailyQuoteResponse(
+            dailyQuoteSeq = dailyQuote.dailyQuoteSeq,
+            korQuote = dailyQuote.quote.korQuote,
+            engQuote = dailyQuote.quote.engQuote,
+            korAuthor = dailyQuote.quote.korAuthor,
+            engAuthor = dailyQuote.quote.engAuthor,
+            authorUrl = dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
+                ?: "${enAuthorUrl}${dailyQuote.quote.engAuthor}"
+        )
+    }
+}

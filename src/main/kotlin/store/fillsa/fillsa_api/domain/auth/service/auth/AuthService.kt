@@ -19,6 +19,35 @@ class AuthService(
     private val memberService: MemberService,
     private val redisTokenService: RedisTokenService
 ) {
+    fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse> {
+        val memberSeq = redisTokenService.getAndDeleteTempToken(request.tempToken)?.toLong()
+            ?: throw BusinessException(REDIS_TEMP_TOKEN_INVALID, "만료되었거나 잘못된 임시 토큰")
+
+        val member = memberService.getActiveMemberBySeq(memberSeq)
+        val token = createToken(memberSeq, request.deviceId)
+
+        return Pair(
+            member,
+            LoginResponse.from(token, member)
+        )
+    }
+
+    private fun createToken(memberSeq: Long, deviceId: String): TokenInfo {
+        val token = jwtTokenProvider.createTokens(memberSeq)
+        redisTokenService.createRefreshToken(
+            memberId = memberSeq,
+            deviceId = deviceId,
+            refreshToken = token.refreshToken,
+            ttlMillis = jwtTokenProvider.refreshTokenValidity
+        )
+
+        return token
+    }
+
+    fun logout(member: Member, request: LogoutRequest) {
+        redisTokenService.deleteRefreshToken(member.memberSeq, request.deviceId)
+    }
+
 
     fun refreshToken(request: TokenRefreshRequest): TokenInfo {
         val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
@@ -43,46 +72,11 @@ class AuthService(
         }
     }
 
-    private fun createToken(memberSeq: Long, deviceId: String): TokenInfo {
-        val token = jwtTokenProvider.createTokens(memberSeq)
-        redisTokenService.createRefreshToken(
-            memberId = memberSeq,
-            deviceId = deviceId,
-            refreshToken = token.refreshToken,
-            ttlMillis = jwtTokenProvider.refreshTokenValidity
-        )
-
-        return token
-    }
-
     fun withdraw(member: Member, request: WithdrawalRequest) {
         oAuthWithdrawalService.withdraw(member)
 
         memberService.withdraw(member)
 
         redisTokenService.deleteRefreshToken(member.memberSeq, request.deviceId)
-    }
-
-    fun logout(member: Member, request: LogoutRequest) {
-        redisTokenService.deleteRefreshToken(member.memberSeq, request.deviceId)
-    }
-
-    fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse> {
-        val memberSeq = redisTokenService.getAndDeleteTempToken(request.tempToken)?.toLong()
-            ?: throw BusinessException(REDIS_TEMP_TOKEN_INVALID, "만료되었거나 잘못된 임시 토큰")
-
-        val member = memberService.getActiveMemberBySeq(memberSeq)
-        val token = createToken(memberSeq, request.deviceId)
-
-        return Pair(
-            member,
-            LoginResponse(
-                accessToken = token.accessToken,
-                refreshToken = token.refreshToken,
-                memberSeq = member.memberSeq,
-                nickname = member.nickname.orEmpty(),
-                profileImageUrl = member.profileImageUrl
-            )
-        )
     }
 }

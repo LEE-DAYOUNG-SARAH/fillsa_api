@@ -14,21 +14,10 @@ class NoticeService(
 
     @Transactional(readOnly = true)
     fun getNotices(pageable: Pageable): PageResponse<NoticeResponse> {
-        val notices = noticeRepository.findByPageable(pageable)
+        val pagingNotices = noticeRepository.findByPageable(pageable)
 
-        val responses = notices.content.map {
-            NoticeResponse(
-                noticeSeq = it.noticeSeq,
-                content = it.content,
-                createdAt = it.createdAt
-            )
+        return PageResponse.from(pagingNotices) { notice ->
+            NoticeResponse.from(notice)
         }
-
-        return PageResponse(
-            content = responses,
-            totalElements = notices.totalElements,
-            totalPages = notices.totalPages,
-            currentPage = notices.number
-        )
     }
 }

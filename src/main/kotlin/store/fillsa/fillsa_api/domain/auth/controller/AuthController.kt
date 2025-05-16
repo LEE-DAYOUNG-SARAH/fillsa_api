@@ -24,6 +24,35 @@ class AuthController(
     private val memberQuoteDataSyncService: MemberQuoteDataSyncService
 ) {
     @ApiErrorResponses(
+        REDIS_TEMP_TOKEN_INVALID,
+        NOT_FOUND,
+        WITHDRAWAL_USER
+    )
+    @PostMapping("/login")
+    @Operation(summary = "[1.login] 로그인 api")
+    fun login(
+        @RequestBody request: LoginRequest
+    ): ResponseEntity<LoginResponse> {
+        val (member, loginResponse) = authService.login(request.loginData)
+
+        val syncScope = CoroutineScope(Dispatchers.Default)
+        syncScope.launch {
+            memberQuoteDataSyncService.syncData(member, request.syncData)
+        }
+
+        return ResponseEntity.ok(loginResponse)
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "[5. my page_login] 로그아웃 api")
+    fun logout(
+        @AuthenticationPrincipal member: Member,
+        @RequestBody request: LogoutRequest
+    ) {
+        authService.logout(member, request)
+    }
+
+    @ApiErrorResponses(
         JWT_REFRESH_TOKEN_EXPIRED,
         JWT_REFRESH_TOKEN_INVALID,
         REDIS_REFRESH_TOKEN_INVALID
@@ -51,34 +80,5 @@ class AuthController(
         @RequestBody request: WithdrawalRequest
     ) {
         authService.withdraw(member, request)
-    }
-
-    @PostMapping("/logout")
-    @Operation(summary = "[5. my page_login] 로그아웃 api")
-    fun logout(
-        @AuthenticationPrincipal member: Member,
-        @RequestBody request: LogoutRequest
-    ) {
-        authService.logout(member, request)
-    }
-
-    @ApiErrorResponses(
-        REDIS_TEMP_TOKEN_INVALID,
-        NOT_FOUND,
-        WITHDRAWAL_USER
-    )
-    @PostMapping("/login")
-    @Operation(summary = "[1.login] 로그인 api")
-    fun login(
-        @RequestBody request: LoginRequest
-    ): ResponseEntity<LoginResponse> {
-        val (member, loginResponse) = authService.login(request.loginData)
-
-        val syncScope = CoroutineScope(Dispatchers.Default)
-        syncScope.launch {
-            memberQuoteDataSyncService.syncData(member, request.syncData)
-        }
-
-        return ResponseEntity.ok(loginResponse)
     }
 }

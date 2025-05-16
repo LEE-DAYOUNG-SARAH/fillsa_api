@@ -35,6 +35,15 @@ class Member(
     @Column(nullable = true)
     var withdrawalAt: LocalDateTime? = null
 ): BaseEntity(), UserDetails {
+    enum class OAuthProvider {
+        KAKAO, GOOGLE;
+
+        companion object {
+            fun fromPath(path: String): OAuthProvider =
+                entries.find { it.name.equals(path, ignoreCase = true) }
+                    ?: throw BusinessException(INVALID_VALUE, "지원하지 않는 OAuth Provider: $path")
+        }
+    }
 
     fun withdrawal() {
         this.withdrawalYn = "Y"
@@ -58,14 +67,4 @@ class Member(
     override fun isCredentialsNonExpired(): Boolean = true
 
     override fun isEnabled(): Boolean = true
-
-    enum class OAuthProvider {
-        KAKAO, GOOGLE;
-
-        companion object {
-            fun fromPath(path: String): OAuthProvider =
-                entries.find { it.name.equals(path, ignoreCase = true) }
-                    ?: throw BusinessException(INVALID_VALUE, "지원하지 않는 OAuth Provider: $path")
-        }
-    }
 }

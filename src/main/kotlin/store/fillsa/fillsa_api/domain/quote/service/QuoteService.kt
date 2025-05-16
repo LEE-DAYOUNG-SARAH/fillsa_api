@@ -22,14 +22,6 @@ class QuoteService(
         val dailyQuote = dailyQuoteService.getDailyQuoteByQuoteDate(quoteDate)
             ?: throw BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 quoteDate: $quoteDate")
 
-        return DailyQuoteResponse(
-            dailyQuoteSeq = dailyQuote.dailyQuoteSeq,
-            korQuote = dailyQuote.quote.korQuote,
-            engQuote = dailyQuote.quote.engQuote,
-            korAuthor = dailyQuote.quote.korAuthor,
-            engAuthor = dailyQuote.quote.engAuthor,
-            authorUrl = dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
-                ?: "${enAuthorUrl}${dailyQuote.quote.engAuthor}"
-        )
+        return DailyQuoteResponse.from(koAuthorUrl, enAuthorUrl, dailyQuote)
     }
 }

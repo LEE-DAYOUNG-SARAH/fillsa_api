@@ -32,17 +32,7 @@ class MemberQuoteReadService(
 
         val memberQuote = memberQuoteRepository.findByMemberAndDailyQuote(member, dailyQuote)
 
-        return MemberDailyQuoteResponse(
-            dailyQuoteSeq = dailyQuote.dailyQuoteSeq,
-            korQuote = dailyQuote.quote.korQuote,
-            engQuote = dailyQuote.quote.engQuote,
-            korAuthor = dailyQuote.quote.korAuthor,
-            engAuthor = dailyQuote.quote.engAuthor,
-            authorUrl = dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
-                ?: "${enAuthorUrl}${dailyQuote.quote.engAuthor}",
-            likeYn = memberQuote?.likeYn ?: "N",
-            imagePath = memberQuote?.imagePath
-        )
+        return MemberDailyQuoteResponse.from(koAuthorUrl, enAuthorUrl, dailyQuote, memberQuote)
     }
 
     @Transactional(readOnly = true)
@@ -53,23 +43,7 @@ class MemberQuoteReadService(
             endQuoteDate = yearMonth.atEndOfMonth()
         )
 
-        val memberQuoteData = memberQuotes.map {
-            MemberMonthlyQuoteResponse.MemberQuotesData(
-                dailyQuoteSeq = it.dailyQuote.dailyQuoteSeq,
-                quoteDate = it.dailyQuote.quoteDate,
-                quote = it.dailyQuote.quote.korQuote ?: it.dailyQuote.quote.engQuote.orEmpty(),
-                author = it.dailyQuote.quote.korAuthor ?: it.dailyQuote.quote.engAuthor.orEmpty(),
-                typingYn = it.getTypingYn(),
-                likeYn = it.likeYn
-            )
-        }
-
-        val monthlySummary = MemberMonthlyQuoteResponse.MonthlySummaryData(
-            typingCount = memberQuoteData.count { it.typingYn == "Y" },
-            likeCount = memberQuoteData.count { it.likeYn == "Y" }
-        )
-
-        return MemberMonthlyQuoteResponse(memberQuoteData, monthlySummary)
+        return MemberMonthlyQuoteResponse.from(memberQuotes)
     }
 
     @Transactional(readOnly = true)
@@ -78,48 +52,24 @@ class MemberQuoteReadService(
         pageable: Pageable,
         request: MemberQuotesRequest
     ): PageResponse<MemberQuotesResponse> {
-        val memberQuotes = memberQuoteRepository.findByMemberAndLikeYnIn(
+        val pagingMemberQuotes = memberQuoteRepository.findByMemberAndLikeYnIn(
             member = member,
             likeYns = if(request.likeYn == "N") listOf("Y", "N") else listOf("Y"),
             pageable = pageable
         )
 
-        val responses = memberQuotes.content.map { memberQuote ->
-            MemberQuotesResponse(
-                memberQuoteSeq = memberQuote.memberQuoteSeq,
-                quoteDate = memberQuote.dailyQuote.quoteDate,
-                quoteDayOfWeek = memberQuote.dailyQuote.quoteDate.dayOfWeek.toString(),
-                quote = memberQuote.dailyQuote.quote.korQuote ?: memberQuote.dailyQuote.quote.engQuote.orEmpty(),
-                author = memberQuote.dailyQuote.quote.korAuthor ?: memberQuote.dailyQuote.quote.engAuthor.orEmpty(),
-                authorUrl = memberQuote.dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
-                    ?: "${enAuthorUrl}${memberQuote.dailyQuote.quote.engAuthor}",
-                memo = memberQuote.memo,
-                memoYn = if (memberQuote.memo.isNullOrBlank()) "N" else "Y",
-                likeYn = memberQuote.likeYn
-            )
+        return PageResponse.from(pagingMemberQuotes) { memberQuote ->
+            MemberQuotesResponse.from(koAuthorUrl, enAuthorUrl, memberQuote)
         }
-
-        return PageResponse(
-            content = responses,
-            totalElements = memberQuotes.totalElements,
-            totalPages = memberQuotes.totalPages,
-            currentPage = memberQuotes.number
-        )
     }
 
     @Transactional(readOnly = true)
     fun typingQuote(member: Member, dailyQuoteSeq: Long): MemberTypingQuoteResponse {
         val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
             ?: throw BusinessException(NOT_FOUND, "존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
-
         val memberQuote = getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
 
-        return MemberTypingQuoteResponse(
-            korQuote = dailyQuote.quote.korQuote,
-            engQuote = dailyQuote.quote.engQuote,
-            typingKorQuote = memberQuote?.typingKorQuote,
-            typingEngQuote = memberQuote?.typingEngQuote
-        )
+        return MemberTypingQuoteResponse.from(dailyQuote, memberQuote)
     }
 
     @Transactional(readOnly = true)

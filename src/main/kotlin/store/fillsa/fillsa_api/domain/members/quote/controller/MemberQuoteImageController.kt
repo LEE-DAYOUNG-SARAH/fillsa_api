@@ -14,7 +14,7 @@ import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteImageService
 
 @RestController
-@RequestMapping("/member-quotes")
+@RequestMapping("/member-quotes/{dailyQuoteSeq}/images")
 @Tag(name = "명언 이미지")
 class MemberQuoteImageController(
     private val memberQuoteImageService: MemberQuoteImageService
@@ -26,10 +26,7 @@ class MemberQuoteImageController(
         FILE_UPDATE_FAILED,
         FILE_UPLOAD_FAILED
     )
-    @PostMapping(
-        "/{dailyQuoteSeq}/images",
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
-    )
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "[2-2. img_check/upload] 명언 이미지 업로드 api")
     fun uploadImage(
         @AuthenticationPrincipal member: Member,
@@ -43,7 +40,7 @@ class MemberQuoteImageController(
         NOT_FOUND,
         FILE_DELETE_FAILED
     )
-    @DeleteMapping("/{dailyQuoteSeq}/images")
+    @DeleteMapping
     @Operation(summary = "[2-2. img_check/upload] 명언 이미지 삭제 api")
     fun deleteImage(
         @AuthenticationPrincipal member: Member,

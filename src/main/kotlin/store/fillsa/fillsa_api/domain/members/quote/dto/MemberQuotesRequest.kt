@@ -2,6 +2,7 @@ package store.fillsa.fillsa_api.domain.members.quote.dto
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
+import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import java.time.LocalDate
 
 data class MemberQuotesRequest(
@@ -37,4 +38,19 @@ data class MemberQuotesResponse(
 
     @Schema(description = "좋아요 여부", example = "Y/N", required = true)
     val likeYn: String
-)
+) {
+    companion object {
+        fun from(koAuthorUrl: String, enAuthorUrl: String, memberQuote: MemberQuote) = MemberQuotesResponse(
+            memberQuoteSeq = memberQuote.memberQuoteSeq,
+            quoteDate = memberQuote.dailyQuote.quoteDate,
+            quoteDayOfWeek = memberQuote.dailyQuote.quoteDate.dayOfWeek.toString(),
+            quote = memberQuote.dailyQuote.quote.korQuote ?: memberQuote.dailyQuote.quote.engQuote.orEmpty(),
+            author = memberQuote.dailyQuote.quote.korAuthor ?: memberQuote.dailyQuote.quote.engAuthor.orEmpty(),
+            authorUrl = memberQuote.dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
+                ?: "${enAuthorUrl}${memberQuote.dailyQuote.quote.engAuthor}",
+            memo = memberQuote.memo,
+            memoYn = if (memberQuote.memo.isNullOrBlank()) "N" else "Y",
+            likeYn = memberQuote.likeYn
+        )
+    }
+}
