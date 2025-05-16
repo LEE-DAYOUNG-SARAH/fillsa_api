@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
 import store.fillsa.fillsa_api.common.exception.ErrorCode
+import store.fillsa.fillsa_api.common.exception.ErrorResponse
 import org.springframework.http.MediaType as SpringMediaType
 
 @Component
@@ -24,39 +25,32 @@ class SwaggerOperationCustomizer : OperationCustomizer {
                 val responses: ApiResponses = operation.responses
 
                 grouped.forEach { (httpStatus, list) ->
-                    val apiResp = ApiResponse().apply {
-                        description = list.joinToString { it.message }
-                        content = createContent(list)
-                    }
-
-                    responses.addApiResponse(httpStatus.value().toString(), apiResp)
+                    val apiResponse = createApiResponse(list)
+                    responses.addApiResponse(httpStatus.value().toString(), apiResponse)
                 }
             }
         return operation
     }
 
-    private fun createContent(list: List<ErrorCode>): Content {
-        return Content().apply {
-            addMediaType(
-                SpringMediaType.APPLICATION_JSON_VALUE,
-                createMediaType(list)
-            )
+    private fun createApiResponse(list: List<ErrorCode>) = ApiResponse().apply {
+        description = list.joinToString { it.message }
+        content = createContent(list)
+    }
+
+    private fun createContent(list: List<ErrorCode>) = Content().apply {
+        addMediaType(
+            SpringMediaType.APPLICATION_JSON_VALUE,
+            createMediaType(list)
+        )
+    }
+
+    private fun createMediaType(list: List<ErrorCode>) = MediaType().apply {
+        list.forEach { errorCode ->
+            addExamples(errorCode.name, createExample(errorCode))
         }
     }
 
-    private fun createMediaType(list: List<ErrorCode>): MediaType {
-        return MediaType().apply {
-            list.forEach { ec ->
-                addExamples(ec.name, Example().apply {
-                    value = SwaggerErrorResponse(ec.httpStatus.value(), ec.code, ec.message)
-                })
-            }
-        }
+    private fun createExample(errorCode: ErrorCode) = Example().apply {
+        value = ErrorResponse.from(errorCode.httpStatus, errorCode, errorCode.message)
     }
 }
-
-data class SwaggerErrorResponse(
-    val httpStatus: Int,
-    val errorCode: Int,
-    val message: String
-)

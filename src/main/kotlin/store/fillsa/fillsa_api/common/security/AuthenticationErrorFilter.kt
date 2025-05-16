@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 import store.fillsa.fillsa_api.common.exception.ErrorCode
 import store.fillsa.fillsa_api.common.exception.ErrorCode.JWT_ACCESS_TOKEN_EXPIRED
 import store.fillsa.fillsa_api.common.exception.ErrorCode.JWT_ACCESS_TOKEN_INVALID
-import java.time.LocalDateTime
+import store.fillsa.fillsa_api.common.exception.ErrorResponse
 
 @Component
 class AuthenticationErrorFilter: HttpFilter() {
@@ -38,17 +38,13 @@ class AuthenticationErrorFilter: HttpFilter() {
     }
 
     private fun createErrorResponse(response: HttpServletResponse, errorCode: ErrorCode) {
-        response.status = HttpStatus.UNAUTHORIZED.value()
-        response.contentType = MediaType.APPLICATION_JSON_VALUE
-        response.characterEncoding = Charsets.UTF_8.name()
+        response.apply {
+            status = HttpStatus.UNAUTHORIZED.value()
+            contentType = MediaType.APPLICATION_JSON_VALUE
+            characterEncoding = Charsets.UTF_8.name()
+        }
 
-        val body = mapOf(
-            "timestamp" to LocalDateTime.now().toString(),
-            "status"    to response.status,
-            "error"     to HttpStatus.UNAUTHORIZED.reasonPhrase,
-            "errorCode" to errorCode.code,
-            "message"   to errorCode.message
-        )
+        val body = ErrorResponse.from(HttpStatus.UNAUTHORIZED, errorCode, errorCode.message)
 
         response.writer.write(gson.toJson(body))
     }
