@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.common.exception.BusinessException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.oauth.client.login.useCase.*
 import java.time.LocalDateTime
@@ -33,11 +33,10 @@ class GoogleOAuthLoginWebClient(
     val log = KotlinLogging.logger {  }
 
     override fun getAccessToken(code: String): OAuthTokenInfo {
-        val request = BodyInserters.fromFormData("grant_type", "authorization_code")
-            .with("client_id", clientId)
-            .with("client_secret", clientSecret)
-            .with("redirect_uri", redirectUri)
-            .with("code", code)
+        val request = BodyInserters.fromFormData(
+            OAuthLoginClient.OAuthTokenRequest(clientId, clientSecret, redirectUri, code)
+                .toMultiValueMap()
+        )
 
         return webClient.post()
             .uri(tokenUri)

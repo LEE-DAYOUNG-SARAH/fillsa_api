@@ -29,10 +29,10 @@ class GoogleOAuthWithdrawalWebClient(
     val log = KotlinLogging.logger {  }
 
     override fun getAccessToken(refreshToken: String): String {
-        val request = BodyInserters.fromFormData("grant_type", "refresh_token")
-            .with("client_id", clientId)
-            .with("client_secret", clientSecret)
-            .with("refresh_token", refreshToken)
+        val request = BodyInserters.fromFormData(
+            GoogleOAuthWithdrawalClient.OAuthTokenRequest(clientId, clientSecret, refreshToken)
+                .toMultiValueMap()
+        )
 
         return webClient.post()
             .uri(tokenUri)
