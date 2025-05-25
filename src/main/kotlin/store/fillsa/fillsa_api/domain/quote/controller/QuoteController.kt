@@ -15,7 +15,7 @@ import java.time.LocalDate
 
 
 @RestController
-@RequestMapping("/quotes")
+@RequestMapping("/api/v1/quotes")
 @Tag(name = "(비회원) 명언 조회")
 class QuoteController(
     private val quoteService: QuoteService

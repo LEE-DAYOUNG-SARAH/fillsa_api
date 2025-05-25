@@ -72,6 +72,9 @@ cloud:
       bucket:
 
 fillsa:
+  security:
+    actuator-path:
+    swagger-path:
   ko-author-url: https://ko.wikipedia.org/wiki/
   en-author-url: https://en.wikipedia.org/wiki/
 
@@ -80,6 +83,10 @@ springdoc:
   swagger-ui:
     enabled: true
     tags-sorter: alpha
+    path:
+    url:
+  api-docs:
+    path:
   enable-spring-security: true
   writer-with-order-by-keys: false
 

@@ -9,7 +9,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
-import store.fillsa.fillsa_api.common.filter.RequestLoggingFilter
+import store.fillsa.fillsa_api.common.logging.RequestLoggingFilter
 import store.fillsa.fillsa_api.common.security.AuthenticationErrorFilter
 import store.fillsa.fillsa_api.common.security.CustomUserDetailsService
 import store.fillsa.fillsa_api.common.security.JwtAuthenticationFilter
@@ -20,7 +20,8 @@ class SecurityConfig(
     private val customUserDetailsService: CustomUserDetailsService,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val authenticationErrorFilter: AuthenticationErrorFilter,
-    private val requestLoggingFilter: RequestLoggingFilter
+    private val requestLoggingFilter: RequestLoggingFilter,
+    private val publicEndpoint: PublicEndpoint,
 ) {
 
     @Bean
@@ -29,7 +30,7 @@ class SecurityConfig(
             .csrf { it.disable() }
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers(*PublicEndpoint.allPublicPatterns()).permitAll()
+                    .requestMatchers(*publicEndpoint.getPublicPatterns()).permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }

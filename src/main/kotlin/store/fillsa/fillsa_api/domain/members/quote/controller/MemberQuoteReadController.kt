@@ -20,7 +20,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 @RestController
-@RequestMapping("/member-quotes")
+@RequestMapping("/api/v1/member-quotes")
 @Tag(name = "(회원) 명언 조회")
 class MemberQuoteReadController(
     private val memberQuoteReadService: MemberQuoteReadService

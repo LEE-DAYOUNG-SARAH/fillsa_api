@@ -15,7 +15,8 @@ import store.fillsa.fillsa_api.domain.members.member.service.MemberService
 @Component
 class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider,
-    private val memberService: MemberService
+    private val memberService: MemberService,
+    private val publicEndpoint: PublicEndpoint,
 ) : OncePerRequestFilter() {
     val log = KotlinLogging.logger {  }
 
@@ -55,6 +56,6 @@ class JwtAuthenticationFilter(
     }
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return PublicEndpoint.allPublicPatterns().any { request.servletPath.startsWith(it) }
+        return publicEndpoint.getPublicPatterns().any { request.servletPath.startsWith(it) }
     }
 }

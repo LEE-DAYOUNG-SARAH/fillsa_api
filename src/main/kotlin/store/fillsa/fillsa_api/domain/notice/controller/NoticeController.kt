@@ -12,7 +12,7 @@ import store.fillsa.fillsa_api.domain.notice.dto.NoticeResponse
 import store.fillsa.fillsa_api.domain.notice.service.NoticeService
 
 @RestController
-@RequestMapping("/notices")
+@RequestMapping("/api/v1/notices")
 @Tag(name = "공지사항")
 class NoticeController(
     private val noticeService: NoticeService

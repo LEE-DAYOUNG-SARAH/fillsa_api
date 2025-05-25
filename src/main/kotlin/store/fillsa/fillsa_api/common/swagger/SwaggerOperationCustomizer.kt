@@ -1,4 +1,4 @@
-package store.fillsa.fillsa_api.common.config
+package store.fillsa.fillsa_api.common.swagger
 
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.examples.Example
@@ -6,7 +6,10 @@ import io.swagger.v3.oas.models.media.Content
 import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
+import io.swagger.v3.oas.models.security.SecurityRequirement
 import org.springdoc.core.customizers.OperationCustomizer
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
@@ -18,6 +21,12 @@ import org.springframework.http.MediaType as SpringMediaType
 class SwaggerOperationCustomizer : OperationCustomizer {
 
     override fun customize(operation: Operation, handlerMethod: HandlerMethod): Operation {
+        applyApiErrorResponses(operation, handlerMethod)
+        applySecurityIfNeeded(operation, handlerMethod)
+        return operation
+    }
+
+    private fun applyApiErrorResponses(operation: Operation, handlerMethod: HandlerMethod) {
         handlerMethod.getMethodAnnotation(ApiErrorResponses::class.java)
             ?.let { ann ->
                 val codes = ann.values
@@ -29,8 +38,19 @@ class SwaggerOperationCustomizer : OperationCustomizer {
                     responses.addApiResponse(httpStatus.value().toString(), apiResponse)
                 }
             }
-        return operation
     }
+
+    private fun applySecurityIfNeeded(operation: Operation, handlerMethod: HandlerMethod) {
+        val hasSecurity = handlerMethod.method.parameters.any { parameter ->
+            parameter.type == Authentication::class.java ||
+                parameter.getAnnotation(AuthenticationPrincipal::class.java) != null
+        }
+
+        if (hasSecurity) {
+            operation.addSecurityItem(SecurityRequirement().addList(SECURITY_SCHEME_NAME))
+        }
+    }
+
 
     private fun createApiResponse(list: List<ErrorCode>) = ApiResponse().apply {
         description = list.joinToString { it.message }

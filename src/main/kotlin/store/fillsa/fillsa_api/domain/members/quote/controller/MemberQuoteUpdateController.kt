@@ -15,7 +15,7 @@ import store.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteUpdateService
 
 @RestController
-@RequestMapping("/member-quotes")
+@RequestMapping("/api/v1/member-quotes")
 @Tag(name = "명언 저장")
 class MemberQuoteUpdateController(
     private val memberQuoteUpdateService: MemberQuoteUpdateService

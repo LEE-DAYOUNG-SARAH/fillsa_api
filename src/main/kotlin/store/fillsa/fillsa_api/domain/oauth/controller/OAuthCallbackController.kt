@@ -14,7 +14,7 @@ import store.fillsa.fillsa_api.domain.oauth.service.callback.OAuthCallbackServic
 import java.util.*
 
 @RestController
-@RequestMapping("/oauth")
+@RequestMapping("/api/v1/oauth")
 @Tag(name = "간편 로그인")
 class OAuthCallbackController(
     private val oAuthCallbackService: OAuthCallbackService,

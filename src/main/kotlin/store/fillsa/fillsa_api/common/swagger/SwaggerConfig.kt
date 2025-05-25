@@ -1,16 +1,17 @@
-package store.fillsa.fillsa_api.common.config
+package store.fillsa.fillsa_api.common.swagger
 
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
-import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import org.springdoc.core.customizers.OperationCustomizer
+import org.springdoc.core.models.GroupedOpenApi
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+const val SECURITY_SCHEME_NAME = "bearerAuth"
 
 @Configuration
 class SwaggerConfig(
@@ -18,8 +19,14 @@ class SwaggerConfig(
     private val serverUrl: String,
     private val swaggerOperationCustomizer: SwaggerOperationCustomizer
 ) {
-
-    private final val SECURITY_SCHEME_NAME = "bearerAuth "
+    @Bean
+    fun apiV1(): GroupedOpenApi {
+        return GroupedOpenApi.builder()
+            .group("v1")
+            .pathsToMatch("/api/v1/**")
+            .addOperationCustomizer(swaggerOperationCustomizer)
+            .build()
+    }
 
     @Bean
     fun openAPI(): OpenAPI {
@@ -27,7 +34,6 @@ class SwaggerConfig(
             .info(createInfo())
             .addServersItem(createServerItem())
             .components(createComponents())
-            .addSecurityItem(SecurityRequirement().addList(SECURITY_SCHEME_NAME))
     }
 
     private fun createInfo(): Info {

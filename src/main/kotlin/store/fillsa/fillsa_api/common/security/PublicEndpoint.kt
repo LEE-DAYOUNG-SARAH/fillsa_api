@@ -1,30 +1,37 @@
 package store.fillsa.fillsa_api.common.security
 
-enum class PublicEndpoint(val patterns: List<String>) {
-    SWAGGER(listOf(
-        "/swagger-ui/**",
-        "/v3/api-docs/**"
-    )),
-    AUTH(listOf(
-        "/auth/login",
-        "/auth/refresh"
-    )),
-    OAUTH(listOf(
-        "/oauth/**"
-    )),
-    QUOTES(listOf(
-        "/quotes/**"
-    )),
-    NOTICES(listOf(
-        "/notices"
-    )),
-    ACTUATOR(listOf(
-        "/actuator/**"
-    ));
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 
-    companion object {
-        fun allPublicPatterns(): Array<String> =
-            entries.flatMap { it.patterns }.toTypedArray()
+@Component
+class PublicEndpoint(
+    @Value("\${fillsa.security.actuator-path}")
+    private val actuatorPath: String,
+    @Value("\${fillsa.security.swagger-path}")
+    private val swaggerPathPrefix: String,
+    @Value("\${springdoc.swagger-ui.path}")
+    private val swaggerUiPath: String,
+    @Value("\${springdoc.swagger-ui.url}")
+    private val swaggerDocPath: String,
+) {
+    fun getPublicPatterns(): Array<String> {
+        return arrayOf(
+            // 내부 API 경로
+            "/api/v1/auth/login",
+            "/api/v1/auth/refresh",
+            "/api/v1/oauth/**",
+            "/api/v1/quotes/**",
+            "/api/v1/notices",
+
+            // Actuator 경로
+            actuatorPath,
+
+            // Swagger 경로
+            swaggerUiPath,
+            swaggerDocPath,
+            "$swaggerDocPath/**",
+            "$swaggerPathPrefix/swagger-ui/**",
+        )
     }
 }
 

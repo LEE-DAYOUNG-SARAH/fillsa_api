@@ -1,4 +1,4 @@
-package store.fillsa.fillsa_api.common.filter
+package store.fillsa.fillsa_api.common.logging
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.FilterChain
@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
-import store.fillsa.fillsa_api.common.wrapper.CustomHttpServletRequestWrapper
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 

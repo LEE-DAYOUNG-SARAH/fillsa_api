@@ -14,7 +14,7 @@ import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteImageService
 
 @RestController
-@RequestMapping("/member-quotes/{dailyQuoteSeq}/images")
+@RequestMapping("/api/v1/member-quotes/{dailyQuoteSeq}/images")
 @Tag(name = "명언 이미지")
 class MemberQuoteImageController(
     private val memberQuoteImageService: MemberQuoteImageService
