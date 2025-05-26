@@ -27,11 +27,11 @@ interface OAuthLoginClient {
         val code: String
     ) {
         fun toMultiValueMap() = LinkedMultiValueMap<String, String>().apply {
-            "grant_type" to "authorization_code"
-            "client_id" to clientId
-            "client_secret" to clientSecret
-            "redirect_uri" to redirectUri
-            "code" to code
+            add("grant_type", "authorization_code")
+            add("client_id", clientId)
+            add("client_secret", clientSecret)
+            add("redirect_uri", redirectUri)
+            add("code", code)
         }
     }
 }
