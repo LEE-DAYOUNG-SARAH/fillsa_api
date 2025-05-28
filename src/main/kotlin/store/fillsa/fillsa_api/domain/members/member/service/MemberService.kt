@@ -15,18 +15,18 @@ class MemberService(
     private val memberRepository: MemberRepository,
 ) {
     @Transactional
-    fun signUp(provider: Member.OAuthProvider, loginData: LoginRequest.LoginData): Member {
-        return memberRepository.findByOauthIdAndOauthProvider(loginData.id, provider)
-            ?: createMember(provider, loginData)
+    fun signUp(provider: Member.OAuthProvider, userData: LoginRequest.UserData): Member {
+        return memberRepository.findByOauthIdAndOauthProvider(userData.id, provider)
+            ?: createMember(provider, userData)
     }
 
-    private fun createMember(provider: Member.OAuthProvider, loginData: LoginRequest.LoginData): Member {
+    private fun createMember(provider: Member.OAuthProvider, userData: LoginRequest.UserData): Member {
         return memberRepository.save(
             Member(
-                oauthId = loginData.id,
+                oauthId = userData.id,
                 oauthProvider = provider,
-                nickname = loginData.nickname,
-                profileImageUrl = loginData.profileImageUrl
+                nickname = userData.nickname,
+                profileImageUrl = userData.profileImageUrl
             )
         )
     }

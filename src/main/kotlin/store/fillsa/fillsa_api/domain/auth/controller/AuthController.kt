@@ -33,7 +33,7 @@ class AuthController(
     fun login(
         @RequestBody request: LoginRequest
     ): ResponseEntity<LoginResponse> {
-        val (member, loginResponse) = authService.login(request.oAuthProvider, request.tokenData, request.loginData)
+        val (member, loginResponse) = authService.login(request.loginData)
 
         val syncScope = CoroutineScope(Dispatchers.Default)
         syncScope.launch {

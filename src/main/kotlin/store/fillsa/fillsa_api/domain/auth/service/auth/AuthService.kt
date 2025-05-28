@@ -21,16 +21,12 @@ class AuthService(
     private val memberService: MemberService,
     private val redisTokenService: RedisTokenService
 ) {
-    fun login(
-        provider: Member.OAuthProvider,
-        tokenData: LoginRequest.TokenData,
-        loginData: LoginRequest.LoginData
-    ): Pair<Member, LoginResponse> {
-        val member = memberService.signUp(provider, loginData)
+    fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse> {
+        val member = memberService.signUp(request.oAuthProvider, request.userData)
 
-        oAuthTokenService.createOAuthToken(member, tokenData)
+        oAuthTokenService.createOAuthToken(member, request.tokenData)
 
-        val token = createToken(member.memberSeq, tokenData.deviceId)
+        val token = createToken(member.memberSeq, request.tokenData.deviceId)
 
         return Pair(
             member,

@@ -33,7 +33,7 @@ class MemberServiceTest @Autowired constructor(
 
         // when
         val provider = Member.OAuthProvider.KAKAO
-        val info = LoginRequest.LoginData(
+        val info = LoginRequest.UserData(
             id = "oauth-123",
             nickname = "ignoredNick",
             profileImageUrl = "ignoredUrl"
@@ -54,7 +54,7 @@ class MemberServiceTest @Autowired constructor(
 
         // when
         val provider = Member.OAuthProvider.GOOGLE
-        val info = LoginRequest.LoginData(
+        val info = LoginRequest.UserData(
             id = "new-oauth-456",
             nickname = "newNick",
             profileImageUrl = "newUrl"

@@ -9,18 +9,23 @@ import store.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
 import java.time.LocalDateTime
 
 data class LoginRequest(
-    @Schema(description = "oauth provider", required = true)
-    val oAuthProvider: Member.OAuthProvider,
-
-    @Schema(description = "토큰 데이터", required = true)
-    val tokenData: TokenData,
-
-    @Schema(description = "로그인 데이터", required = true)
+    @Schema(description = "로그인 데이터")
     val loginData: LoginData,
 
     @Schema(description = "연동 데이터")
     val syncData: List<SyncData> = listOf()
 ) {
+    data class LoginData(
+        @Schema(description = "oauth provider", required = true)
+        val oAuthProvider: Member.OAuthProvider,
+
+        @Schema(description = "토큰 데이터", required = true)
+        val tokenData: TokenData,
+
+        @Schema(description = "유저 데이터", required = true)
+        val userData: UserData,
+    )
+
     data class TokenData(
         @Schema(description = "디바이스 Id", required = true)
         val deviceId: String,
@@ -38,7 +43,7 @@ data class LoginRequest(
         val refreshTokenExpiresAt: LocalDateTime
     )
 
-    data class LoginData(
+    data class UserData(
         @Schema(description = "oauth id", required = true)
         val id: String,
 
