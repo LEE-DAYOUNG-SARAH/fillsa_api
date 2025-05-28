@@ -8,16 +8,6 @@ import java.util.concurrent.TimeUnit
 class RedisTokenService(
     private val redisTemplate: StringRedisTemplate
 ) {
-    fun createTempToken(tempToken: String, memberSeq: Long, ttlMillis: Long) {
-        redisTemplate.opsForValue().set("temp_token:$tempToken", memberSeq.toString(), ttlMillis, TimeUnit.MILLISECONDS)
-    }
-
-    fun getAndDeleteTempToken(tempToken: String): String? {
-        val code = redisTemplate.opsForValue().get("temp_token:$tempToken")
-        redisTemplate.delete("temp_token:$tempToken")
-        return code
-    }
-
     fun createRefreshToken(memberId: Long, deviceId: String, refreshToken: String, ttlMillis: Long) {
         redisTemplate.opsForValue().set("refresh:$memberId:$deviceId", refreshToken, ttlMillis, TimeUnit.MILLISECONDS)
     }

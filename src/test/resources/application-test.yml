@@ -36,17 +36,10 @@ jwt:
 
 oauth:
   kakao:
-    client-id: test
-    client-secret: test
-    redirect-uri: test
-    token-uri: https://kauth.kakao.com/oauth/token
-    user-info-uri: https://kapi.kakao.com/v2/user/me
   google:
     client-id: test
     client-secret: test
-    redirect-uri: test
-    token-uri: https://oauth2.googleapis.com/token
-    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+    token-uri: https://kauth.kakao.com/oauth/token
 
 cloud:
   aws:
@@ -58,6 +51,16 @@ cloud:
     s3:
       bucket: test
 
+springdoc:
+  swagger-ui:
+    path: /test/swagger-ui.html
+    url: /test/v3/api-docs
+  api-docs:
+    path: /test/v3/api-docs
+
 fillsa:
+  security:
+    actuator-path: /test
+    swagger-path: /test
   ko-author-url: https://ko.wikipedia.org/wiki/
   en-author-url: https://en.wikipedia.org/wiki/

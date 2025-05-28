@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
+import store.fillsa.fillsa_api.domain.auth.dto.LoginRequest
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.repository.MemberRepository
-import store.fillsa.fillsa_api.domain.oauth.client.login.useCase.OAuthUserInfo
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -19,7 +19,7 @@ class MemberServiceTest @Autowired constructor(
     val sut: MemberService
 ) {
     @Test
-    fun `로그인 처리 성공 - 기존 회원`() {
+    fun `회원가입 성공 - 기존 회원`() {
         // given
         val existing = memberRepository.save(
             Member(
@@ -32,13 +32,13 @@ class MemberServiceTest @Autowired constructor(
         assertEquals(1, memberRepository.count())
 
         // when
-        val info = OAuthUserInfo(
+        val provider = Member.OAuthProvider.KAKAO
+        val info = LoginRequest.LoginData(
             id = "oauth-123",
             nickname = "ignoredNick",
-            profileImageUrl = "ignoredUrl",
-            oAuthProvider = Member.OAuthProvider.KAKAO
+            profileImageUrl = "ignoredUrl"
         )
-        val result = sut.processOauthLogin(info)
+        val result = sut.signUp(provider, info)
 
         // then
         assertEquals(existing.memberSeq, result.memberSeq)
@@ -48,18 +48,18 @@ class MemberServiceTest @Autowired constructor(
     }
 
     @Test
-    fun `로그인 처리 성공 - 신규 회원`() {
+    fun `회원가입 성공 - 신규 회원`() {
         // given
         assertEquals(0, memberRepository.count())
 
         // when
-        val info = OAuthUserInfo(
+        val provider = Member.OAuthProvider.GOOGLE
+        val info = LoginRequest.LoginData(
             id = "new-oauth-456",
             nickname = "newNick",
-            profileImageUrl = "newUrl",
-            oAuthProvider = Member.OAuthProvider.GOOGLE
+            profileImageUrl = "newUrl"
         )
-        val result = sut.processOauthLogin(info)
+        val result = sut.signUp(provider, info)
 
         // then
         assertNotNull(result.memberSeq)

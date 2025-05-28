@@ -2,29 +2,35 @@ package store.fillsa.fillsa_api.domain.auth.service.auth
 
 import io.jsonwebtoken.ExpiredJwtException
 import org.springframework.stereotype.Service
-import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.common.exception.BusinessException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.common.security.JwtTokenProvider
 import store.fillsa.fillsa_api.common.security.TokenInfo
 import store.fillsa.fillsa_api.domain.auth.dto.*
 import store.fillsa.fillsa_api.domain.auth.service.redis.RedisTokenService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.service.MemberService
+import store.fillsa.fillsa_api.domain.oauth.service.token.OAuthTokenService
 import store.fillsa.fillsa_api.domain.oauth.service.withdrawal.OAuthWithdrawalService
 
 @Service
 class AuthService(
     private val jwtTokenProvider: JwtTokenProvider,
     private val oAuthWithdrawalService: OAuthWithdrawalService,
+    private val oAuthTokenService: OAuthTokenService,
     private val memberService: MemberService,
     private val redisTokenService: RedisTokenService
 ) {
-    fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse> {
-        val memberSeq = redisTokenService.getAndDeleteTempToken(request.tempToken)?.toLong()
-            ?: throw BusinessException(REDIS_TEMP_TOKEN_INVALID, "만료되었거나 잘못된 임시 토큰")
+    fun login(
+        provider: Member.OAuthProvider,
+        tokenData: LoginRequest.TokenData,
+        loginData: LoginRequest.LoginData
+    ): Pair<Member, LoginResponse> {
+        val member = memberService.signUp(provider, loginData)
 
-        val member = memberService.getActiveMemberBySeq(memberSeq)
-        val token = createToken(memberSeq, request.deviceId)
+        oAuthTokenService.createOAuthToken(member, tokenData)
+
+        val token = createToken(member.memberSeq, tokenData.deviceId)
 
         return Pair(
             member,
