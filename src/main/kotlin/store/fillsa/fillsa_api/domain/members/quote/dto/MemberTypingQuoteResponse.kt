@@ -16,13 +16,17 @@ data class MemberTypingQuoteResponse(
 
     @Schema(description = "타이핑 영문 명언")
     val typingEngQuote: String?,
+
+    @Schema(description = "좋아요 여부(Y/N)")
+    val likeYn: String
 ) {
     companion object {
         fun from(dailyQuote: DailyQuote, memberQuote: MemberQuote?) = MemberTypingQuoteResponse(
             korQuote = dailyQuote.quote.korQuote,
             engQuote = dailyQuote.quote.engQuote,
             typingKorQuote = memberQuote?.typingKorQuote,
-            typingEngQuote = memberQuote?.typingEngQuote
+            typingEngQuote = memberQuote?.typingEngQuote,
+            likeYn = memberQuote?.likeYn ?: "N"
         )
     }
 }
