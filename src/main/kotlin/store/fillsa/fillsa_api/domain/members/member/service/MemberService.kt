@@ -13,22 +13,25 @@ import store.fillsa.fillsa_api.domain.members.member.repository.MemberRepository
 @Service
 class MemberService(
     private val memberRepository: MemberRepository,
+    private val memberDeviceService: MemberDeviceService
 ) {
     @Transactional
-    fun signUp(provider: Member.OAuthProvider, userData: LoginRequest.UserData): Member {
-        return memberRepository.findByOauthIdAndOauthProvider(userData.id, provider)
-            ?: createMember(provider, userData)
+    fun signUp(request: LoginRequest.LoginData): Member {
+        val member = create(request.userData)
+        memberDeviceService.create(member, request.deviceData)
+
+        return member
     }
 
-    private fun createMember(provider: Member.OAuthProvider, userData: LoginRequest.UserData): Member {
-        return memberRepository.save(
-            Member(
-                oauthId = userData.id,
-                oauthProvider = provider,
-                nickname = userData.nickname,
-                profileImageUrl = userData.profileImageUrl
-            )
-        )
+    private fun create(request: LoginRequest.UserData): Member {
+        val member = getActiveMemberByOauthId(request.oAuthId, request.oAuthProvider)
+
+        return if(member == null) {
+            memberRepository.save(request.toEntity())
+        } else {
+            member.update(request.nickname, request.profileImageUrl)
+            member
+        }
     }
 
     @Transactional
@@ -43,5 +46,15 @@ class MemberService(
         if(member.isWithdrawal()) throw BusinessException(WITHDRAWAL_USER)
 
         return member
+    }
+
+    private fun getActiveMemberByOauthId(id: String, provider: Member.OAuthProvider): Member? {
+        val member = getMemberByOauthId(id, provider)
+        return if(member== null || member.isWithdrawal()) null else member
+    }
+
+    @Transactional(readOnly = true)
+    fun getMemberByOauthId(id: String, provider: Member.OAuthProvider): Member? {
+        return memberRepository.findByOauthIdAndOauthProvider(id, provider)
     }
 }

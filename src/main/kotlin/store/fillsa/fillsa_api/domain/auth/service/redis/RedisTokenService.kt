@@ -15,8 +15,12 @@ class RedisTokenService(
     fun getRefreshToken(memberId: Long, deviceId: String): String? =
         redisTemplate.opsForValue().get("refresh:$memberId:$deviceId")
 
-    fun deleteRefreshToken(memberId: Long, deviceId: String) {
+    fun deleteRefreshTokenForLogout(memberId: Long, deviceId: String) {
         redisTemplate.delete("refresh:$memberId:$deviceId")
+    }
+
+    fun deleteRefreshTokenForWithdrawal(memberId: Long) {
+        redisTemplate.delete("refresh:$memberId:*")
     }
 
     fun validateRefreshToken(memberSeq: Long, deviceId: String, refreshToken: String): Boolean {

@@ -10,8 +10,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
 import store.fillsa.fillsa_api.common.exception.ErrorCode.*
-import store.fillsa.fillsa_api.domain.auth.dto.*
 import store.fillsa.fillsa_api.common.security.TokenInfo
+import store.fillsa.fillsa_api.domain.auth.dto.LoginRequest
+import store.fillsa.fillsa_api.domain.auth.dto.LoginResponse
+import store.fillsa.fillsa_api.domain.auth.dto.LogoutRequest
+import store.fillsa.fillsa_api.domain.auth.dto.TokenRefreshRequest
 import store.fillsa.fillsa_api.domain.auth.service.auth.AuthService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteDataSyncService
@@ -65,20 +68,11 @@ class AuthController(
         authService.refreshToken(request)
     )
 
-    @ApiErrorResponses(
-        INVALID_REQUEST,
-        NOT_FOUND,
-        OAUTH_REFRESH_TOKEN_EXPIRED,
-        OAUTH_TOKEN_REQUEST_FAILED,
-        OAUTH_TOKEN_RESPONSE_PROCESS_FAILED,
-        OAUTH_WITHDRAWAL_REQUEST_FAILED
-    )
-    @DeleteMapping("/withdraw")
-    @Operation(summary = "[modal_delete ID] 탈퇴 api")
-    fun logout(
-        @AuthenticationPrincipal member: Member,
-        @RequestBody request: WithdrawalRequest
+    @DeleteMapping("/auth/withdraw")
+    @Operation(summary = "[modal_delete ID] 앱 탈퇴 api")
+    fun withdraw(
+        @AuthenticationPrincipal member: Member
     ) {
-        authService.withdraw(member, request)
+        authService.withdrawByApp(member)
     }
 }

@@ -5,8 +5,8 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import store.fillsa.fillsa_api.common.entity.BaseEntity
-import store.fillsa.fillsa_api.common.exception.ErrorCode.INVALID_VALUE
 import store.fillsa.fillsa_api.common.exception.BusinessException
+import store.fillsa.fillsa_api.common.exception.ErrorCode.INVALID_VALUE
 import java.time.LocalDateTime
 
 @Entity
@@ -24,10 +24,10 @@ class Member(
     val oauthId: String,
 
     @Column(nullable = true)
-    val nickname: String? = null,
+    var nickname: String? = null,
 
     @Column(nullable = true)
-    val profileImageUrl: String? = null,
+    var profileImageUrl: String? = null,
 
     @Column(nullable = false, columnDefinition = "char(1)")
     var withdrawalYn: String = "N",
@@ -51,6 +51,11 @@ class Member(
     }
 
     fun isWithdrawal() = this.withdrawalYn == "Y"
+
+    fun update(nickname: String, profileImageUrl: String?) {
+        this.nickname = nickname
+        this.profileImageUrl = profileImageUrl
+    }
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
         return listOf(SimpleGrantedAuthority("ROLE_USER"))

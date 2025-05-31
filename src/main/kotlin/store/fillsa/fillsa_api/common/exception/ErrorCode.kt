@@ -20,10 +20,6 @@ enum class ErrorCode(
     OAUTH_USER_REQUEST_FAILED(HttpStatus.UNAUTHORIZED, 2003, "OAuth user request failed"),
     OAUTH_USER_RESPONSE_PROCESS_FAILED(HttpStatus.UNAUTHORIZED, 2004, "OAuth user response process failed"),
 
-    // oauth withdrawal
-    OAUTH_REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 2005, "OAuth refresh token expired"),
-    OAUTH_WITHDRAWAL_REQUEST_FAILED(HttpStatus.UNAUTHORIZED, 2006, "OAuth withdrawal request failed"),
-
     // auth
     JWT_ACCESS_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, 3001, "Jwt access token invalid"),
     JWT_REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, 3002, "Jwt refresh token invalid"),

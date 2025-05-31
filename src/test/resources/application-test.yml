@@ -36,10 +36,17 @@ jwt:
 
 oauth:
   kakao:
+    client-id: test
+    client-secret: test
+    redirect-uri: test
+    token-uri: https://kauth.kakao.com/oauth/token
+    user-info-uri: https://kapi.kakao.com/v2/user/me
   google:
     client-id: test
     client-secret: test
+    redirect-uri: test
     token-uri: https://kauth.kakao.com/oauth/token
+    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
 
 cloud:
   aws:

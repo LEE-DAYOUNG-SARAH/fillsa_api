@@ -6,27 +6,25 @@ import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.common.security.JwtTokenProvider
 import store.fillsa.fillsa_api.common.security.TokenInfo
-import store.fillsa.fillsa_api.domain.auth.dto.*
+import store.fillsa.fillsa_api.domain.auth.dto.LoginRequest
+import store.fillsa.fillsa_api.domain.auth.dto.LoginResponse
+import store.fillsa.fillsa_api.domain.auth.dto.LogoutRequest
+import store.fillsa.fillsa_api.domain.auth.dto.TokenRefreshRequest
 import store.fillsa.fillsa_api.domain.auth.service.redis.RedisTokenService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
+import store.fillsa.fillsa_api.domain.members.member.service.MemberDeviceService
 import store.fillsa.fillsa_api.domain.members.member.service.MemberService
-import store.fillsa.fillsa_api.domain.oauth.service.token.OAuthTokenService
-import store.fillsa.fillsa_api.domain.oauth.service.withdrawal.OAuthWithdrawalService
 
 @Service
 class AuthService(
     private val jwtTokenProvider: JwtTokenProvider,
-    private val oAuthWithdrawalService: OAuthWithdrawalService,
-    private val oAuthTokenService: OAuthTokenService,
     private val memberService: MemberService,
+    private val memberDeviceService: MemberDeviceService,
     private val redisTokenService: RedisTokenService
 ) {
     fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse> {
-        val member = memberService.signUp(request.oAuthProvider, request.userData)
-
-        oAuthTokenService.createOAuthToken(member, request.tokenData)
-
-        val token = createToken(member.memberSeq, request.tokenData.deviceId)
+        val member = memberService.signUp(request)
+        val token = createToken(member.memberSeq, request.deviceData.deviceId)
 
         return Pair(
             member,
@@ -47,9 +45,10 @@ class AuthService(
     }
 
     fun logout(member: Member, request: LogoutRequest) {
-        redisTokenService.deleteRefreshToken(member.memberSeq, request.deviceId)
-    }
+        redisTokenService.deleteRefreshTokenForLogout(member.memberSeq, request.deviceId)
 
+        memberDeviceService.logout(member, request.deviceId)
+    }
 
     fun refreshToken(request: TokenRefreshRequest): TokenInfo {
         val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
@@ -74,11 +73,17 @@ class AuthService(
         }
     }
 
-    fun withdraw(member: Member, request: WithdrawalRequest) {
-        oAuthWithdrawalService.withdraw(member)
-
+    fun withdrawByApp(member: Member) {
         memberService.withdraw(member)
 
-        redisTokenService.deleteRefreshToken(member.memberSeq, request.deviceId)
+        redisTokenService.deleteRefreshTokenForWithdrawal(member.memberSeq)
+    }
+
+    fun withdrawByWeb(oauthId: String, provider: Member.OAuthProvider) {
+        val member = memberService.getMemberByOauthId(oauthId, provider) ?: throw BusinessException(NOT_FOUND)
+
+        if(member.isWithdrawal()) throw BusinessException(WITHDRAWAL_USER)
+
+        withdrawByApp(member)
     }
 }

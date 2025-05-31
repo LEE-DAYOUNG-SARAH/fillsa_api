@@ -53,13 +53,17 @@ logging:
 
 oauth:
   kakao:
-    admin-key:
-    withdrawal-uri: https://kapi.kakao.com/v1/user/unlink
+    client-id:
+    client-secret:
+    redirect-uri:
+    token-uri: https://kauth.kakao.com/oauth/token
+    user-info-uri: https://kapi.kakao.com/v2/user/me
   google:
     client-id:
     client-secret:
-    token-uri: https://kauth.kakao.com/oauth/token
-    withdrawal-uri: https://oauth2.googleapis.com/revoke
+    redirect-uri:
+    token-uri: https://oauth2.googleapis.com/token
+    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
 
 cloud:
   aws:
