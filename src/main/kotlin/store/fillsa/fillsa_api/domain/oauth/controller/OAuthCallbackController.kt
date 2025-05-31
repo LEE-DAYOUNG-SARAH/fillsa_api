@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.*
 import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
 import store.fillsa.fillsa_api.common.exception.BusinessException
@@ -16,7 +17,9 @@ import java.net.URLEncoder
 @RequestMapping("/api/v1/oauth")
 @Tag(name = "간편 로그인 콜백")
 class OAuthCallbackController(
-    private val oAuthWithdrawalService: OAuthWithdrawalService
+    private val oAuthWithdrawalService: OAuthWithdrawalService,
+    @Value("\${fillsa.withdraw-url}")
+    private val withdrawUrl: String
 ) {
     val log = KotlinLogging.logger {  }
 
@@ -34,13 +37,13 @@ class OAuthCallbackController(
     ) {
         try {
             oAuthWithdrawalService.withdraw(Member.OAuthProvider.fromPath(provider), code)
-            response.sendRedirect("http://localhost:3000/success")
+            response.sendRedirect("${withdrawUrl}/success")
         } catch (e: BusinessException) {
             log.error { "간편 로그인 콜백 businessException: $e" }
-            response.sendRedirect("http://localhost:3000/fail?message=${e.errorCode.code}")
+            response.sendRedirect("${withdrawUrl}/fail?message=${e.errorCode.code}")
         } catch (e: Exception) {
             log.error { "간편 로그인 콜백 exception: $e" }
-            response.sendRedirect("http://localhost:3000/fail?message=${URLEncoder.encode(e.message, "UTF-8")}")
+            response.sendRedirect("${withdrawUrl}/fail?message=${URLEncoder.encode(e.message, "UTF-8")}")
         }
     }
 }

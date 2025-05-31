@@ -71,3 +71,4 @@ fillsa:
     swagger-path: /test
   ko-author-url: https://ko.wikipedia.org/wiki/
   en-author-url: https://en.wikipedia.org/wiki/
+  withdraw-url: test

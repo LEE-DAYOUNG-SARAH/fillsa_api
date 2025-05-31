@@ -96,3 +96,6 @@ springdoc:
 
 swagger:
   server-url: http://localhost:8080
+
+fillsa:
+  withdraw-url:
