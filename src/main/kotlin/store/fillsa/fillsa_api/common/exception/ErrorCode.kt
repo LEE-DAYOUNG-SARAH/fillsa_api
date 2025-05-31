@@ -27,7 +27,6 @@ enum class ErrorCode(
     JWT_REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 3004, "Jwt refresh token expired"),
 
     // redis
-    REDIS_TEMP_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, 4001, "Redis temp token invalid"),
     REDIS_REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, 4001, "Redis refresh token invalid"),
 
     // file

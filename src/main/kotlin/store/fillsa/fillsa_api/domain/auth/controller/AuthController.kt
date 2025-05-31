@@ -27,8 +27,6 @@ class AuthController(
     private val memberQuoteDataSyncService: MemberQuoteDataSyncService
 ) {
     @ApiErrorResponses(
-        REDIS_TEMP_TOKEN_INVALID,
-        NOT_FOUND,
         WITHDRAWAL_USER
     )
     @PostMapping("/login")
