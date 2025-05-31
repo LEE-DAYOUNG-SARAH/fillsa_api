@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
 import org.springframework.web.bind.annotation.*
 import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.oauth.service.withdrawal.OAuthWithdrawalService
@@ -34,8 +35,11 @@ class OAuthCallbackController(
         try {
             oAuthWithdrawalService.withdraw(Member.OAuthProvider.fromPath(provider), code)
             response.sendRedirect("http://localhost:3000/success")
+        } catch (e: BusinessException) {
+            log.error { "간편 로그인 콜백 businessException: $e" }
+            response.sendRedirect("http://localhost:3000/fail?message=${e.errorCode.code}")
         } catch (e: Exception) {
-            log.error { "간편 로그인 콜백 실패: $e" }
+            log.error { "간편 로그인 콜백 exception: $e" }
             response.sendRedirect("http://localhost:3000/fail?message=${URLEncoder.encode(e.message, "UTF-8")}")
         }
     }

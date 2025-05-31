@@ -43,7 +43,7 @@ jwt:
 logging:
   level:
     root: INFO
-    com.fillsa.fillsa_api: DEBUG
+    store.fillsa.fillsa_api: DEBUG
     org.springframework.web: INFO
     org.hibernate: INFO
     org.hibernate.orm.jdbc.bind: trace

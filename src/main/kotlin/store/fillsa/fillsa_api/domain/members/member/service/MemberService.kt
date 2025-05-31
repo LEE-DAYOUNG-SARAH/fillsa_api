@@ -49,12 +49,12 @@ class MemberService(
     }
 
     private fun getActiveMemberByOauthId(id: String, provider: Member.OAuthProvider): Member? {
-        val member = getMemberByOauthId(id, provider)
-        return if(member== null || member.isWithdrawal()) null else member
+        return getAllMemberByOauthId(id, provider)
+            .find { !it.isWithdrawal() }
     }
 
     @Transactional(readOnly = true)
-    fun getMemberByOauthId(id: String, provider: Member.OAuthProvider): Member? {
-        return memberRepository.findByOauthIdAndOauthProvider(id, provider)
+    fun getAllMemberByOauthId(id: String, provider: Member.OAuthProvider): List<Member> {
+        return memberRepository.findAllByOauthIdAndOauthProvider(id, provider)
     }
 }

@@ -80,10 +80,11 @@ class AuthService(
     }
 
     fun withdrawByWeb(oauthId: String, provider: Member.OAuthProvider) {
-        val member = memberService.getMemberByOauthId(oauthId, provider) ?: throw BusinessException(NOT_FOUND)
+        val members = memberService.getAllMemberByOauthId(oauthId, provider)
+        if(members.isEmpty()) throw BusinessException(NOT_FOUND)
 
-        if(member.isWithdrawal()) throw BusinessException(WITHDRAWAL_USER)
+        val activeMember = members.find { !it.isWithdrawal() } ?: throw BusinessException(WITHDRAWAL_USER)
 
-        withdrawByApp(member)
+        withdrawByApp(activeMember)
     }
 }
