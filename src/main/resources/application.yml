@@ -81,6 +81,7 @@ fillsa:
     swagger-path:
   ko-author-url: https://ko.wikipedia.org/wiki/
   en-author-url: https://en.wikipedia.org/wiki/
+  withdraw-url:
 
 springdoc:
   default-produces-media-type: application/json
@@ -96,6 +97,3 @@ springdoc:
 
 swagger:
   server-url: http://localhost:8080
-
-fillsa:
-  withdraw-url:
