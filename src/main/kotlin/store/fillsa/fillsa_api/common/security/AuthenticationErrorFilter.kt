@@ -1,6 +1,6 @@
 package store.fillsa.fillsa_api.common.security
 
-import com.nimbusds.jose.shaded.gson.Gson
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
 import jakarta.servlet.FilterChain
@@ -19,7 +19,7 @@ import store.fillsa.fillsa_api.common.exception.ErrorResponse
 @Component
 class AuthenticationErrorFilter: HttpFilter() {
     private val log = KotlinLogging.logger {  }
-    private val gson = Gson()
+    private val objectMapper = jacksonObjectMapper()
 
     override fun doFilter(
         request: HttpServletRequest,
@@ -46,6 +46,6 @@ class AuthenticationErrorFilter: HttpFilter() {
 
         val body = ErrorResponse.from(HttpStatus.UNAUTHORIZED, errorCode, errorCode.message)
 
-        response.writer.write(gson.toJson(body))
+        response.writer.write(objectMapper.writeValueAsString(body))
     }
 }
