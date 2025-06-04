@@ -66,7 +66,7 @@ class AuthController(
         authService.refreshToken(request)
     )
 
-    @DeleteMapping("/auth/withdraw")
+    @DeleteMapping("/withdraw")
     @Operation(summary = "[modal_delete ID] 앱 탈퇴 api")
     fun withdraw(
         @AuthenticationPrincipal member: Member

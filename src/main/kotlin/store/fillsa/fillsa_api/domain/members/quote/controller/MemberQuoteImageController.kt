@@ -19,7 +19,6 @@ import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteImageServ
 class MemberQuoteImageController(
     private val memberQuoteImageService: MemberQuoteImageService
 ) {
-    val member = Member(oauthProvider = Member.OAuthProvider.GOOGLE, oauthId = "")
 
     @ApiErrorResponses(
         NOT_FOUND,
