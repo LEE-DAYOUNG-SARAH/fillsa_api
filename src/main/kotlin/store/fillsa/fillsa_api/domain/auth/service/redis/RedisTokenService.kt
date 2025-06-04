@@ -20,7 +20,10 @@ class RedisTokenService(
     }
 
     fun deleteRefreshTokenForWithdrawal(memberId: Long) {
-        redisTemplate.delete("refresh:$memberId:*")
+        val keys = redisTemplate.keys("refresh:$memberId:*")
+        if (!keys.isNullOrEmpty()) {
+            redisTemplate.delete(keys)
+        }
     }
 
     fun validateRefreshToken(memberSeq: Long, deviceId: String, refreshToken: String): Boolean {
