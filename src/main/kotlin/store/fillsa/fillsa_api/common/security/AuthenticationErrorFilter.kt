@@ -11,9 +11,9 @@ import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode
-import store.fillsa.fillsa_api.common.exception.ErrorCode.JWT_ACCESS_TOKEN_EXPIRED
-import store.fillsa.fillsa_api.common.exception.ErrorCode.JWT_ACCESS_TOKEN_INVALID
+import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.common.exception.ErrorResponse
 
 @Component
@@ -34,6 +34,12 @@ class AuthenticationErrorFilter: HttpFilter() {
         } catch (e: JwtException) {
             log.warn { "유효하지 않은 토큰: ${e.message}" }
             createErrorResponse(response, JWT_ACCESS_TOKEN_INVALID)
+        } catch (e: BusinessException) {
+            log.warn { e.message }
+            createErrorResponse(response, e.errorCode)
+        } catch (e: Exception) {
+            log.warn { e.message }
+            createErrorResponse(response, UNEXPECTED_EXCEPTION)
         }
     }
 

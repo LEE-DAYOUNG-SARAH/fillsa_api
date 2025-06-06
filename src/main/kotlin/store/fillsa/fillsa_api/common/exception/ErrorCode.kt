@@ -13,6 +13,8 @@ enum class ErrorCode(
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, 1003, "Invalid request"),
     INVALID_VALUE(HttpStatus.BAD_REQUEST, 1004, "Invalid value"),
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "Server error"),
+    UNEXPECTED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 1006, "An unexpected error has occurred."),
+
 
     // oauth login
     OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.UNAUTHORIZED, 2001, "OAuth token request failed"),
