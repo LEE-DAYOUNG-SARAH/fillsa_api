@@ -43,7 +43,10 @@ data class MemberQuotesResponse(
     val memoYn: String,
 
     @Schema(description = "좋아요 여부", example = "Y/N", required = true)
-    val likeYn: String
+    val likeYn: String,
+
+    @Schema(description = "s3 이미지 경로")
+    val imagePath: String?,
 ) {
     companion object {
         fun from(koAuthorUrl: String, enAuthorUrl: String, memberQuote: MemberQuote) = MemberQuotesResponse(
@@ -58,7 +61,8 @@ data class MemberQuotesResponse(
                 ?: "${enAuthorUrl}${memberQuote.dailyQuote.quote.engAuthor}",
             memo = memberQuote.memo,
             memoYn = if (memberQuote.memo.isNullOrBlank()) "N" else "Y",
-            likeYn = memberQuote.likeYn
+            likeYn = memberQuote.likeYn,
+            imagePath = memberQuote.imagePath
         )
     }
 }
