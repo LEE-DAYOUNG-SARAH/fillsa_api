@@ -12,9 +12,6 @@ class RedisTokenService(
         redisTemplate.opsForValue().set("refresh:$memberId:$deviceId", refreshToken, ttlMillis, TimeUnit.MILLISECONDS)
     }
 
-    fun getRefreshToken(memberId: Long, deviceId: String): String? =
-        redisTemplate.opsForValue().get("refresh:$memberId:$deviceId")
-
     fun deleteRefreshTokenForLogout(memberId: Long, deviceId: String) {
         redisTemplate.delete("refresh:$memberId:$deviceId")
     }
@@ -24,10 +21,5 @@ class RedisTokenService(
         if (!keys.isNullOrEmpty()) {
             redisTemplate.delete(keys)
         }
-    }
-
-    fun validateRefreshToken(memberSeq: Long, deviceId: String, refreshToken: String): Boolean {
-        val redisRefreshToken = getRefreshToken(memberSeq, deviceId)
-        return redisRefreshToken != null && redisRefreshToken == refreshToken
     }
 }

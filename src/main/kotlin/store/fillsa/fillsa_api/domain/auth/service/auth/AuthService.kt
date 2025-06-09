@@ -67,10 +67,6 @@ class AuthService(
         } catch (e: Exception) {
             throw BusinessException(JWT_REFRESH_TOKEN_INVALID)
         }
-
-        if (!redisTokenService.validateRefreshToken(memberSeq, request.deviceId, request.refreshToken)) {
-            throw BusinessException(REDIS_REFRESH_TOKEN_INVALID)
-        }
     }
 
     fun withdrawByApp(member: Member) {

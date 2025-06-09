@@ -55,8 +55,7 @@ class AuthController(
 
     @ApiErrorResponses(
         JWT_REFRESH_TOKEN_EXPIRED,
-        JWT_REFRESH_TOKEN_INVALID,
-        REDIS_REFRESH_TOKEN_INVALID
+        JWT_REFRESH_TOKEN_INVALID
     )
     @PostMapping("/refresh")
     @Operation(summary = "토큰 재발급 api", description = "errorCode 3003인 경우 호출")

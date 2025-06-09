@@ -28,9 +28,6 @@ enum class ErrorCode(
     JWT_ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 3003, "Jwt access token expired"),
     JWT_REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 3004, "Jwt refresh token expired"),
 
-    // redis
-    REDIS_REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, 4001, "Redis refresh token invalid"),
-
     // file
     FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, 5001, "File upload failed"),
     FILE_UPDATE_FAILED(HttpStatus.BAD_REQUEST, 5002, "File update failed"),
