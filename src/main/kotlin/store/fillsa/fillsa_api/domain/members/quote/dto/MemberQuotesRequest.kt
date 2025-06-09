@@ -21,11 +21,17 @@ data class MemberQuotesResponse(
     @Schema(description = "명언 요일", example = "월/화/수", required = true)
     val quoteDayOfWeek: String,
 
-    @Schema(description = "명언", required = true)
-    val quote: String,
+    @Schema(description = "국문 명언")
+    val korQuote: String?,
 
-    @Schema(description = "저자", required = true)
-    val author: String,
+    @Schema(description = "영문 명언")
+    val engQuote: String?,
+
+    @Schema(description = "국문 저자")
+    val korAuthor: String?,
+
+    @Schema(description = "영문 저자")
+    val engAuthor: String?,
 
     @Schema(description = "저자 url")
     val authorUrl: String?,
@@ -44,8 +50,10 @@ data class MemberQuotesResponse(
             memberQuoteSeq = memberQuote.memberQuoteSeq,
             quoteDate = memberQuote.dailyQuote.quoteDate,
             quoteDayOfWeek = memberQuote.dailyQuote.quoteDate.dayOfWeek.toString(),
-            quote = memberQuote.dailyQuote.quote.korQuote ?: memberQuote.dailyQuote.quote.engQuote.orEmpty(),
-            author = memberQuote.dailyQuote.quote.korAuthor ?: memberQuote.dailyQuote.quote.engAuthor.orEmpty(),
+            korQuote = memberQuote.dailyQuote.quote.korQuote,
+            engQuote = memberQuote.dailyQuote.quote.engQuote,
+            korAuthor = memberQuote.dailyQuote.quote.korAuthor,
+            engAuthor = memberQuote.dailyQuote.quote.engAuthor,
             authorUrl = memberQuote.dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
                 ?: "${enAuthorUrl}${memberQuote.dailyQuote.quote.engAuthor}",
             memo = memberQuote.memo,
