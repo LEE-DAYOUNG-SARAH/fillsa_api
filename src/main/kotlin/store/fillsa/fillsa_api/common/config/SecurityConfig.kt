@@ -12,14 +12,17 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 import store.fillsa.fillsa_api.common.logging.RequestLoggingFilter
 import store.fillsa.fillsa_api.common.security.CustomUserDetailsService
 import store.fillsa.fillsa_api.common.security.JwtAuthenticationFilter
+import store.fillsa.fillsa_api.common.security.JwtTokenProvider
 import store.fillsa.fillsa_api.common.security.PublicEndpoint
+import store.fillsa.fillsa_api.domain.members.member.service.MemberService
 
 @Configuration
 class SecurityConfig(
     private val customUserDetailsService: CustomUserDetailsService,
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val requestLoggingFilter: RequestLoggingFilter,
     private val publicEndpoint: PublicEndpoint,
+    private val jwtTokenProvider: JwtTokenProvider,
+    private val memberService: MemberService,
 ) {
 
     @Bean
@@ -34,7 +37,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .userDetailsService(customUserDetailsService)
             .addFilterBefore(requestLoggingFilter, WebAsyncManagerIntegrationFilter::class.java)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider, memberService, publicEndpoint), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }

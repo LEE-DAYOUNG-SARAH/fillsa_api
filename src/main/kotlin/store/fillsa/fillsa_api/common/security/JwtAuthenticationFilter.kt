@@ -13,7 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.stereotype.Component
+import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode
@@ -21,7 +21,6 @@ import store.fillsa.fillsa_api.common.exception.ErrorResponse
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.service.MemberService
 
-@Component
 class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider,
     private val memberService: MemberService,
@@ -82,7 +81,10 @@ class JwtAuthenticationFilter(
     }
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return publicEndpoint.getPublicPatterns().any { request.servletPath.startsWith(it) }
+        val path = request.requestURI
+        return publicEndpoint.getPublicPatterns().any { pattern ->
+            AntPathMatcher().match(pattern, path)
+        }
     }
 
     private fun handleJwtException(response: HttpServletResponse, errorCode: ErrorCode) {
