@@ -51,17 +51,17 @@ class AuthService(
     }
 
     fun refreshToken(request: TokenRefreshRequest): TokenInfo {
-        val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
+        validateRefreshToken(request.refreshToken)
 
-        validateRefreshToken(memberSeq, request)
+        val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
 
         val member = memberService.getActiveMemberBySeq(memberSeq)
         return createToken(member.memberSeq, request.deviceId)
     }
 
-    private fun validateRefreshToken(memberSeq: Long, request: TokenRefreshRequest) {
+    private fun validateRefreshToken(refreshToken: String) {
         try {
-            jwtTokenProvider.validateToken(request.refreshToken)
+            jwtTokenProvider.validateToken(refreshToken)
         } catch (e: ExpiredJwtException) {
             throw BusinessException(JWT_REFRESH_TOKEN_EXPIRED)
         } catch (e: Exception) {
