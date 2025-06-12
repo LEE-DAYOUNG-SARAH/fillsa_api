@@ -16,7 +16,7 @@ class MemberQuoteImageService(
     private val memberQuoteUpdateService: MemberQuoteUpdateService,
     private val dailyQuoteService: DailyQuoteService,
 ) {
-    private val PATH = "member-quotes"
+    private val PATH = "members"
 
     fun uploadImage(member: Member, dailyQuoteSeq: Long, image: MultipartFile): Long {
         val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
@@ -30,7 +30,7 @@ class MemberQuoteImageService(
                 )
             )
 
-        val filePath = "$PATH/${memberQuote.memberQuoteSeq}"
+        val filePath = "$PATH/${member.memberSeq}"
         val fileUrl = memberQuote.imagePath?.let {
             fileService.updateFile(filePath, image, it)
         } ?: fileService.uploadFile(filePath, image)
