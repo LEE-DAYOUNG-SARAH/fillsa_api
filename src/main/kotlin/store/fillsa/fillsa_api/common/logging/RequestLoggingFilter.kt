@@ -29,9 +29,19 @@ class RequestLoggingFilter : OncePerRequestFilter() {
 
         val requestWrapper = try {
             CustomHttpServletRequestWrapper(request).also { wrapper ->
-                val raw = wrapper.getCachedBody()
-                val body = parseBody(raw)
-                log.info { "REQUEST ${request.method} ${getRequestUrl(request)} → body=[$body]" }
+                val method = request.method
+                val url = getRequestUrl(request)
+
+                val logMsg = if (method =="GET") {
+                    "📥 $method $url"
+                } else {
+                    val raw = wrapper.getCachedBody()
+                    val body = parseBody(raw)
+
+                    "📥 $method $url | body=$body"
+                }
+
+                log.info { logMsg }
             }
         } catch (e: Exception) {
             log.error(e) { "RequestLoggingFilter error, proceeding with original request" }
