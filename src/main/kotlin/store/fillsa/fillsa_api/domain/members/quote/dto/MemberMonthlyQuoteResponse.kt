@@ -3,6 +3,7 @@ package store.fillsa.fillsa_api.domain.members.quote.dto
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
+import store.fillsa.fillsa_api.domain.quote.entity.DailyQuote
 import java.time.LocalDate
 
 data class MemberMonthlyQuoteResponse(
@@ -42,15 +43,16 @@ data class MemberMonthlyQuoteResponse(
     )
 
     companion object {
-        fun from(memberQuotes: List<MemberQuote>): MemberMonthlyQuoteResponse {
-            val memberQuoteData = memberQuotes.map {
+        fun from(quotes: List<DailyQuote>, memberQuotes: List<MemberQuote>): MemberMonthlyQuoteResponse {
+            val memberQuoteData = quotes.map { dailyQuote ->
+                val memberQuote = memberQuotes.find { it.dailyQuote.dailyQuoteSeq == dailyQuote.dailyQuoteSeq }
                 MemberQuotesData(
-                    dailyQuoteSeq = it.dailyQuote.dailyQuoteSeq,
-                    quoteDate = it.dailyQuote.quoteDate,
-                    quote = it.dailyQuote.quote.korQuote ?: it.dailyQuote.quote.engQuote.orEmpty(),
-                    author = it.dailyQuote.quote.korAuthor ?: it.dailyQuote.quote.engAuthor.orEmpty(),
-                    typingYn = it.getTypingYn(),
-                    likeYn = it.likeYn
+                    dailyQuoteSeq = dailyQuote.dailyQuoteSeq,
+                    quoteDate = dailyQuote.quoteDate,
+                    quote = dailyQuote.quote.korQuote ?: dailyQuote.quote.engQuote.orEmpty(),
+                    author = dailyQuote.quote.korAuthor ?: dailyQuote.quote.engAuthor.orEmpty(),
+                    typingYn = memberQuote?.getTypingYn() ?: "N",
+                    likeYn = memberQuote?.likeYn ?: "N"
                 )
             }
 

@@ -15,7 +15,6 @@ enum class ErrorCode(
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "Server error"),
     UNEXPECTED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 1006, "An unexpected error has occurred."),
 
-
     // oauth login
     OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.UNAUTHORIZED, 2001, "OAuth token request failed"),
     OAUTH_TOKEN_RESPONSE_PROCESS_FAILED(HttpStatus.UNAUTHORIZED, 2002, "OAuth token response process failed"),

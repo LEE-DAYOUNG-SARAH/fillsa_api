@@ -37,13 +37,14 @@ class MemberQuoteReadService(
 
     @Transactional(readOnly = true)
     fun monthlyQuotes(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponse {
+        val quotes = dailyQuoteService.getDailyQuoteByQuotMonth(yearMonth)
         val memberQuotes = memberQuoteRepository.findByMemberAndQuoteDateBetween(
             member = member,
             beginQuoteDate = yearMonth.atDay(1),
             endQuoteDate = yearMonth.atEndOfMonth()
         )
 
-        return MemberMonthlyQuoteResponse.from(memberQuotes)
+        return MemberMonthlyQuoteResponse.from(quotes, memberQuotes)
     }
 
     @Transactional(readOnly = true)
