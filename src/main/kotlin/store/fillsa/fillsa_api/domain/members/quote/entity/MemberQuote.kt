@@ -48,11 +48,15 @@ class MemberQuote(
         this.memo = memo
     }
 
-    fun getTypingYn(): String {
-        return if(typingKorQuote != null && typingEngQuote != null) "Y" else "N"
-    }
-
     fun updateLikeYn(likeYn: String) {
         this.likeYn = likeYn
     }
+
+    fun getTypingYn() = if(hasTypingQuotes() || hasImgPath()) "Y" else "N"
+
+    private fun hasTypingQuotes() = !typingKorQuote.isNullOrEmpty() || !typingEngQuote.isNullOrEmpty()
+
+    private fun hasImgPath() = !imagePath.isNullOrEmpty()
+
+    fun hasContent() = getTypingYn() == "Y" || !imagePath.isNullOrEmpty() || likeYn == "Y"
 }

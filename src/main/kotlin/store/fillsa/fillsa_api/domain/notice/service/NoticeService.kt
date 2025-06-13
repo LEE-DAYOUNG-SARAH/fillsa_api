@@ -16,7 +16,7 @@ class NoticeService(
     fun getNotices(pageable: Pageable): PageResponse<NoticeResponse> {
         val pagingNotices = noticeRepository.findByPageable(pageable)
 
-        return PageResponse.from(pagingNotices) { notice ->
+        return PageResponse.fromPage(pagingNotices) { notice ->
             NoticeResponse.from(notice)
         }
     }

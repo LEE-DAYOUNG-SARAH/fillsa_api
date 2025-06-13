@@ -1,7 +1,5 @@
 package store.fillsa.fillsa_api.domain.members.quote.repository
 
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
@@ -27,7 +25,7 @@ interface MemberQuoteRepository: JpaRepository<MemberQuote, Long> {
         where m = :member
             and dq.quoteDate between :beginQuoteDate and :endQuoteDate
     """)
-    fun findByMemberAndQuoteDateBetween(
+    fun findAllByMemberAndQuoteDateBetween(
         member: Member,
         beginQuoteDate: LocalDate,
         endQuoteDate: LocalDate
@@ -40,12 +38,7 @@ interface MemberQuoteRepository: JpaRepository<MemberQuote, Long> {
             join fetch mq.dailyQuote dq
             join fetch dq.quote q
         where m = :member
-            and mq.likeYn in :likeYns
         order by dq.quoteDate desc
     """)
-    fun findByMemberAndLikeYnIn(
-        member: Member,
-        likeYns: List<String>,
-        pageable: Pageable
-    ): Page<MemberQuote>
+    fun findAllByMember(member: Member): List<MemberQuote>
 }

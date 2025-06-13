@@ -38,13 +38,19 @@ class MemberQuoteReadService(
     @Transactional(readOnly = true)
     fun monthlyQuotes(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponse {
         val quotes = dailyQuoteService.getDailyQuoteByQuotMonth(yearMonth)
-        val memberQuotes = memberQuoteRepository.findByMemberAndQuoteDateBetween(
+        val memberQuotes = getMemberQuotesWithContentByMonth(member, yearMonth)
+
+        return MemberMonthlyQuoteResponse.from(quotes, memberQuotes)
+    }
+
+    private fun getMemberQuotesWithContentByMonth(member: Member, yearMonth: YearMonth): List<MemberQuote> {
+        val memberQuotes = memberQuoteRepository.findAllByMemberAndQuoteDateBetween(
             member = member,
             beginQuoteDate = yearMonth.atDay(1),
             endQuoteDate = yearMonth.atEndOfMonth()
         )
 
-        return MemberMonthlyQuoteResponse.from(quotes, memberQuotes)
+        return memberQuotes.filter { it.hasContent() }
     }
 
     @Transactional(readOnly = true)
@@ -53,14 +59,20 @@ class MemberQuoteReadService(
         pageable: Pageable,
         request: MemberQuotesRequest
     ): PageResponse<MemberQuotesResponse> {
-        val pagingMemberQuotes = memberQuoteRepository.findByMemberAndLikeYnIn(
-            member = member,
-            likeYns = if(request.likeYn == "N") listOf("Y", "N") else listOf("Y"),
-            pageable = pageable
-        )
+        val memberQuotes = getMemberQuotesWithContentByLikeYn(member, request.likeYn)
 
-        return PageResponse.from(pagingMemberQuotes) { memberQuote ->
+        return PageResponse.fromList(memberQuotes, pageable) { memberQuote ->
             MemberQuotesResponse.from(koAuthorUrl, enAuthorUrl, memberQuote)
+        }
+    }
+
+    private fun getMemberQuotesWithContentByLikeYn(member: Member, likeYn: String): List<MemberQuote> {
+        val memberQuotes = memberQuoteRepository.findAllByMember(member)
+
+        return if(likeYn == "Y") {
+            memberQuotes.filter { it.likeYn == "Y" }
+        } else {
+            memberQuotes.filter { it.hasContent() }
         }
     }
 

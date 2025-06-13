@@ -60,7 +60,7 @@ data class MemberQuotesResponse(
             authorUrl = memberQuote.dailyQuote.quote.korAuthor?.let { "${koAuthorUrl}$it" }
                 ?: "${enAuthorUrl}${memberQuote.dailyQuote.quote.engAuthor}",
             memo = memberQuote.memo,
-            memoYn = if (memberQuote.memo.isNullOrBlank()) "N" else "Y",
+            memoYn = if (memberQuote.memo.isNullOrEmpty()) "N" else "Y",
             likeYn = memberQuote.likeYn,
             imagePath = memberQuote.imagePath
         )
