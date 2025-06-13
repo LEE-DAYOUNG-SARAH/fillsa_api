@@ -6,7 +6,9 @@ import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.common.exception.ErrorCode
 import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
+import store.fillsa.fillsa_api.domain.quote.dto.MonthlyQuoteResponse
 import java.time.LocalDate
+import java.time.YearMonth
 
 @Service
 class QuoteService(
@@ -23,5 +25,10 @@ class QuoteService(
             ?: throw BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 quoteDate: $quoteDate")
 
         return DailyQuoteResponse.from(koAuthorUrl, enAuthorUrl, dailyQuote)
+    }
+
+    fun monthlyQuotes(yearMonth: YearMonth): List<MonthlyQuoteResponse> {
+        return dailyQuoteService.getDailyQuoteByQuotMonth(yearMonth)
+            .map { MonthlyQuoteResponse.from(it) }
     }
 }

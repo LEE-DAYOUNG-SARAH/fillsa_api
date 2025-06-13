@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RestController
 import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
 import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.domain.quote.dto.DailyQuoteResponse
+import store.fillsa.fillsa_api.domain.quote.dto.MonthlyQuoteResponse
 import store.fillsa.fillsa_api.domain.quote.service.QuoteService
 import java.time.LocalDate
+import java.time.YearMonth
 
 
 @RestController
@@ -29,5 +31,14 @@ class QuoteController(
         quoteDate: LocalDate
     ): ResponseEntity<DailyQuoteResponse> = ResponseEntity.ok(
         quoteService.getDailyQuote(quoteDate)
+    )
+
+    @GetMapping("/monthly")
+    @Operation(summary = "[2.home] 월별 명언 조회 api")
+    fun dailyQuote(
+        @Parameter(description = "조회 월", example = "yyyy-MM")
+        yearMonth: YearMonth
+    ): ResponseEntity<List<MonthlyQuoteResponse>> = ResponseEntity.ok(
+        quoteService.monthlyQuotes(yearMonth)
     )
 }
