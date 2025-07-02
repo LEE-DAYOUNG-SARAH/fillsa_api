@@ -1,9 +1,11 @@
 package store.fillsa.fillsa_api.common.swagger
 
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.examples.Example
 import io.swagger.v3.oas.models.media.Content
 import io.swagger.v3.oas.models.media.MediaType
+import io.swagger.v3.oas.models.parameters.Parameter
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
 import io.swagger.v3.oas.models.security.SecurityRequirement
@@ -23,6 +25,7 @@ class SwaggerOperationCustomizer : OperationCustomizer {
     override fun customize(operation: Operation, handlerMethod: HandlerMethod): Operation {
         applyApiErrorResponses(operation, handlerMethod)
         applySecurityIfNeeded(operation, handlerMethod)
+        applyAppVersionHeader(operation)
         return operation
     }
 
@@ -73,4 +76,21 @@ class SwaggerOperationCustomizer : OperationCustomizer {
     private fun createExample(errorCode: ErrorCode) = Example().apply {
         value = ErrorResponse.from(errorCode.httpStatus, errorCode, errorCode.message)
     }
+
+    private fun applyAppVersionHeader(operation: Operation) {
+        val existing = operation.parameters.orEmpty()
+        val alreadyExists = existing.any { it.name == "X-App-Version" }
+
+        if (!alreadyExists) {
+            val versionHeader = Parameter()
+                .`in`(ParameterIn.HEADER.toString())
+                .name("X-App-Version")
+                .description("앱 버전 (예: 9999)")
+                .required(true)
+                .example("9999")
+
+            operation.addParametersItem(versionHeader)
+        }
+    }
+
 }

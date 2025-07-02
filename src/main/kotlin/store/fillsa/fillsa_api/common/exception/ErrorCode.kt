@@ -14,6 +14,7 @@ enum class ErrorCode(
     INVALID_VALUE(HttpStatus.BAD_REQUEST, 1004, "Invalid value"),
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "Server error"),
     UNEXPECTED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 1006, "An unexpected error has occurred."),
+    UNSUPPORTED_APP_VERSION(HttpStatus.INTERNAL_SERVER_ERROR, 1007, "Unsupported app version."),
 
     // oauth login
     OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.UNAUTHORIZED, 2001, "OAuth token request failed"),
