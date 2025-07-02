@@ -11,17 +11,24 @@ class AppVersionService(
 ) {
     fun verifyAppVersion(appVersion: String?) {
         // TODO. 앱 버전체크 배포 후 예외던지기
-        if(appVersion.isNullOrBlank()) return
+        if(!appVersion.isNullOrBlank()) {
+            val minVersion = appVersionRepository.findTopByOrderByCreatedAtDesc()
+                .minVersion
+
+            if(!isVersionAtLeast(appVersion, minVersion)) {
+                throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
+            }
+        }
 //        if(appVersion.isNullOrBlank()) {
 //            throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
 //        }
 
-        val minVersion = appVersionRepository.findTopByOrderByCreatedAtDesc()
-            .minVersion
-
-        if(!isVersionAtLeast(appVersion, minVersion)) {
-            throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
-        }
+//        val minVersion = appVersionRepository.findTopByOrderByCreatedAtDesc()
+//            .minVersion
+//
+//        if(!isVersionAtLeast(appVersion, minVersion)) {
+//            throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
+//        }
     }
 
     private fun isVersionAtLeast(current: String, required: String): Boolean {
