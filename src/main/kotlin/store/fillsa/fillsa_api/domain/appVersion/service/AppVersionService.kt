@@ -11,10 +11,10 @@ class AppVersionService(
 ) {
     fun verifyAppVersion(appVersion: String?) {
         // TODO. 앱 버전체크 배포 후 예외던지기
-        if(appVersion.isNullOrBlank()) {
+        if(appVersion.isNullOrBlank()) return
+//        if(appVersion.isNullOrBlank()) {
 //            throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
-            return
-        }
+//        }
 
         val minVersion = appVersionRepository.findTopByOrderByCreatedAtDesc()
             .minVersion
