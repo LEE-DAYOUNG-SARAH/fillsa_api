@@ -30,7 +30,7 @@ spring:
       port: 6379
 
 jwt:
-  secret: Zm9vYmFyYmF6cXV4eW1wYWdkc2FtcGxla2V5Zm9vYmFyYmE=
+  secret: dGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbi12ZXJ5LWxvbmctYW5kLXNlY3VyZS1rZXktZm9yLXRlc3QtZW52aXJvbm1lbnQ=
   access-token-validity: 900000   # 15분
   refresh-token-validity: 604800000   # 7일
 
