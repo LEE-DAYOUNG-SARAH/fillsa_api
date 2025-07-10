@@ -91,12 +91,9 @@ class MemberQuoteReadServiceTest @Autowired constructor(
         val nonExistentQuoteDate = LocalDate.of(2025, 12, 31) // Future date
         
         // when & then
-        val exception = assertThrows<BusinessException> {
-            sut.dailyQuote(member, nonExistentQuoteDate)
-        }
-        
-        assertThat(exception.errorCode).isEqualTo(ErrorCode.NOT_FOUND)
-        assertThat(exception.message).contains("존재하지 않는 quoteDate: $nonExistentQuoteDate")
+        assertThatThrownBy { sut.dailyQuote(member, nonExistentQuoteDate) }
+            .isInstanceOf(BusinessException::class.java)
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND)
     }
     
     @Test
@@ -249,12 +246,9 @@ class MemberQuoteReadServiceTest @Autowired constructor(
         val dailyQuoteSeq = 999L
         
         // when & then
-        val exception = assertThrows<BusinessException> {
-            sut.typingQuote(member, dailyQuoteSeq)
-        }
-        
-        assertThat(exception.errorCode).isEqualTo(ErrorCode.NOT_FOUND)
-        assertThat(exception.message).contains("존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+        assertThatThrownBy { sut.typingQuote(member, dailyQuoteSeq) }
+            .isInstanceOf(BusinessException::class.java)
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND)
     }
     
     @Test

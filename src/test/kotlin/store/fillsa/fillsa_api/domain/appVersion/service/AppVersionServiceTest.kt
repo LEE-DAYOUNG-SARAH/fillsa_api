@@ -1,7 +1,7 @@
 package store.fillsa.fillsa_api.domain.appVersion.service
 
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatCode
+import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
@@ -66,11 +66,9 @@ class AppVersionServiceTest @Autowired constructor(
         )
         
         // when & then
-        val exception = assertThrows<BusinessException> {
-            sut.verifyAppVersion(appVersion)
-        }
-        
-        assertThat(exception.errorCode).isEqualTo(ErrorCode.UNSUPPORTED_APP_VERSION)
+        assertThatThrownBy { sut.verifyAppVersion(appVersion) }
+            .isInstanceOf(BusinessException::class.java)
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNSUPPORTED_APP_VERSION)
     }
     
     @Test
