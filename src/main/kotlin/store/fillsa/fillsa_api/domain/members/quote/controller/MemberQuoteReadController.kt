@@ -53,7 +53,7 @@ class MemberQuoteReadController(
         pageable: Pageable,
         request: MemberQuotesRequest
     ): ResponseEntity<PageResponse<MemberQuotesResponse>> = ResponseEntity.ok(
-        memberQuoteReadService.memberQuotes(member, pageable, request)
+        memberQuoteReadService.memberQuotes(member, pageable, MemberQuotesCommonRequest.fromV1(request))
     )
 
     @ApiErrorResponses(NOT_FOUND)

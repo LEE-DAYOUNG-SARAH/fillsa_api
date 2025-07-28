@@ -57,19 +57,23 @@ class MemberQuoteReadService(
     fun memberQuotes(
         member: Member,
         pageable: Pageable,
-        request: MemberQuotesRequest
+        request: MemberQuotesCommonRequest
     ): PageResponse<MemberQuotesResponse> {
-        val memberQuotes = getMemberQuotesWithContentByLikeYn(member, request.likeYn)
+        val memberQuotes = getMemberQuotesWithContentByRequest(member, request)
 
         return PageResponse.fromList(memberQuotes, pageable) { memberQuote ->
             MemberQuotesResponse.from(koAuthorUrl, enAuthorUrl, memberQuote)
         }
     }
 
-    private fun getMemberQuotesWithContentByLikeYn(member: Member, likeYn: String): List<MemberQuote> {
-        val memberQuotes = memberQuoteRepository.findAllByMember(member)
+    private fun getMemberQuotesWithContentByRequest(
+        member: Member,
+        request: MemberQuotesCommonRequest
+    ): List<MemberQuote> {
+        val memberQuotes =
+            memberQuoteRepository.findAllByMemberAndCreatedAtBetween(member, request.startDate, request.endDate)
 
-        return if(likeYn == "Y") {
+        return if(request.likeYn == "Y") {
             memberQuotes.filter { it.likeYn == "Y" }
         } else {
             memberQuotes.filter { it.hasContent() }

@@ -38,7 +38,8 @@ interface MemberQuoteRepository: JpaRepository<MemberQuote, Long> {
             join fetch mq.dailyQuote dq
             join fetch dq.quote q
         where m = :member
+            and dq.quoteDate between :startDate and :endDate
         order by dq.quoteDate desc
     """)
-    fun findAllByMember(member: Member): List<MemberQuote>
+    fun findAllByMemberAndCreatedAtBetween(member: Member, startDate: LocalDate, endDate: LocalDate): List<MemberQuote>
 }

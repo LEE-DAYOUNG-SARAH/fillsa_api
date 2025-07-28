@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode
+import store.fillsa.fillsa_api.domain.members.quote.dto.MemberQuotesCommonRequest
 import store.fillsa.fillsa_api.domain.members.quote.dto.MemberQuotesRequest
 import store.fillsa.fillsa_api.fixture.member.persist.MemberPersistFactory
 import store.fillsa.fillsa_api.fixture.quote.entity.QuoteEntityFactory
@@ -141,7 +142,7 @@ class MemberQuoteReadServiceTest @Autowired constructor(
         // given
         val member = memberPersistFactory.createMember()
         val pageable = PageRequest.of(0, 10)
-        val request = MemberQuotesRequest(likeYn = "Y")
+        val request = MemberQuotesCommonRequest.fromV1(MemberQuotesRequest(likeYn = "Y"))
         
         val (savedQuote1, savedDailyQuote1) = quotePersistFactory.createQuoteWithDailyQuote()
         val (savedQuote2, savedDailyQuote2) = quotePersistFactory.createQuoteWithDailyQuote()
@@ -176,7 +177,7 @@ class MemberQuoteReadServiceTest @Autowired constructor(
         // given
         val member = memberPersistFactory.createMember()
         val pageable = PageRequest.of(0, 10)
-        val request = MemberQuotesRequest(likeYn = "N")
+        val request = MemberQuotesCommonRequest.fromV1(MemberQuotesRequest(likeYn = "N"))
         
         val (savedQuote1, savedDailyQuote1) = quotePersistFactory.createQuoteWithDailyQuote()
         val (savedQuote2, savedDailyQuote2) = quotePersistFactory.createQuoteWithDailyQuote()
