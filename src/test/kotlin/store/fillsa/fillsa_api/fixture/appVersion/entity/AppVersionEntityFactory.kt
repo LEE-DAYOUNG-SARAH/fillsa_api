@@ -5,9 +5,11 @@ import store.fillsa.fillsa_api.domain.appVersion.domain.AppVersion
 class AppVersionEntityFactory {
     companion object {
         fun appVersion(
-            minVersion: String = "1.0.0"
+            minVersion: String = "1.0.0",
+            nowVersion: String = "1.1.10"
         ) = AppVersion(
-            minVersion = minVersion
+            minVersion = minVersion,
+            nowVersion = nowVersion
         )
     }
 } 

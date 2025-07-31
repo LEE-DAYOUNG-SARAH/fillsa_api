@@ -85,7 +85,7 @@ class SwaggerOperationCustomizer : OperationCustomizer {
             val versionHeader = Parameter()
                 .`in`(ParameterIn.HEADER.toString())
                 .name("X-App-Version")
-                .description("앱 버전 (예: 9999)")
+                .description("앱 버전 (예: 1.2.10)")
                 .required(true)
                 .example("9999")
 

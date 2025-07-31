@@ -1,19 +1,23 @@
 package store.fillsa.fillsa_api.domain.appVersion.service
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode
+import store.fillsa.fillsa_api.domain.appVersion.domain.AppVersion
+import store.fillsa.fillsa_api.domain.appVersion.dto.AppVersionModifyRequest
+import store.fillsa.fillsa_api.domain.appVersion.dto.AppVersionResponse
 import store.fillsa.fillsa_api.domain.appVersion.repository.AppVersionRepository
 
 @Service
 class AppVersionService(
     private val appVersionRepository: AppVersionRepository
 ) {
+    @Transactional(readOnly = true)
     fun verifyAppVersion(appVersion: String?) {
         // TODO. 앱 버전체크 배포 후 예외던지기
         if(!appVersion.isNullOrBlank()) {
-            val minVersion = appVersionRepository.findTopByOrderByCreatedAtDesc()
-                .minVersion
+            val minVersion = getCurrentAppVersion().minVersion
 
             if(!isVersionAtLeast(appVersion, minVersion)) {
                 throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
@@ -44,5 +48,22 @@ class AppVersionService(
         }
 
         return true
+    }
+
+
+    private fun getCurrentAppVersion(): AppVersion = appVersionRepository.findTopByOrderByCreatedAtDesc()
+
+    @Transactional(readOnly = true)
+    fun getAppVersion(): AppVersionResponse {
+        val appVersion = getCurrentAppVersion()
+        return AppVersionResponse.from(appVersion)
+    }
+
+    @Transactional
+    fun modify(request: AppVersionModifyRequest): Long {
+        val appVersion = getCurrentAppVersion()
+        appVersion.modify(request.minVersion, request.nowVersion)
+
+        return appVersion.appVersionSeq
     }
 }

@@ -11,5 +11,13 @@ class AppVersion(
     val appVersionSeq: Long = 0L,
 
     @Column(nullable = false)
-    val minVersion: String
-): BaseEntity()
+    var minVersion: String,
+
+    @Column(nullable = false)
+    var nowVersion: String
+): BaseEntity() {
+    fun modify(minVersion: String?, nowVersion: String?) {
+        minVersion?.takeIf { it.isNotBlank() }?.let { this.minVersion = it }
+        nowVersion?.takeIf { it.isNotBlank() }?.let { this.nowVersion = it }
+    }
+}
