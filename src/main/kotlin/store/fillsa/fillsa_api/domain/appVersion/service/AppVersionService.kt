@@ -15,28 +15,20 @@ class AppVersionService(
 ) {
     @Transactional(readOnly = true)
     fun verifyAppVersion(appVersion: String?) {
-        // TODO. 앱 버전체크 배포 후 예외던지기
-        if(!appVersion.isNullOrBlank()) {
-            val minVersion = getCurrentAppVersion().minVersion
-
-            if(!isVersionAtLeast(appVersion, minVersion)) {
-                throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
-            }
+        if(appVersion.isNullOrBlank()) {
+            throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
         }
-//        if(appVersion.isNullOrBlank()) {
-//            throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
-//        }
 
-//        val minVersion = appVersionRepository.findTopByOrderByCreatedAtDesc()
-//            .minVersion
-//
-//        if(!isVersionAtLeast(appVersion, minVersion)) {
-//            throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
-//        }
+        val minVersion = appVersionRepository.findTopByOrderByCreatedAtDesc()
+            .minVersion
+
+        if(!isVersionAtLeast(appVersion, minVersion)) {
+            throw BusinessException(ErrorCode.UNSUPPORTED_APP_VERSION)
+        }
     }
 
-    private fun isVersionAtLeast(current: String, required: String): Boolean {
-        val currentParts = current.split(".")
+    private fun isVersionAtLeast(request: String, required: String): Boolean {
+        val currentParts = request.split(".")
         val requiredParts = required.split(".")
         val maxLength = maxOf(currentParts.size, requiredParts.size)
 
