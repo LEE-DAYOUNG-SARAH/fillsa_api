@@ -6,6 +6,7 @@ import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.common.service.FileService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
+    `import store.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteImageResponse
 import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import store.fillsa.fillsa_api.domain.quote.service.DailyQuoteService
 
@@ -18,7 +19,7 @@ class MemberQuoteImageService(
 ) {
     private val PATH = "members"
 
-    fun uploadImage(member: Member, dailyQuoteSeq: Long, image: MultipartFile): Long {
+    fun uploadImage(member: Member, dailyQuoteSeq: Long, image: MultipartFile): MemberQuoteImageResponse {
         val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
             ?: throw BusinessException(NOT_FOUND, "존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
@@ -37,7 +38,7 @@ class MemberQuoteImageService(
 
         memberQuoteUpdateService.updateImagePath(memberQuote, fileUrl)
 
-        return memberQuote.memberQuoteSeq
+        return MemberQuoteImageResponse.from(memberQuote)
     }
 
     fun deleteImage(member: Member, dailyQuoteSeq: Long): Long {

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile
 import store.fillsa.fillsa_api.common.exception.ApiErrorResponses
 import store.fillsa.fillsa_api.common.exception.ErrorCode.*
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
+import store.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteImageResponse
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteImageService
 
 @RestController
@@ -31,7 +32,7 @@ class MemberQuoteImageController(
         @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long,
         @RequestPart("image") @Parameter(description = "이미지 파일(최대 1MB)") image: MultipartFile
-    ): ResponseEntity<Long> = ResponseEntity.ok(
+    ): ResponseEntity<MemberQuoteImageResponse> = ResponseEntity.ok(
         memberQuoteImageService.uploadImage(member, dailyQuoteSeq, image)
     )
 
