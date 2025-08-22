@@ -6,7 +6,7 @@ import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.common.service.FileService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
-    `import store.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteImageResponse
+import store.fillsa.fillsa_api.domain.members.quote.dto.MemberQuoteImageResponse
 import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import store.fillsa.fillsa_api.domain.quote.service.DailyQuoteService
 
