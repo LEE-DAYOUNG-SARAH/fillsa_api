@@ -32,6 +32,9 @@ class PublicEndpoint(
             swaggerDocPath,
             "$swaggerDocPath/**",
             "$swaggerPathPrefix/swagger-ui/**",
+
+            // admob
+            "/app-ads.txt"
         )
     }
 }
