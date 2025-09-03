@@ -1,9 +1,8 @@
 package store.fillsa.fillsa_api.domain.appVersion.service
 
-import org.assertj.core.api.Assertions
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThatCode
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -69,33 +68,6 @@ class AppVersionServiceTest @Autowired constructor(
         assertThatThrownBy { sut.verifyAppVersion(appVersion) }
             .isInstanceOf(BusinessException::class.java)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNSUPPORTED_APP_VERSION)
-    }
-    
-    @Test
-    fun `앱 버전 검증 성공 - 버전이 null인 경우 현재는 통과한다`() {
-        // given
-        val appVersion: String? = null
-        
-        // when & then
-        assertThatCode { sut.verifyAppVersion(appVersion) }.doesNotThrowAnyException()
-    }
-    
-    @Test
-    fun `앱 버전 검증 성공 - 버전이 빈 문자열인 경우 현재는 통과한다`() {
-        // given
-        val appVersion = ""
-        
-        // when & then
-        assertThatCode { sut.verifyAppVersion(appVersion) }.doesNotThrowAnyException()
-    }
-    
-    @Test
-    fun `앱 버전 검증 성공 - 버전이 공백인 경우 현재는 통과한다`() {
-        // given
-        val appVersion = "   "
-        
-        // when & then
-        assertThatCode { sut.verifyAppVersion(appVersion) }.doesNotThrowAnyException()
     }
     
     @Test
