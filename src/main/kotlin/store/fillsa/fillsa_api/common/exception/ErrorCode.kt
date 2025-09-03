@@ -15,6 +15,8 @@ enum class ErrorCode(
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "Server error"),
     UNEXPECTED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 1006, "An unexpected error has occurred."),
     UNSUPPORTED_APP_VERSION(HttpStatus.INTERNAL_SERVER_ERROR, 1007, "Unsupported app version."),
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, 1010, "Service under maintenance."),
+    CUSTOM_ERROR_MESSAGE(HttpStatus.BAD_REQUEST, 1999, "커스텀 메세지가 들어갑니다."),
 
     // oauth login
     OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.UNAUTHORIZED, 2001, "OAuth token request failed"),
