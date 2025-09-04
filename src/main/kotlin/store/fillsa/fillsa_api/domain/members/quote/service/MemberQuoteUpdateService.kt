@@ -52,11 +52,13 @@ class MemberQuoteUpdateService(
     }
 
     @Transactional
-    fun updateImagePath(memberQuote: MemberQuote, imagePath: String?) {
+    fun updateImagePath(memberQuote: MemberQuote, imagePath: String?): MemberQuote {
         val findMemberQuote = memberQuoteRepository.findById(memberQuote.memberQuoteSeq)
             .orElseThrow { BusinessException(NOT_FOUND, "존재하지 않는 memberQuoteSeq: ${memberQuote.memberQuoteSeq}") }
 
         findMemberQuote.updateImagePath(imagePath)
+
+        return findMemberQuote
     }
 
     @Transactional

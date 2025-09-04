@@ -45,3 +45,4 @@ application-prod.yml
 
 ### log
 .log
+.log.gz
