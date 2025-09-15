@@ -3,6 +3,17 @@
 Fillsa API는 Kotlin 기반의 Spring Boot 애플리케이션으로, Fillsa 서비스의 백엔드를 담당합니다.
 회원 관리, 명언 제공, 공지사항 등의 기능을 위한 RESTful API를 제공하며, JWT 기반 인증과 외부 OAuth 로그인 연동을 지원합니다.
 
+## 기술 스택
+
+- **Language**: Kotlin 1.9
+- **Framework**: Spring Boot 3
+- **Database**: MySQL, Redis
+- **ORM**: Spring Data JPA
+- **Authentication**: JWT, OAuth 2.0
+- **Documentation**: Swagger/OpenAPI
+- **Build Tool**: Gradle
+- **Containerization**: Docker
+
 ## 서버 아키텍처
 <img width="1077" alt="스크린샷 2025-06-13 오후 5 26 04" src="https://github.com/user-attachments/assets/2da0f777-49fd-499b-a24d-a42fed7cfe6a" />
 <br>
@@ -17,17 +28,6 @@ Fillsa API는 Kotlin 기반의 Spring Boot 애플리케이션으로, Fillsa 서�
 - Spring Data JPA 기반 MySQL 연동
 - Swagger/OpenAPI 문서 제공
 - Docker 기반 배포 지원
-
-## 기술 스택
-
-- **Language**: Kotlin 1.9
-- **Framework**: Spring Boot 3
-- **Database**: MySQL, Redis
-- **ORM**: Spring Data JPA
-- **Authentication**: JWT, OAuth 2.0
-- **Documentation**: Swagger/OpenAPI
-- **Build Tool**: Gradle
-- **Containerization**: Docker
 
 ## 시작하기
 
