@@ -27,7 +27,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6379
+      port: 6380
 
 jwt:
   secret: dGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbi12ZXJ5LWxvbmctYW5kLXNlY3VyZS1rZXktZm9yLXRlc3QtZW52aXJvbm1lbnQ=

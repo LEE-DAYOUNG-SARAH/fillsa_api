@@ -47,6 +47,10 @@ logging:
     org.springframework.web: INFO
     org.hibernate: INFO
     org.hibernate.orm.jdbc.bind: trace
+    # Redis 관련 로깅
+    org.springframework.data.redis: INFO
+    io.lettuce.core: WARN
+    io.lettuce.core.protocol: WARN
 
   file:
     name: logs/fillsa_api.log

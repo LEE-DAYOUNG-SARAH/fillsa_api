@@ -15,7 +15,7 @@ import store.fillsa.fillsa_api.domain.auth.dto.LoginRequest
 import store.fillsa.fillsa_api.domain.auth.dto.LoginResponse
 import store.fillsa.fillsa_api.domain.auth.dto.LogoutRequest
 import store.fillsa.fillsa_api.domain.auth.dto.TokenRefreshRequest
-import store.fillsa.fillsa_api.domain.auth.service.auth.AuthService
+import store.fillsa.fillsa_api.domain.auth.service.AuthService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteDataSyncService
 

@@ -1,13 +1,17 @@
 package store.fillsa.fillsa_api.domain.quote.service
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import org.assertj.core.api.Assertions.*
+import org.mockito.kotlin.any
 import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode
+import store.fillsa.fillsa_api.common.redis.service.DailyQuoteCacheService
 import store.fillsa.fillsa_api.fixture.quote.persist.QuotePersistFactory
 import store.fillsa.fillsa_api.fixture.quote.entity.QuoteEntityFactory
 import java.time.LocalDate
@@ -20,6 +24,9 @@ class QuoteServiceTest @Autowired constructor(
     private val sut: QuoteService,
     private val quotePersistFactory: QuotePersistFactory
 ) {
+
+    @MockkBean
+    private lateinit var dailyQuoteCacheService: DailyQuoteCacheService
     
     @Test
     fun `일일 명언 조회 성공 - 해당 날짜의 명언을 반환한다`() {
@@ -34,6 +41,9 @@ class QuoteServiceTest @Autowired constructor(
             quoteDate = quoteDate
         )
         val (_, savedDailyQuote) = quotePersistFactory.createQuoteWithDailyQuote(quote, dailyQuote)
+
+        every { dailyQuoteCacheService.getDailyQuote(any()) } returns null
+        every { dailyQuoteCacheService.cacheDailyQuote(any()) } returns any()
         
         // when
         val result = sut.getDailyQuote(quoteDate)
@@ -49,6 +59,9 @@ class QuoteServiceTest @Autowired constructor(
     fun `일일 명언 조회 실패 - 해당 날짜의 명언이 없는 경우 예외를 던진다`() {
         // given
         val quoteDate = LocalDate.of(2024, 1, 1)
+
+        every { dailyQuoteCacheService.getDailyQuote(any()) } returns null
+        every { dailyQuoteCacheService.cacheDailyQuote(any()) } returns any()
         
         // when & then
         assertThatThrownBy { sut.getDailyQuote(quoteDate) }
@@ -77,6 +90,9 @@ class QuoteServiceTest @Autowired constructor(
             quoteDate = LocalDate.of(2024, 1, 2)
         )
         val (_, savedDailyQuote2) = quotePersistFactory.createQuoteWithDailyQuote(quote2, dailyQuote2)
+
+        every { dailyQuoteCacheService.getMonthlyQuotes(any(), any()) } returns emptyList()
+        every { dailyQuoteCacheService.cacheMonthlyQuotes(any()) } returns any()
         
         // when
         val result = sut.monthlyQuotes(yearMonth)
@@ -99,6 +115,9 @@ class QuoteServiceTest @Autowired constructor(
     fun `월별 명언 조회 성공 - 해당 월에 명언이 없는 경우 빈 목록을 반환한다`() {
         // given
         val yearMonth = YearMonth.of(2024, 1)
+
+        every { dailyQuoteCacheService.getMonthlyQuotes(any(), any()) } returns emptyList()
+        every { dailyQuoteCacheService.cacheMonthlyQuotes(any()) } returns any()
         
         // when
         val result = sut.monthlyQuotes(yearMonth)

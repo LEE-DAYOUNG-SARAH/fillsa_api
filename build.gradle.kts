@@ -91,6 +91,7 @@ dependencies {
     // MockK
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.9.2")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
 }
 
 kotlin {

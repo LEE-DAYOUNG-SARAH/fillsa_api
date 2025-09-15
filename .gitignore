@@ -44,5 +44,4 @@ application-local.yml
 application-prod.yml
 
 ### log
-.log
-.log.gz
+logs

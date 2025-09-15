@@ -28,7 +28,15 @@ class QuoteService(
     }
 
     fun monthlyQuotes(yearMonth: YearMonth): List<MonthlyQuoteResponse> {
-        return dailyQuoteService.getDailyQuoteByQuotMonth(yearMonth)
+        if(yearMonth.isAfter(YearMonth.now())) {
+            throw BusinessException(ErrorCode.INVALID_REQUEST, "현재 월 이후는 조회할 수 없습니다.")
+        }
+
+        val startDate = yearMonth.atDay(1)
+        val endDate = if (yearMonth == YearMonth.now())
+            LocalDate.now() else yearMonth.atEndOfMonth()
+
+        return dailyQuoteService.getDailyQuoteByQuotMonth(startDate, endDate)
             .map { MonthlyQuoteResponse.from(it) }
     }
 }

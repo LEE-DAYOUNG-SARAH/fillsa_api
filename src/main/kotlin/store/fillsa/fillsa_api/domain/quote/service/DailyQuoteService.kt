@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode
+import store.fillsa.fillsa_api.common.redis.service.DailyQuoteCacheService
 import store.fillsa.fillsa_api.domain.quote.entity.DailyQuote
 import store.fillsa.fillsa_api.domain.quote.repository.DailyQuoteRepository
 import java.time.LocalDate
@@ -12,7 +13,8 @@ import java.time.YearMonth
 
 @Service
 class DailyQuoteService(
-    private val dailyQuoteRepository: DailyQuoteRepository
+    private val dailyQuoteRepository: DailyQuoteRepository,
+    private val dailyQuoteCacheService: DailyQuoteCacheService
 ) {
     @Transactional(readOnly = true)
     fun getDailyQuoteByDailQuoteSeq(dailyQuoteSeq: Long): DailyQuote? {
@@ -21,19 +23,25 @@ class DailyQuoteService(
 
     @Transactional(readOnly = true)
     fun getDailyQuoteByQuoteDate(quoteDate: LocalDate): DailyQuote? {
-        return dailyQuoteRepository.findByQuoteDate(quoteDate)
+        val cache = dailyQuoteCacheService.getDailyQuote(quoteDate)
+        if(cache != null) return cache
+
+        val dailyQuote = dailyQuoteRepository.findByQuoteDate(quoteDate)
+        if (dailyQuote != null) {
+            dailyQuoteCacheService.cacheDailyQuote(dailyQuote)
+        }
+
+        return dailyQuote
     }
 
     @Transactional(readOnly = true)
-    fun getDailyQuoteByQuotMonth(yearMonth: YearMonth): List<DailyQuote> {
-        if(yearMonth.isAfter(YearMonth.now())) {
-            throw BusinessException(ErrorCode.INVALID_REQUEST, "현재 월 이후는 조회할 수 없습니다.")
-        }
+    fun getDailyQuoteByQuotMonth(startDate: LocalDate, endDate: LocalDate): List<DailyQuote> {
+        val cache = dailyQuoteCacheService.getMonthlyQuotes(startDate, endDate)
+        if(cache.isNotEmpty()) return cache
 
-        val startDate = yearMonth.atDay(1)
-        val endDate = if (yearMonth == YearMonth.now())
-            LocalDate.now() else yearMonth.atEndOfMonth()
+        val dailyQuotes = dailyQuoteRepository.findAllByQuoteDateBetween(startDate, endDate)
+        dailyQuoteCacheService.cacheMonthlyQuotes(dailyQuotes)
 
-        return dailyQuoteRepository.findAllByQuoteDateBetween(startDate, endDate)
+        return dailyQuotes
     }
 }

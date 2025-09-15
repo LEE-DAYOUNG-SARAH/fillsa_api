@@ -24,6 +24,7 @@ class PublicEndpoint(
             "/api/v1/notices",
             "/api/v1/app-versions",
             "/test/**",
+            "/api/admin/**",
 
             // Actuator 경로
             actuatorPath,

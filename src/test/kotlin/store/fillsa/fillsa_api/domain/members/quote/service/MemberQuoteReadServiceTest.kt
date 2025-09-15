@@ -1,8 +1,11 @@
 package store.fillsa.fillsa_api.domain.members.quote.service
 
-import org.assertj.core.api.Assertions.*
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
@@ -10,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode
+import store.fillsa.fillsa_api.common.redis.service.DailyQuoteCacheService
 import store.fillsa.fillsa_api.domain.members.quote.dto.MemberQuotesCommonRequest
 import store.fillsa.fillsa_api.domain.members.quote.dto.MemberQuotesRequest
 import store.fillsa.fillsa_api.fixture.member.persist.MemberPersistFactory
@@ -26,6 +30,10 @@ class MemberQuoteReadServiceTest @Autowired constructor(
     private val quotePersistFactory: QuotePersistFactory,
     private val sut: MemberQuoteReadService
 ) {
+
+    @MockkBean
+    private lateinit var dailyQuoteCacheService: DailyQuoteCacheService
+
     
     @Test
     fun `일일 명언 조회 성공 - 회원 명언이 있는 경우`() {
@@ -48,6 +56,10 @@ class MemberQuoteReadServiceTest @Autowired constructor(
                 dailyQuote = savedDailyQuote
             )
         )
+
+        every { dailyQuoteCacheService.getDailyQuote(any()) } returns null
+        every { dailyQuoteCacheService.cacheDailyQuote(any()) } returns any()
+
         
         // when
         val result = sut.dailyQuote(member, quoteDate)
@@ -75,6 +87,9 @@ class MemberQuoteReadServiceTest @Autowired constructor(
         )
         val (savedQuote, savedDailyQuote) = quotePersistFactory.createQuoteWithDailyQuote(quote, dailyQuote)
 
+        every { dailyQuoteCacheService.getDailyQuote(any()) } returns null
+        every { dailyQuoteCacheService.cacheDailyQuote(any()) } returns any()
+
         // when
         val result = sut.dailyQuote(member, quoteDate)
         
@@ -90,6 +105,9 @@ class MemberQuoteReadServiceTest @Autowired constructor(
         // given
         val member = memberPersistFactory.createMember()
         val nonExistentQuoteDate = LocalDate.of(2025, 12, 31) // Future date
+
+        every { dailyQuoteCacheService.getDailyQuote(any()) } returns null
+        every { dailyQuoteCacheService.cacheDailyQuote(any()) } returns any()
         
         // when & then
         assertThatThrownBy { sut.dailyQuote(member, nonExistentQuoteDate) }
@@ -129,6 +147,9 @@ class MemberQuoteReadServiceTest @Autowired constructor(
                 memo = "테스트 메모"
             )
         )
+
+        every { dailyQuoteCacheService.getMonthlyQuotes(any(), any()) } returns emptyList()
+        every { dailyQuoteCacheService.cacheMonthlyQuotes(any()) } returns any()
         
         // when
         val result = sut.monthlyQuotes(member, yearMonth)
@@ -163,6 +184,9 @@ class MemberQuoteReadServiceTest @Autowired constructor(
                 typingKorQuote = "타이핑 명언"
             )
         )
+
+        every { dailyQuoteCacheService.getMonthlyQuotes(any(), any()) } returns emptyList()
+        every { dailyQuoteCacheService.cacheMonthlyQuotes(any()) } returns any()
         
         // when
         val result = sut.memberQuotes(member, pageable, request)
@@ -206,6 +230,9 @@ class MemberQuoteReadServiceTest @Autowired constructor(
                 likeYn = "N"
             )
         )
+
+        every { dailyQuoteCacheService.getMonthlyQuotes(any(), any()) } returns emptyList()
+        every { dailyQuoteCacheService.cacheMonthlyQuotes(any()) } returns any()
         
         // when
         val result = sut.memberQuotes(member, pageable, request)

@@ -1,4 +1,4 @@
-package store.fillsa.fillsa_api.domain.auth.service.auth
+package store.fillsa.fillsa_api.domain.auth.service
 
 import io.jsonwebtoken.ExpiredJwtException
 import org.springframework.stereotype.Service
@@ -10,7 +10,7 @@ import store.fillsa.fillsa_api.domain.auth.dto.LoginRequest
 import store.fillsa.fillsa_api.domain.auth.dto.LoginResponse
 import store.fillsa.fillsa_api.domain.auth.dto.LogoutRequest
 import store.fillsa.fillsa_api.domain.auth.dto.TokenRefreshRequest
-import store.fillsa.fillsa_api.domain.auth.service.redis.RedisTokenService
+import store.fillsa.fillsa_api.common.redis.service.RefreshTokenCacheService
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.service.MemberDeviceService
 import store.fillsa.fillsa_api.domain.members.member.service.MemberService
@@ -20,7 +20,7 @@ class AuthService(
     private val jwtTokenProvider: JwtTokenProvider,
     private val memberService: MemberService,
     private val memberDeviceService: MemberDeviceService,
-    private val redisTokenService: RedisTokenService
+    private val refreshTokenCacheService: RefreshTokenCacheService
 ) {
     fun login(request: LoginRequest.LoginData): Pair<Member, LoginResponse> {
         val member = memberService.signUp(request)
@@ -34,7 +34,7 @@ class AuthService(
 
     private fun createToken(memberSeq: Long, deviceId: String): TokenInfo {
         val token = jwtTokenProvider.createTokens(memberSeq)
-        redisTokenService.createRefreshToken(
+        refreshTokenCacheService.createRefreshToken(
             memberId = memberSeq,
             deviceId = deviceId,
             refreshToken = token.refreshToken,
@@ -45,7 +45,7 @@ class AuthService(
     }
 
     fun logout(member: Member, request: LogoutRequest) {
-        redisTokenService.deleteRefreshTokenForLogout(member.memberSeq, request.deviceId)
+        refreshTokenCacheService.deleteRefreshTokenForLogout(member.memberSeq, request.deviceId)
 
         memberDeviceService.logout(member, request.deviceId)
     }
@@ -72,7 +72,7 @@ class AuthService(
     fun withdrawByApp(member: Member) {
         memberService.withdraw(member)
 
-        redisTokenService.deleteRefreshTokenForWithdrawal(member.memberSeq)
+        refreshTokenCacheService.deleteRefreshTokenForWithdrawal(member.memberSeq)
     }
 
     fun withdrawByWeb(oauthId: String, provider: Member.OAuthProvider) {

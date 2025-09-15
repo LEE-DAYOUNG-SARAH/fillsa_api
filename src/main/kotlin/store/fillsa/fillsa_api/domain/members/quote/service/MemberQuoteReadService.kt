@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.common.dto.PageResponse
 import store.fillsa.fillsa_api.common.exception.BusinessException
+import store.fillsa.fillsa_api.common.exception.ErrorCode
 import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.dto.*
@@ -37,17 +38,29 @@ class MemberQuoteReadService(
 
     @Transactional(readOnly = true)
     fun monthlyQuotes(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponse {
-        val quotes = dailyQuoteService.getDailyQuoteByQuotMonth(yearMonth)
-        val memberQuotes = getMemberQuotesWithContentByMonth(member, yearMonth)
+        if(yearMonth.isAfter(YearMonth.now())) {
+            throw BusinessException(ErrorCode.INVALID_REQUEST, "현재 월 이후는 조회할 수 없습니다.")
+        }
+
+        val startDate = yearMonth.atDay(1)
+        val endDate = if (yearMonth == YearMonth.now())
+            LocalDate.now() else yearMonth.atEndOfMonth()
+
+        val quotes = dailyQuoteService.getDailyQuoteByQuotMonth(startDate, endDate)
+        val memberQuotes = getMemberQuotesWithContentByMonth(member, startDate, endDate)
 
         return MemberMonthlyQuoteResponse.from(quotes, memberQuotes)
     }
 
-    private fun getMemberQuotesWithContentByMonth(member: Member, yearMonth: YearMonth): List<MemberQuote> {
+    private fun getMemberQuotesWithContentByMonth(
+        member: Member,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<MemberQuote> {
         val memberQuotes = memberQuoteRepository.findAllByMemberAndQuoteDateBetween(
             member = member,
-            beginQuoteDate = yearMonth.atDay(1),
-            endQuoteDate = yearMonth.atEndOfMonth()
+            beginQuoteDate = startDate,
+            endQuoteDate = endDate
         )
 
         return memberQuotes.filter { it.hasContent() }

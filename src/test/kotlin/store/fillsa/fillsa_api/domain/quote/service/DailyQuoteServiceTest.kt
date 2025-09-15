@@ -104,9 +104,13 @@ class DailyQuoteServiceTest @Autowired constructor(
         
         quotePersistFactory.createQuoteWithDailyQuote(quote1, dailyQuote1)
         quotePersistFactory.createQuoteWithDailyQuote(quote2, dailyQuote2)
+
+        val startDate = yearMonth.atDay(1)
+        val endDate = if (yearMonth == YearMonth.now())
+            LocalDate.now() else yearMonth.atEndOfMonth()
         
         // when
-        val result = sut.getDailyQuoteByQuotMonth(yearMonth)
+        val result = sut.getDailyQuoteByQuotMonth(startDate, endDate)
         
         // then
         assertThat(result).hasSize(2)
@@ -129,9 +133,13 @@ class DailyQuoteServiceTest @Autowired constructor(
         )
         
         quotePersistFactory.createQuoteWithDailyQuote(quote, dailyQuote)
+
+        val startDate = currentMonth.atDay(1)
+        val endDate = if (currentMonth == YearMonth.now())
+            LocalDate.now() else currentMonth.atEndOfMonth()
         
         // when
-        val result = sut.getDailyQuoteByQuotMonth(currentMonth)
+        val result = sut.getDailyQuoteByQuotMonth(startDate, endDate)
         
         // then
         assertThat(result).isNotEmpty
@@ -140,26 +148,16 @@ class DailyQuoteServiceTest @Autowired constructor(
     }
     
     @Test
-    fun `월별 명언 조회 실패 - 미래 월인 경우 예외를 던진다`() {
-        // given
-        val futureMonth = YearMonth.now().plusMonths(1)
-        
-        // when & then
-        val exception = assertThrows<BusinessException> {
-            sut.getDailyQuoteByQuotMonth(futureMonth)
-        }
-        
-        assertThat(exception.errorCode).isEqualTo(ErrorCode.INVALID_REQUEST)
-        assertThat(exception.message).contains("현재 월 이후는 조회할 수 없습니다.")
-    }
-    
-    @Test
     fun `월별 명언 조회 성공 - 해당 월에 명언이 없는 경우 빈 목록을 반환한다`() {
         // given
         val emptyMonth = YearMonth.of(2020, 1)
+
+        val startDate = emptyMonth.atDay(1)
+        val endDate = if (emptyMonth == YearMonth.now())
+            LocalDate.now() else emptyMonth.atEndOfMonth()
         
         // when
-        val result = sut.getDailyQuoteByQuotMonth(emptyMonth)
+        val result = sut.getDailyQuoteByQuotMonth(startDate, endDate)
         
         // then
         assertThat(result).isEmpty()
@@ -200,9 +198,13 @@ class DailyQuoteServiceTest @Autowired constructor(
         
         quotePersistFactory.createQuoteWithDailyQuote(quote1, dailyQuote1)
         quotePersistFactory.createQuoteWithDailyQuote(quote2, dailyQuote2)
+
+        val startDate = testMonth.atDay(1)
+        val endDate = if (testMonth == YearMonth.now())
+            LocalDate.now() else testMonth.atEndOfMonth()
         
         // when
-        val result = sut.getDailyQuoteByQuotMonth(testMonth)
+        val result = sut.getDailyQuoteByQuotMonth(startDate, endDate)
         
         // then
         assertThat(result).hasSize(2)
