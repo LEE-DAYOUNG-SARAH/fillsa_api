@@ -33,7 +33,10 @@ class Member(
     var withdrawalYn: String = "N",
 
     @Column(nullable = true)
-    var withdrawalAt: LocalDateTime? = null
+    var withdrawalAt: LocalDateTime? = null,
+
+    @Column(nullable = false, columnDefinition = "char(1)")
+    var adminYn: String = "N",
 ): BaseEntity(), UserDetails {
     enum class OAuthProvider {
         KAKAO, GOOGLE;
