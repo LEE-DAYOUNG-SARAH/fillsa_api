@@ -3,7 +3,9 @@ package store.fillsa.fillsa_api.fixture.quote.persist
 import org.springframework.stereotype.Component
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
+import store.fillsa.fillsa_api.domain.members.quote.entity.MemberStreak
 import store.fillsa.fillsa_api.domain.members.quote.repository.MemberQuoteRepository
+import store.fillsa.fillsa_api.domain.members.quote.repository.MemberStreakRepository
 import store.fillsa.fillsa_api.domain.quote.entity.DailyQuote
 import store.fillsa.fillsa_api.domain.quote.entity.Quote
 import store.fillsa.fillsa_api.domain.quote.repository.DailyQuoteRepository
@@ -17,6 +19,7 @@ class QuotePersistFactory(
     private val dailyQuoteRepository: DailyQuoteRepository,
     private val memberQuoteRepository: MemberQuoteRepository,
     private val memberPersistFactory: MemberPersistFactory,
+    private val memberStreakRepository: MemberStreakRepository
 ) {
     fun createQuote(quote: Quote = QuoteEntityFactory.quote()): Quote {
         return quoteRepository.save(quote)
@@ -28,6 +31,10 @@ class QuotePersistFactory(
 
     fun createMemberQuote(memberQuote: MemberQuote = QuoteEntityFactory.memberQuote()): MemberQuote {
         return memberQuoteRepository.save(memberQuote)
+    }
+
+    fun createMemberStreak(memberStreak: MemberStreak = QuoteEntityFactory.memberStreak()): MemberStreak {
+        return memberStreakRepository.save(memberStreak)
     }
 
     // 편의 메서드들
@@ -58,11 +65,14 @@ class QuotePersistFactory(
     ): Triple<Quote, DailyQuote, MemberQuote> {
         // 1. Member 저장
         val savedMember = memberPersistFactory.createMember()
+
+        // 2. MemberStreak 저장
+        createMemberStreak(QuoteEntityFactory.memberStreak(member = savedMember))
         
-        // 2. Quote, DailyQuote 저장
+        // 3. Quote, DailyQuote 저장
         val (savedQuote, savedDailyQuote) = createQuoteWithDailyQuote(quote, dailyQuote)
         
-        // 3. MemberQuote 저장 (저장된 엔티티들 사용)
+        // 4. MemberQuote 저장 (저장된 엔티티들 사용)
         val savedMemberQuote = if (memberQuote != null) {
             // memberQuote가 전달된 경우, 저장된 엔티티들로 교체하여 생성
             val updatedMemberQuote = QuoteEntityFactory.memberQuote(

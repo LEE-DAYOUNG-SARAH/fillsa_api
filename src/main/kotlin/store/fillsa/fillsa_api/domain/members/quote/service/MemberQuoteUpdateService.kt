@@ -16,7 +16,8 @@ import store.fillsa.fillsa_api.domain.quote.service.DailyQuoteService
 class MemberQuoteUpdateService(
     private val memberQuoteRepository: MemberQuoteRepository,
     private val dailyQuoteService: DailyQuoteService,
-    private val memberQuoteReadService: MemberQuoteReadService
+    private val memberQuoteReadService: MemberQuoteReadService,
+    private val memberStreakService: MemberStreakService
 ) {
     @Transactional
     fun typingQuote(member: Member, dailyQuoteSeq: Long, request: TypingQuoteRequest): Long {
@@ -30,6 +31,16 @@ class MemberQuoteUpdateService(
                     dailyQuote = dailyQuote
                 )
             )
+
+        if(memberQuote.shouldMarkTypingCompleted(
+                request.typingKorQuote,
+                request.typingEngQuote,
+                dailyQuote.quote.korQuote,
+                dailyQuote.quote.engQuote
+        )) {
+            memberQuote.complete(dailyQuote.quoteDate)
+            memberStreakService.recordTodayCompletion(memberQuote.dailyQuote.quoteDate, memberQuote.member)
+        }
 
         memberQuote.updateTypingQuote(request.typingKorQuote, request.typingEngQuote)
 
@@ -53,8 +64,13 @@ class MemberQuoteUpdateService(
 
     @Transactional
     fun updateImagePath(memberQuote: MemberQuote, imagePath: String?): MemberQuote {
-        val findMemberQuote = memberQuoteRepository.findById(memberQuote.memberQuoteSeq)
-            .orElseThrow { BusinessException(NOT_FOUND, "존재하지 않는 memberQuoteSeq: ${memberQuote.memberQuoteSeq}") }
+        val findMemberQuote = memberQuoteRepository.findByMemberQuoteSeq(memberQuote.memberQuoteSeq)
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 memberQuoteSeq: ${memberQuote.memberQuoteSeq}")
+
+        if(findMemberQuote.shouldMarkImageCompleted(imagePath)) {
+            findMemberQuote.complete(findMemberQuote.dailyQuote.quoteDate)
+            memberStreakService.recordTodayCompletion(findMemberQuote.dailyQuote.quoteDate, findMemberQuote.member)
+        }
 
         findMemberQuote.updateImagePath(imagePath)
 

@@ -12,8 +12,11 @@ import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.entity.MemberDevice
 import store.fillsa.fillsa_api.domain.members.member.repository.MemberDeviceRepository
 import store.fillsa.fillsa_api.domain.members.member.repository.MemberRepository
+import store.fillsa.fillsa_api.domain.members.quote.repository.MemberStreakRepository
 import store.fillsa.fillsa_api.fixture.member.entity.MemberEntityFactory
 import store.fillsa.fillsa_api.fixture.member.persist.MemberPersistFactory
+import store.fillsa.fillsa_api.fixture.quote.entity.QuoteEntityFactory
+import store.fillsa.fillsa_api.fixture.quote.persist.QuotePersistFactory
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -21,7 +24,9 @@ import store.fillsa.fillsa_api.fixture.member.persist.MemberPersistFactory
 class MemberServiceTest @Autowired constructor(
     val memberRepository: MemberRepository,
     val memberDeviceRepository: MemberDeviceRepository,
+    val memberStreakRepository: MemberStreakRepository,
     val memberPersistFactory: MemberPersistFactory,
+    val quotePersistFactory: QuotePersistFactory,
     val sut: MemberService
 ) {
     @Test
@@ -34,6 +39,11 @@ class MemberServiceTest @Autowired constructor(
             MemberEntityFactory.memberDevice(member = existedUser)
         )
         assertThat(memberDeviceRepository.count()).isEqualTo(1)
+
+        val existedStreak = quotePersistFactory.createMemberStreak(
+            QuoteEntityFactory.memberStreak(member = existedUser)
+        )
+        assertThat(memberRepository.count()).isEqualTo(1)
 
         // when
         val userData = LoginRequest.UserData(
@@ -61,6 +71,9 @@ class MemberServiceTest @Autowired constructor(
         assertThat(resultMemberDevice?.appVersion).isEqualTo(existedDevice.appVersion)
         assertThat(resultMemberDevice?.osVersion).isEqualTo(existedDevice.osVersion)
         assertThat(memberDeviceRepository.count()).isEqualTo(1)
+
+        val resultMemberStreak = memberStreakRepository.findByMember(resultMember)
+        assertThat(resultMemberStreak).isEqualTo(existedStreak)
     }
 
     @Test
@@ -101,5 +114,8 @@ class MemberServiceTest @Autowired constructor(
         assertThat(resultMemberDevice[0].appVersion).isEqualTo(deviceData.appVersion)
         assertThat(resultMemberDevice[0].osVersion).isEqualTo(deviceData.osVersion)
         assertThat(resultMemberDevice[0].deviceModel).isEqualTo(deviceData.deviceModel)
+
+        val resultMemberStreak = memberStreakRepository.existsByMember(resultMember)
+        assertThat(resultMemberStreak).isTrue()
     }
 }

@@ -1,12 +1,16 @@
 package store.fillsa.fillsa_api.domain.members.quote.entity
 
+import jakarta.persistence.*
 import store.fillsa.fillsa_api.common.entity.BaseEntity
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.quote.entity.DailyQuote
-import jakarta.persistence.*
+import java.time.LocalDate
 
 @Entity
-@Table(name = "member_quotes")
+@Table(
+    name = "member_quotes",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["MEMBER_SEQ", "DAILY_QUOTE_SEQ"])]
+)
 class MemberQuote(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +37,13 @@ class MemberQuote(
     var memo: String? = null,
 
     @Column(nullable = false, columnDefinition = "char(1)")
-    var likeYn: String = "N"
+    var likeYn: String = "N",
+
+    @Column(nullable = false)
+    var completed: Boolean = false,
+
+    @Column(nullable = false)
+    var todayCompleted: Boolean = false
 ): BaseEntity() {
     fun updateImagePath(imagePath: String?) {
         this.imagePath = imagePath
@@ -52,11 +62,41 @@ class MemberQuote(
         this.likeYn = likeYn
     }
 
-    fun getTypingYn() = if(hasTypingQuotes() || hasImgPath()) "Y" else "N"
+    fun complete(quoteDate: LocalDate) {
+        if(isToday(quoteDate)) {
+            this.todayCompleted = true
+        }
+        this.completed = true
+    }
 
-    private fun hasTypingQuotes() = !typingKorQuote.isNullOrEmpty() || !typingEngQuote.isNullOrEmpty()
+    fun shouldMarkImageCompleted(imagePath: String?): Boolean {
+        return !imagePath.isNullOrBlank() && !todayCompleted
+    }
 
-    private fun hasImgPath() = !imagePath.isNullOrEmpty()
+    fun shouldMarkTypingCompleted(
+        typingKorQuote: String?,
+        typingEngQuote: String?,
+        korQuote: String?,
+        engQuote: String?
+    ): Boolean {
+        return hasValidTyping(typingKorQuote, typingEngQuote, korQuote, engQuote) && !todayCompleted
+    }
 
-    fun hasContent() = getTypingYn() == "Y" || !imagePath.isNullOrEmpty() || likeYn == "Y"
+    private fun isToday(quoteDate: LocalDate): Boolean = quoteDate.isEqual(LocalDate.now())
+
+    private fun hasValidTyping(
+        typingKorQuote: String?,
+        typingEngQuote: String?,
+        korQuote: String?,
+        engQuote: String?
+    ): Boolean {
+        return listOf(
+            typingKorQuote to korQuote,
+            typingEngQuote to engQuote
+        ).any { (typed, original) ->
+            typed != null && original != null && typed == original
+        }
+    }
+
+    fun isViewQuoteData() = completed || likeYn == "Y"
 }

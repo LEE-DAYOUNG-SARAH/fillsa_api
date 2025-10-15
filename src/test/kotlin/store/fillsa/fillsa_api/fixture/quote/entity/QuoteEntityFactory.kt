@@ -4,6 +4,7 @@ import store.fillsa.fillsa_api.domain.quote.entity.Quote
 import store.fillsa.fillsa_api.domain.quote.entity.DailyQuote
 import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
+import store.fillsa.fillsa_api.domain.members.quote.entity.MemberStreak
 import store.fillsa.fillsa_api.fixture.member.entity.MemberEntityFactory
 import java.time.LocalDate
 
@@ -49,6 +50,18 @@ class QuoteEntityFactory {
             imagePath = imagePath,
             memo = memo,
             likeYn = likeYn,
+        )
+
+        fun memberStreak(
+            member: Member = MemberEntityFactory.member(),
+            currentStreak: Int = 0,
+            maxStreak: Int = 0,
+            lastWrittenDate: LocalDate? = null
+        ) = MemberStreak(
+            member = member,
+            currentStreak = currentStreak,
+            maxStreak = maxStreak,
+            lastWrittenDate = lastWrittenDate
         )
     }
 } 

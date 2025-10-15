@@ -27,8 +27,11 @@ data class MemberMonthlyQuoteResponse(
         @Schema(description = "명언 저자", required = true)
         val author: String,
 
-        @Schema(description = "타이핑 여부", example = "Y/N")
-        val typingYn: String,
+        @Schema(description = "필사 완료 여부", readOnly = true)
+        val completed: Boolean,
+
+        @Schema(description = "연속 필사 여부", required = true)
+        val todayCompleted: Boolean,
 
         @Schema(description = "좋아요 여부", example = "Y/N", required = true)
         val likeYn: String
@@ -39,7 +42,10 @@ data class MemberMonthlyQuoteResponse(
         val typingCount: Int,
 
         @Schema(description = "좋아요 갯수", required = true)
-        val likeCount: Int
+        val likeCount: Int,
+
+        @Schema(description = "연속필사 갯수", required = true)
+        val streakCount: Int
     )
 
     companion object {
@@ -51,7 +57,8 @@ data class MemberMonthlyQuoteResponse(
                     quoteDate = dailyQuote.quoteDate,
                     quote = dailyQuote.quote.korQuote ?: dailyQuote.quote.engQuote.orEmpty(),
                     author = dailyQuote.quote.korAuthor ?: dailyQuote.quote.engAuthor.orEmpty(),
-                    typingYn = memberQuote?.getTypingYn() ?: "N",
+                    completed = memberQuote?.completed ?: false,
+                    todayCompleted = memberQuote?.todayCompleted ?: false,
                     likeYn = memberQuote?.likeYn ?: "N"
                 )
             }
@@ -59,8 +66,9 @@ data class MemberMonthlyQuoteResponse(
             return MemberMonthlyQuoteResponse(
                 memberQuotes = memberQuoteData,
                 monthlySummary = MonthlySummaryData(
-                    typingCount = memberQuoteData.count { it.typingYn == "Y" },
-                    likeCount = memberQuoteData.count { it.likeYn == "Y" }
+                    typingCount = memberQuoteData.count { it.completed },
+                    likeCount = memberQuoteData.count { it.likeYn == "Y" },
+                    streakCount = memberQuoteData.count { it.todayCompleted }
                 )
             )
         }

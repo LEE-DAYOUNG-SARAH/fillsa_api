@@ -63,7 +63,7 @@ class MemberQuoteReadService(
             endQuoteDate = endDate
         )
 
-        return memberQuotes.filter { it.hasContent() }
+        return memberQuotes.filter { it.isViewQuoteData() }
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +89,7 @@ class MemberQuoteReadService(
         return if(request.likeYn == "Y") {
             memberQuotes.filter { it.likeYn == "Y" }
         } else {
-            memberQuotes.filter { it.hasContent() }
+            memberQuotes.filter { it.isViewQuoteData() }
         }
     }
 

@@ -42,4 +42,12 @@ interface MemberQuoteRepository: JpaRepository<MemberQuote, Long> {
         order by dq.quoteDate desc
     """)
     fun findAllByMemberAndCreatedAtBetween(member: Member, startDate: LocalDate, endDate: LocalDate): List<MemberQuote>
+
+    @Query("""
+        select mq
+        from MemberQuote mq
+            join fetch mq.dailyQuote dq
+        where mq.memberQuoteSeq = :memberQuoteSeq
+    """)
+    fun findByMemberQuoteSeq(memberQuoteSeq: Long): MemberQuote?
 }
