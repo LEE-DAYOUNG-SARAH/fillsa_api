@@ -52,6 +52,22 @@ class MemberQuoteReadService(
         return MemberMonthlyQuoteResponse.from(quotes, memberQuotes)
     }
 
+    @Transactional(readOnly = true)
+    fun monthlyQuotesV2(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponseV2 {
+        if(yearMonth.isAfter(YearMonth.now())) {
+            throw BusinessException(ErrorCode.INVALID_REQUEST, "현재 월 이후는 조회할 수 없습니다.")
+        }
+
+        val startDate = yearMonth.atDay(1)
+        val endDate = if (yearMonth == YearMonth.now())
+            LocalDate.now() else yearMonth.atEndOfMonth()
+
+        val quotes = dailyQuoteService.getDailyQuoteByQuotMonth(startDate, endDate)
+        val memberQuotes = getMemberQuotesWithContentByMonth(member, startDate, endDate)
+
+        return MemberMonthlyQuoteResponseV2.from(quotes, memberQuotes)
+    }
+
     private fun getMemberQuotesWithContentByMonth(
         member: Member,
         startDate: LocalDate,

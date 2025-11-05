@@ -62,6 +62,14 @@ class MemberQuote(
         this.likeYn = likeYn
     }
 
+    fun getTypingYn() = if(hasTypingQuotes() || hasImgPath()) "Y" else "N"
+
+    private fun hasTypingQuotes() = !typingKorQuote.isNullOrEmpty() || !typingEngQuote.isNullOrEmpty()
+
+    private fun hasImgPath() = !imagePath.isNullOrEmpty()
+
+    fun hasContent() = getTypingYn() == "Y" || !imagePath.isNullOrEmpty() || likeYn == "Y"
+
     fun complete(quoteDate: LocalDate) {
         if(isToday(quoteDate)) {
             this.todayCompleted = true
