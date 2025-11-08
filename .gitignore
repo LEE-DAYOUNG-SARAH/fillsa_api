@@ -45,3 +45,6 @@ application-prod.yml
 
 ### log
 logs
+
+### claude
+.claude/

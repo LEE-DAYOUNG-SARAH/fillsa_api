@@ -12,14 +12,15 @@ import store.fillsa.fillsa_api.domain.quote.repository.DailyQuoteRepository
 @Service
 class MemberQuoteDataSyncService(
     private val memberQuoteRepository: MemberQuoteRepository,
-    private val dailyQuoteRepository: DailyQuoteRepository
+    private val dailyQuoteRepository: DailyQuoteRepository,
+    private val memberStreakService: MemberStreakService
 ) {
     val log = KotlinLogging.logger {  }
 
     @Transactional
     fun syncData(member: Member, request: List<LoginRequest.SyncData>) {
         try {
-            val dailyQuotes = dailyQuoteRepository.findAllById(request.map { it.dailyQuoteSeq })
+            val dailyQuotes = dailyQuoteRepository.findAllByDailQuoteSeqIn(request.map { it.dailyQuoteSeq })
             val memberQuotes = memberQuoteRepository.findAllByMemberAndDailyQuoteIn(member, dailyQuotes)
 
             val saveMemberQuotes = request.mapNotNull { data ->
@@ -33,6 +34,16 @@ class MemberQuoteDataSyncService(
                     )
 
                 data.typingQuoteRequest?.let {
+                    if(memberQuote.shouldMarkTypingCompleted(
+                            it.typingKorQuote,
+                            it.typingEngQuote,
+                            dailyQuote.quote.korQuote,
+                            dailyQuote.quote.engQuote
+                    )) {
+                        memberQuote.complete(dailyQuote.quoteDate)
+                        memberStreakService.recordTodayCompletion(dailyQuote.quoteDate, member)
+                    }
+
                     memberQuote.updateTypingQuote(it.typingKorQuote, it.typingEngQuote)
                 }
                 data.memoRequest?.let {

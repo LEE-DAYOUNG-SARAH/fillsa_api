@@ -9,16 +9,19 @@ import store.fillsa.fillsa_api.common.exception.ErrorCode.WITHDRAWAL_USER
 import store.fillsa.fillsa_api.domain.auth.dto.LoginRequest
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.member.repository.MemberRepository
+import store.fillsa.fillsa_api.domain.members.quote.service.MemberStreakService
 
 @Service
 class MemberService(
     private val memberRepository: MemberRepository,
-    private val memberDeviceService: MemberDeviceService
+    private val memberDeviceService: MemberDeviceService,
+    private val memberStreakService: MemberStreakService
 ) {
     @Transactional
     fun signUp(request: LoginRequest.LoginData): Member {
         val member = create(request.userData)
         memberDeviceService.create(member, request.deviceData)
+        memberStreakService.create(member)
 
         return member
     }
