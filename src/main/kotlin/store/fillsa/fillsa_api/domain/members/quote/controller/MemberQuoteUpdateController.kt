@@ -12,6 +12,7 @@ import store.fillsa.fillsa_api.domain.members.member.entity.Member
 import store.fillsa.fillsa_api.domain.members.quote.dto.LikeRequest
 import store.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
 import store.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
+import store.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteResponse
 import store.fillsa.fillsa_api.domain.members.quote.service.MemberQuoteUpdateService
 
 @RestController
@@ -27,7 +28,7 @@ class MemberQuoteUpdateController(
         @AuthenticationPrincipal member: Member,
         @PathVariable @Parameter(description = "일별 명언 일련번호") dailyQuoteSeq: Long,
         @RequestBody request: TypingQuoteRequest
-    ): ResponseEntity<Long> = ResponseEntity.ok(
+    ): ResponseEntity<TypingQuoteResponse> = ResponseEntity.ok(
         memberQuoteUpdateService.typingQuote(member, dailyQuoteSeq, request)
     )
 

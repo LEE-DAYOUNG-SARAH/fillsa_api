@@ -42,6 +42,8 @@ class QuoteEntityFactory {
             imagePath: String? = null,
             memo: String? = null,
             likeYn: String = "N",
+            completed: Boolean = false,
+            todayCompleted: Boolean = false,
         ) = MemberQuote(
             member = member,
             dailyQuote = dailyQuote,
@@ -50,6 +52,8 @@ class QuoteEntityFactory {
             imagePath = imagePath,
             memo = memo,
             likeYn = likeYn,
+            completed = completed,
+            todayCompleted = todayCompleted,
         )
 
         fun memberStreak(

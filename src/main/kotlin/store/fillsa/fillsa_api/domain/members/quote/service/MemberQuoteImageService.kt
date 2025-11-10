@@ -36,9 +36,9 @@ class MemberQuoteImageService(
             fileService.updateFile(filePath, image, it)
         } ?: fileService.uploadFile(filePath, image)
 
-        val updatedMemberQuote = memberQuoteUpdateService.updateImagePath(memberQuote, fileUrl)
+        val result = memberQuoteUpdateService.updateImagePath(memberQuote, fileUrl)
 
-        return MemberQuoteImageResponse.from(updatedMemberQuote)
+        return MemberQuoteImageResponse.from(result)
     }
 
     fun deleteImage(member: Member, dailyQuoteSeq: Long): Long {
