@@ -82,7 +82,9 @@ class QuotePersistFactory(
                 typingEngQuote = memberQuote.typingEngQuote,
                 imagePath = memberQuote.imagePath,
                 memo = memberQuote.memo,
-                likeYn = memberQuote.likeYn
+                likeYn = memberQuote.likeYn,
+                completed = memberQuote.completed,
+                todayCompleted = memberQuote.todayCompleted
             )
             createMemberQuote(updatedMemberQuote)
         } else {

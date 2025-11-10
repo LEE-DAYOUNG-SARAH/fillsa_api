@@ -5,9 +5,7 @@ import org.springframework.transaction.annotation.Transactional
 import store.fillsa.fillsa_api.common.exception.BusinessException
 import store.fillsa.fillsa_api.common.exception.ErrorCode.NOT_FOUND
 import store.fillsa.fillsa_api.domain.members.member.entity.Member
-import store.fillsa.fillsa_api.domain.members.quote.dto.LikeRequest
-import store.fillsa.fillsa_api.domain.members.quote.dto.MemoRequest
-import store.fillsa.fillsa_api.domain.members.quote.dto.TypingQuoteRequest
+import store.fillsa.fillsa_api.domain.members.quote.dto.*
 import store.fillsa.fillsa_api.domain.members.quote.entity.MemberQuote
 import store.fillsa.fillsa_api.domain.members.quote.repository.MemberQuoteRepository
 import store.fillsa.fillsa_api.domain.quote.service.DailyQuoteService
@@ -20,7 +18,7 @@ class MemberQuoteUpdateService(
     private val memberStreakService: MemberStreakService
 ) {
     @Transactional
-    fun typingQuote(member: Member, dailyQuoteSeq: Long, request: TypingQuoteRequest): Long {
+    fun typingQuote(member: Member, dailyQuoteSeq: Long, request: TypingQuoteRequest): TypingQuoteResponseV2 {
         val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
             ?: throw BusinessException(NOT_FOUND, "존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
 
@@ -31,6 +29,9 @@ class MemberQuoteUpdateService(
                     dailyQuote = dailyQuote
                 )
             )
+
+        val wasCompleted = memberQuote.completed
+        val wasTodayCompleted = memberQuote.todayCompleted
 
         if(memberQuote.shouldMarkTypingCompleted(
                 request.typingKorQuote,
@@ -44,7 +45,13 @@ class MemberQuoteUpdateService(
 
         memberQuote.updateTypingQuote(request.typingKorQuote, request.typingEngQuote)
 
-        return memberQuote.memberQuoteSeq
+        val result = MemberQuoteUpdateResult.of(memberQuote, wasCompleted, wasTodayCompleted)
+
+        return TypingQuoteResponseV2(
+            memberQuoteSeq = result.memberQuote.memberQuoteSeq,
+            completed = result.completedChanged,
+            todayCompleted = result.todayCompletedChanged
+        )
     }
 
     @Transactional
@@ -63,9 +70,12 @@ class MemberQuoteUpdateService(
     }
 
     @Transactional
-    fun updateImagePath(memberQuote: MemberQuote, imagePath: String?): MemberQuote {
+    fun updateImagePath(memberQuote: MemberQuote, imagePath: String?): MemberQuoteUpdateResult {
         val findMemberQuote = memberQuoteRepository.findByMemberQuoteSeq(memberQuote.memberQuoteSeq)
             ?: throw BusinessException(NOT_FOUND, "존재하지 않는 memberQuoteSeq: ${memberQuote.memberQuoteSeq}")
+
+        val wasCompleted = findMemberQuote.completed
+        val wasTodayCompleted = findMemberQuote.todayCompleted
 
         if(findMemberQuote.shouldMarkImageCompleted(imagePath)) {
             findMemberQuote.complete(findMemberQuote.dailyQuote.quoteDate)
@@ -74,7 +84,7 @@ class MemberQuoteUpdateService(
 
         findMemberQuote.updateImagePath(imagePath)
 
-        return findMemberQuote
+        return MemberQuoteUpdateResult.of(findMemberQuote, wasCompleted, wasTodayCompleted)
     }
 
     @Transactional

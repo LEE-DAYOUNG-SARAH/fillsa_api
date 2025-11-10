@@ -36,13 +36,15 @@ class MemberQuoteUpdateServiceTest @Autowired constructor(
             typingKorQuote = "한국어 타이핑",
             typingEngQuote = "English Typing"
         )
-        
+
         // when
         val result = sut.typingQuote(memberQuote.member, dailyQuote.dailyQuoteSeq, request)
-        
+
         // then
-        assertThat(result).isEqualTo(memberQuote.memberQuoteSeq)
-        
+        assertThat(result.memberQuoteSeq).isEqualTo(memberQuote.memberQuoteSeq)
+        assertThat(result.completed).isFalse()
+        assertThat(result.todayCompleted).isFalse()
+
         val updatedMemberQuote = memberQuoteRepository.findById(memberQuote.memberQuoteSeq).get()
         assertThat(updatedMemberQuote.typingKorQuote).isEqualTo(request.typingKorQuote)
         assertThat(updatedMemberQuote.typingEngQuote).isEqualTo(request.typingEngQuote)
@@ -57,14 +59,16 @@ class MemberQuoteUpdateServiceTest @Autowired constructor(
             typingKorQuote = "한국어 타이핑",
             typingEngQuote = "English Typing"
         )
-        
+
         // when
         val result = sut.typingQuote(member, dailyQuote.dailyQuoteSeq, request)
-        
+
         // then
         assertThat(result).isNotNull()
-        
-        val createdMemberQuote = memberQuoteRepository.findById(result).get()
+        assertThat(result.completed).isFalse()
+        assertThat(result.todayCompleted).isFalse()
+
+        val createdMemberQuote = memberQuoteRepository.findById(result.memberQuoteSeq).get()
         assertThat(createdMemberQuote.member).isEqualTo(member)
         assertThat(createdMemberQuote.dailyQuote).isEqualTo(dailyQuote)
         assertThat(createdMemberQuote.typingKorQuote).isEqualTo(request.typingKorQuote)
@@ -122,14 +126,22 @@ class MemberQuoteUpdateServiceTest @Autowired constructor(
     fun `이미지 경로 업데이트 성공`() {
         // given
         val (quote, dailyQuote, memberQuote) = quotePersistFactory.createCompleteQuoteSet(
-            memberQuote = QuoteEntityFactory.memberQuote(imagePath = "기존 이미지 경로")
+            memberQuote = QuoteEntityFactory.memberQuote(
+                imagePath = "기존 이미지 경로",
+                completed = true,
+                todayCompleted = true
+            )
         )
         val imagePath = "https://example.com/image.jpg"
-        
+
         // when
-        sut.updateImagePath(memberQuote, imagePath)
-        
+        val result = sut.updateImagePath(memberQuote, imagePath)
+
         // then
+        assertThat(result).isNotNull()
+        assertThat(result.completedChanged).isFalse()
+        assertThat(result.todayCompletedChanged).isFalse()
+
         val updatedMemberQuote = memberQuoteRepository.findById(memberQuote.memberQuoteSeq).get()
         assertThat(updatedMemberQuote.imagePath).isEqualTo(imagePath)
     }
@@ -139,20 +151,87 @@ class MemberQuoteUpdateServiceTest @Autowired constructor(
         // given
         val member = memberPersistFactory.createMember()
         val (quote, dailyQuote) = quotePersistFactory.createQuoteWithDailyQuote()
-        
+
         val unsavedMemberQuote = QuoteEntityFactory.memberQuote(
             member = member,
             dailyQuote = dailyQuote
         )
-        
+
         val imagePath = "https://example.com/image.jpg"
-        
+
         // when & then
         val exception = assertThrows<BusinessException> {
             sut.updateImagePath(unsavedMemberQuote, imagePath)
         }
-        
+
         assertThat(exception.errorCode).isEqualTo(ErrorCode.NOT_FOUND)
+    }
+
+    @Test
+    fun `타이핑 완료 시 completed와 todayCompleted가 true로 변경되는 경우`() {
+        // given
+        val (member, _) = memberPersistFactory.createMemberWithStreak()
+        val (quote, dailyQuote) = quotePersistFactory.createQuoteWithDailyQuote()
+        val request = TypingQuoteRequest(
+            typingKorQuote = quote.korQuote,
+            typingEngQuote = quote.engQuote
+        )
+
+        // when
+        val result = sut.typingQuote(member, dailyQuote.dailyQuoteSeq, request)
+
+        // then
+        assertThat(result.completed).isTrue()
+        assertThat(result.todayCompleted).isTrue()
+
+        val createdMemberQuote = memberQuoteRepository.findById(result.memberQuoteSeq).get()
+        assertThat(createdMemberQuote.completed).isTrue()
+        assertThat(createdMemberQuote.todayCompleted).isTrue()
+    }
+
+    @Test
+    fun `이미지 업로드로 완료 시 completed와 todayCompleted가 true로 변경되는 경우`() {
+        // given
+        val (member, _) = memberPersistFactory.createMemberWithStreak()
+        val (quote, dailyQuote) = quotePersistFactory.createQuoteWithDailyQuote()
+        val memberQuote = sut.createMemberQuote(
+            QuoteEntityFactory.memberQuote(
+                member = member,
+                dailyQuote = dailyQuote
+            )
+        )
+        val imagePath = "https://example.com/image.jpg"
+
+        // when
+        val result = sut.updateImagePath(memberQuote, imagePath)
+
+        // then
+        assertThat(result.completedChanged).isTrue()
+        assertThat(result.todayCompletedChanged).isTrue()
+        assertThat(result.memberQuote.completed).isTrue()
+        assertThat(result.memberQuote.todayCompleted).isTrue()
+    }
+
+    @Test
+    fun `이미 완료된 상태에서 타이핑 업데이트 시 completed와 todayCompleted가 false로 반환되는 경우`() {
+        // given
+        val (quote, dailyQuote, memberQuote) = quotePersistFactory.createCompleteQuoteSet(
+            memberQuote = QuoteEntityFactory.memberQuote(
+                completed = true,
+                todayCompleted = true
+            )
+        )
+        val request = TypingQuoteRequest(
+            typingKorQuote = "새로운 타이핑",
+            typingEngQuote = "New Typing"
+        )
+
+        // when
+        val result = sut.typingQuote(memberQuote.member, dailyQuote.dailyQuoteSeq, request)
+
+        // then
+        assertThat(result.completed).isFalse()
+        assertThat(result.todayCompleted).isFalse()
     }
     
     @Test
