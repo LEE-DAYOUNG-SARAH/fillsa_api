@@ -49,8 +49,8 @@ class MemberQuoteUpdateService(
 
         return TypingQuoteResponseV2(
             memberQuoteSeq = result.memberQuote.memberQuoteSeq,
-            completed = result.completedChanged,
-            todayCompleted = result.todayCompletedChanged
+            completedChanged = result.completedChanged,
+            todayCompletedChanged = result.todayCompletedChanged
         )
     }
 
