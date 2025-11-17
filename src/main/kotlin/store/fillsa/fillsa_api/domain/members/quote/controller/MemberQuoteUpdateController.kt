@@ -29,6 +29,7 @@ class MemberQuoteUpdateController(
         @RequestBody request: TypingQuoteRequest
     ): ResponseEntity<Long> = ResponseEntity.ok(
         memberQuoteUpdateService.typingQuote(member, dailyQuoteSeq, request)
+            .memberQuoteSeq
     )
 
     @ApiErrorResponses(NOT_FOUND)
