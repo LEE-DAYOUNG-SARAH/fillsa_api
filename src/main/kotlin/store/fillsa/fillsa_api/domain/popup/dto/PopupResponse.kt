@@ -13,8 +13,11 @@ data class PopupResponse(
     @Schema(description = "팝업 제목", required = true)
     val title: String,
 
-    @Schema(description = "팝업 이미지 url", required = true)
-    val imageUrl: String
+    @Schema(description = "팝업 내용", required = true)
+    val content: String,
+
+    @Schema(description = "팝업 이미지 url", required = false)
+    val imageUrl: String?
 ) {
     companion object {
         fun from(popup: Popup): PopupResponse {
@@ -22,6 +25,7 @@ data class PopupResponse(
                 popupSeq = popup.popupSeq,
                 popupType = popup.popupType,
                 title = popup.title,
+                content = popup.content,
                 imageUrl = popup.imageUrl
             )
         }

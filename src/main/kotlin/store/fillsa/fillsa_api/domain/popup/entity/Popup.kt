@@ -21,8 +21,8 @@ class Popup(
     @Column(nullable = false, columnDefinition = "TEXT")
     var content: String,
 
-    @Column(nullable = false, length = 500)
-    var imageUrl: String,
+    @Column(nullable = true, length = 500)
+    var imageUrl: String?,
 
     @Column(nullable = false)
     var startDateTime: LocalDateTime,

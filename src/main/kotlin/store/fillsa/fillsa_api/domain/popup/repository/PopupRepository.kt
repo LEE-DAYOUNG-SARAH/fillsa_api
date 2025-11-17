@@ -30,8 +30,9 @@ interface PopupRepository: JpaRepository<Popup, Long> {
             AND p.startDateTime <= :now
             AND p.endDateTime >= :now
             AND p.popupType = 'VERSION_UPDATE'
+            AND p.targetVersion = :currentVersion
         ORDER BY p.createdAt DESC
         LIMIT 1
     """)
-    fun findLatestActiveVersionUpdatePopup(now: LocalDateTime): Popup?
+    fun findLatestActiveVersionUpdatePopup(now: LocalDateTime, currentVersion: String): Popup?
 }
