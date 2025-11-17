@@ -14,9 +14,9 @@ data class TypingQuoteResponseV2(
     @Schema(description = "사용자 명언 일련번호")
     val memberQuoteSeq: Long,
 
-    @Schema(description = "필사 완료 여부")
-    val completed: Boolean,
+    @Schema(description = "필사 완료 변경여부")
+    val completedChanged: Boolean,
 
-    @Schema(description = "연속 필사 여부")
-    val todayCompleted: Boolean
+    @Schema(description = "연속 필사 완료여부")
+    val todayCompletedChanged: Boolean
 )
