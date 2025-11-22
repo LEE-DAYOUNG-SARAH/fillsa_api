@@ -38,6 +38,15 @@ class SwaggerConfig(
     }
 
     @Bean
+    fun test(): GroupedOpenApi {
+        return GroupedOpenApi.builder()
+            .group("test")
+            .pathsToMatch("/api/test/**")
+            .addOperationCustomizer(swaggerOperationCustomizer)
+            .build()
+    }
+
+    @Bean
     fun openAPI(): OpenAPI {
         return OpenAPI()
             .info(createInfo())
