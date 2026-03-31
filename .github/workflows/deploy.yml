@@ -63,6 +63,6 @@ jobs:
               -v /home/ec2-user/app/logs:/app/logs \
               -v /home/ec2-user/app/config:/config \
               -e SPRING_PROFILES_ACTIVE=prod \
-              -p 80:8080 \
+              -p 8080:8080 \
               -e TZ=Asia/Seoul \
               fillsaapp/fillsa:$BUILD_TAG
