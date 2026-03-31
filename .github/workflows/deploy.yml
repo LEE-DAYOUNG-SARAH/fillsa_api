@@ -1,0 +1,68 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) 체크아웃
+      - uses: actions/checkout@v4
+
+      # 2) JDK 17 세팅
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3) Gradle 빌드
+      - uses: gradle/actions/setup-gradle@v3
+      - run: ./gradlew clean build -x test --no-daemon --parallel
+
+      # 4) Docker 멀티 플랫폼 빌드 & 푸시
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: fillsaapp/fillsa:main-${{ github.run_number }}
+
+      # 5) EC2 배포
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        env:
+          BUILD_TAG: main-${{ github.run_number }}
+          PROD_YML_B64: ${{ secrets.PROD_YML }}
+        with:
+          host: ec2-15-164-20-177.ap-northeast-2.compute.amazonaws.com
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: BUILD_TAG,PROD_YML_B64
+          script: |
+            # prod.yml 디코딩 & 배치
+            sudo mkdir -p /home/ec2-user/app/config
+            sudo chown ec2-user:ec2-user /home/ec2-user/app/config
+            echo "$PROD_YML_B64" | base64 -d > /home/ec2-user/app/config/application-prod.yml
+
+            # 컨테이너 재기동
+            docker pull fillsaapp/fillsa:$BUILD_TAG
+            docker stop fillsa-container || true
+            docker rm fillsa-container || true
+            docker run -d \
+              --name fillsa-container \
+              --network fillsa-net \
+              -v /home/ec2-user/app/logs:/app/logs \
+              -v /home/ec2-user/app/config:/config \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -p 80:8080 \
+              -e TZ=Asia/Seoul \
+              fillsaapp/fillsa:$BUILD_TAG
