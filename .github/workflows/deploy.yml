@@ -43,7 +43,7 @@ jobs:
           BUILD_TAG: main-${{ github.run_number }}
           PROD_YML_B64: ${{ secrets.PROD_YML }}
         with:
-          host: ec2-15-164-20-177.ap-northeast-2.compute.amazonaws.com
+          host: 52.78.82.35
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: BUILD_TAG,PROD_YML_B64
