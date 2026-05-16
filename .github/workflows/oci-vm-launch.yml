@@ -9,10 +9,16 @@ jobs:
   launch:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup OCI CLI
+      - name: Install OCI CLI
+        run: |
+          pip install oci-cli
+
+      - name: Configure OCI credentials
         run: |
           mkdir -p ~/.oci
-          echo "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/key.pem
+          cat > ~/.oci/key.pem << 'EOF'
+          ${{ secrets.OCI_PRIVATE_KEY }}
+          EOF
           chmod 600 ~/.oci/key.pem
           cat > ~/.oci/config << EOF
           [DEFAULT]
@@ -23,9 +29,8 @@ jobs:
           key_file=$HOME/.oci/key.pem
           EOF
           chmod 600 ~/.oci/config
-          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh -o install.sh
-          bash install.sh --accept-all-defaults --install-dir ~/oci-cli --exec-dir ~/oci-cli/bin >/dev/null 2>&1
-          echo "$HOME/oci-cli/bin" >> $GITHUB_PATH
+          oci setup repair-file-permissions --file ~/.oci/config || true
+          oci --version
 
       - name: Check if VM already exists
         id: check
@@ -100,5 +105,4 @@ jobs:
           echo "## 🎉 VM created" >> $GITHUB_STEP_SUMMARY
           echo "- Public IP: \`$PUBLIC_IP\`" >> $GITHUB_STEP_SUMMARY
           echo "- SSH: \`ssh -i fillsa-key ubuntu@$PUBLIC_IP\`" >> $GITHUB_STEP_SUMMARY
-          # 스케줄 자동 비활성화
           gh workflow disable "OCI VM Launch (Auto-retry)" || true
