@@ -1,0 +1,104 @@
+name: OCI VM Launch (Auto-retry)
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # 10분마다
+  workflow_dispatch:          # 수동 실행 버튼
+
+jobs:
+  launch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup OCI CLI
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/key.pem
+          chmod 600 ~/.oci/key.pem
+          cat > ~/.oci/config << EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_USER_OCID }}
+          fingerprint=${{ secrets.OCI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_TENANCY_OCID }}
+          region=${{ secrets.OCI_REGION }}
+          key_file=$HOME/.oci/key.pem
+          EOF
+          chmod 600 ~/.oci/config
+          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh -o install.sh
+          bash install.sh --accept-all-defaults --install-dir ~/oci-cli --exec-dir ~/oci-cli/bin >/dev/null 2>&1
+          echo "$HOME/oci-cli/bin" >> $GITHUB_PATH
+
+      - name: Check if VM already exists
+        id: check
+        run: |
+          EXISTING=$(oci compute instance list \
+            --compartment-id "${{ secrets.OCI_COMPARTMENT_ID }}" \
+            --lifecycle-state RUNNING \
+            --query "data[?\"display-name\"=='fillsa-vm'] | length(@)" \
+            --raw-output 2>/dev/null || echo "0")
+          echo "count=$EXISTING" >> $GITHUB_OUTPUT
+          if [ "$EXISTING" != "0" ]; then
+            echo "✅ fillsa-vm already running. Skipping."
+          fi
+
+      - name: Launch VM
+        if: steps.check.outputs.count == '0'
+        id: launch
+        run: |
+          set +e
+          RESULT=$(oci compute instance launch \
+            --availability-domain "${{ secrets.OCI_AD_NAME }}" \
+            --compartment-id "${{ secrets.OCI_COMPARTMENT_ID }}" \
+            --shape "VM.Standard.A1.Flex" \
+            --shape-config '{"ocpus": 2, "memoryInGBs": 12}' \
+            --image-id "${{ secrets.OCI_IMAGE_ID }}" \
+            --subnet-id "${{ secrets.OCI_SUBNET_ID }}" \
+            --assign-public-ip true \
+            --display-name "fillsa-vm" \
+            --metadata "{\"ssh_authorized_keys\": \"${{ secrets.OCI_SSH_PUBLIC_KEY }}\"}" \
+            --wait-for-state RUNNING 2>&1)
+          EXIT=$?
+          echo "$RESULT"
+          if [ $EXIT -eq 0 ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          elif echo "$RESULT" | grep -qi "out of host capacity\|out of capacity"; then
+            echo "status=capacity" >> $GITHUB_OUTPUT
+          else
+            echo "status=error" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Report capacity shortage
+        if: steps.launch.outputs.status == 'capacity'
+        run: |
+          echo "::warning::Out of capacity. Will retry in 10 minutes."
+          exit 1
+
+      - name: Report unknown error
+        if: steps.launch.outputs.status == 'error'
+        run: |
+          echo "::error::VM launch failed with an unexpected error."
+          exit 1
+
+      - name: Get public IP & disable schedule
+        if: steps.launch.outputs.status == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          INSTANCE_ID=$(oci compute instance list \
+            --compartment-id "${{ secrets.OCI_COMPARTMENT_ID }}" \
+            --lifecycle-state RUNNING \
+            --query "data[?\"display-name\"=='fillsa-vm'].id | [0]" \
+            --raw-output)
+          sleep 10
+          PUBLIC_IP=$(oci compute instance list-vnics \
+            --instance-id "$INSTANCE_ID" \
+            --query 'data[0]."public-ip"' --raw-output)
+          echo "================================"
+          echo "🎉 VM created!"
+          echo "Public IP: $PUBLIC_IP"
+          echo "SSH: ssh -i fillsa-key ubuntu@$PUBLIC_IP"
+          echo "================================"
+          echo "## 🎉 VM created" >> $GITHUB_STEP_SUMMARY
+          echo "- Public IP: \`$PUBLIC_IP\`" >> $GITHUB_STEP_SUMMARY
+          echo "- SSH: \`ssh -i fillsa-key ubuntu@$PUBLIC_IP\`" >> $GITHUB_STEP_SUMMARY
+          # 스케줄 자동 비활성화
+          gh workflow disable "OCI VM Launch (Auto-retry)" || true
