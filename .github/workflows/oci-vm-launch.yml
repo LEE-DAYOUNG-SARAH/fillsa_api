@@ -1,17 +1,14 @@
 name: OCI VM Launch (Auto-retry)
-
 on:
   schedule:
     - cron: '*/20 * * * *'
   workflow_dispatch:
-
 jobs:
   launch:
     runs-on: ubuntu-latest
     steps:
       - name: Install OCI CLI
         run: pip install oci-cli
-
       - name: Configure OCI credentials
         run: |
           mkdir -p ~/.oci
@@ -29,7 +26,6 @@ jobs:
           EOF
           chmod 600 ~/.oci/config
           oci --version
-
       - name: Check existing VM
         id: check
         run: |
@@ -44,7 +40,6 @@ jobs:
           else
             echo "exists=yes" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Launch VM
         if: steps.check.outputs.exists == 'no'
         id: launch
@@ -54,7 +49,7 @@ jobs:
             --availability-domain "${{ secrets.OCI_AD_NAME }}" \
             --compartment-id "${{ secrets.OCI_COMPARTMENT_ID }}" \
             --shape "VM.Standard.A1.Flex" \
-            --shape-config '{"ocpus": 2, "memoryInGBs": 12}' \
+            --shape-config '{"ocpus": 1, "memoryInGBs": 6}' \
             --image-id "${{ secrets.OCI_IMAGE_ID }}" \
             --subnet-id "${{ secrets.OCI_SUBNET_ID }}" \
             --assign-public-ip true \
@@ -65,24 +60,21 @@ jobs:
           echo "$RESULT"
           if [ $EXIT -eq 0 ]; then
             echo "status=success" >> "$GITHUB_OUTPUT"
-          elif echo "$RESULT" | grep -qi "out of host capacity\|out of capacity"; then
-            echo "status=capacity" >> "$GITHUB_OUTPUT"
+          elif echo "$RESULT" | grep -qi "out of host capacity\|out of capacity\|timed out\|RequestException\|TooManyRequests\|ServiceUnavailable\|InternalError"; then
+            echo "status=retry" >> "$GITHUB_OUTPUT"
           else
             echo "status=error" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Report capacity shortage
-        if: steps.launch.outputs.status == 'capacity'
+      - name: Report retryable failure
+        if: steps.launch.outputs.status == 'retry'
         run: |
-          echo "::warning::Out of capacity. Will retry in 10 minutes."
+          echo "::warning::Capacity shortage or transient error. Will retry next run."
           exit 1
-
       - name: Report unknown error
         if: steps.launch.outputs.status == 'error'
         run: |
           echo "::error::VM launch failed with an unexpected error."
           exit 1
-
       - name: Get public IP
         if: steps.launch.outputs.status == 'success'
         run: |
