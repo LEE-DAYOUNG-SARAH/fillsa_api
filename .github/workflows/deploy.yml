@@ -60,8 +60,8 @@ jobs:
             docker run -d \
               --name fillsa-container \
               --network fillsa-net \
-              -v /home/ec2-user/app/logs:/app/logs \
-              -v /home/ec2-user/app/config:/config \
+              -v /home/ubuntu/app/logs:/app/logs \
+              -v /home/ubuntu/app/config:/config \
               -e SPRING_PROFILES_ACTIVE=prod \
               -p 8080:8080 \
               -e TZ=Asia/Seoul \
