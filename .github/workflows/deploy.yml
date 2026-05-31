@@ -49,9 +49,9 @@ jobs:
           envs: BUILD_TAG,PROD_YML_B64
           script: |
             # prod.yml 디코딩 & 배치
-            sudo mkdir -p /home/ec2-user/app/config
-            sudo chown ec2-user:ec2-user /home/ec2-user/app/config
-            echo "$PROD_YML_B64" | base64 -d > /home/ec2-user/app/config/application-prod.yml
+            sudo mkdir -p /home/ubuntu/app/config
+            sudo chown ubuntu:ubuntu /home/ubuntu/app/config
+            echo "$PROD_YML_B64" | base64 -d > /home/ubuntu/app/config/application-prod.yml
 
             # 컨테이너 재기동
             docker pull fillsaapp/fillsa:$BUILD_TAG
