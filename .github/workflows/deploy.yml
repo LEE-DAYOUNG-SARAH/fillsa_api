@@ -63,6 +63,6 @@ jobs:
               -v /home/ubuntu/app/logs:/app/logs \
               -v /home/ubuntu/app/config:/config \
               -e SPRING_PROFILES_ACTIVE=prod \
-              -p 8080:8080 \
+              -p 80:8080 \
               -e TZ=Asia/Seoul \
               fillsaapp/fillsa:$BUILD_TAG
