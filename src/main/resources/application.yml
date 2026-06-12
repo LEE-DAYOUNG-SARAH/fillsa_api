@@ -70,14 +70,12 @@ oauth:
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
 
 cloud:
-  aws:
-    credentials:
-      access-key:
-      secret-key:
-    region:
-      static:
-    s3:
-      bucket:
+  r2:
+    account-id:
+    access-key:
+    secret-key:
+    bucket:
+    public-url:
 
 fillsa:
   security:

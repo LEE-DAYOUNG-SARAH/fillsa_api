@@ -35,7 +35,7 @@ enum class ErrorCode(
     FILE_UPDATE_FAILED(HttpStatus.BAD_REQUEST, 5002, "File update failed"),
     FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST, 5003, "File delete failed"),
 
-    // s3
+    // R2
     STORAGE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, 6001, "Storage upload failed"),
     STORAGE_DELETE_FAILED(HttpStatus.BAD_REQUEST, 6002, "Storage delete failed");
 }
