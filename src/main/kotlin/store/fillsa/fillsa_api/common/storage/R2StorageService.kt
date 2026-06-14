@@ -14,10 +14,10 @@ import store.fillsa.fillsa_api.common.storage.useCase.StorageUseCase
 import java.util.*
 
 @Service
-class S3StorageService(
+class R2StorageService(
     private val s3Client: S3Client,
-    @Value("\${cloud.aws.s3.bucket}") private val bucket: String,
-    @Value("\${cloud.aws.region.static}") private val region: String
+    @Value("\${cloud.r2.bucket}") private val bucket: String,
+    @Value("\${cloud.r2.public-url}") private val publicUrl: String,
 ) : StorageUseCase {
     private val log = KotlinLogging.logger {  }
 
@@ -33,9 +33,9 @@ class S3StorageService(
                     .build(),
                 RequestBody.fromBytes(bytes)
             )
-            return "https://$bucket.s3.$region.amazonaws.com/$key"
+            return "$publicUrl/$key"
         } catch (e: Exception) {
-            log.error(e) { "S3 upload failed: $key" }
+            log.error(e) { "R2 upload failed: $key" }
             throw BusinessException(STORAGE_UPLOAD_FAILED)
         }
     }
@@ -45,13 +45,13 @@ class S3StorageService(
         try {
             delete(oldFileUrl)
         } catch (e: Exception) {
-            log.warn(e) { "기존 파일 삭제 실패: $oldFileUrl" }
+            log.warn(e) { "R2 delete failed: $oldFileUrl" }
         }
         return newUrl
     }
 
     override fun delete(fileUrl: String) {
-        val key = fileUrl.substringAfter("$bucket.s3.$region.amazonaws.com/")
+        val key = fileUrl.substringAfter("$publicUrl/")
         try {
             s3Client.deleteObject(
                 DeleteObjectRequest.builder()
@@ -60,7 +60,7 @@ class S3StorageService(
                 .build()
             )
         } catch (e: Exception) {
-            log.error(e) { "S3 delete failed: $fileUrl" }
+            log.error(e) { "R2 delete failed: $fileUrl" }
             throw BusinessException(STORAGE_DELETE_FAILED)
         }
     }
