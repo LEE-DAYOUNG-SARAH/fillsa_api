@@ -1,0 +1,67 @@
+package com.fillsa.app.common.storage
+
+import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import com.fillsa.util.exception.ErrorCode.STORAGE_DELETE_FAILED
+import com.fillsa.util.exception.ErrorCode.STORAGE_UPLOAD_FAILED
+import com.fillsa.util.exception.BusinessException
+import com.fillsa.app.common.storage.useCase.StorageUseCase
+import java.util.*
+
+@Service
+class R2StorageService(
+    private val s3Client: S3Client,
+    @Value("\${cloud.r2.bucket}") private val bucket: String,
+    @Value("\${cloud.r2.public-url}") private val publicUrl: String,
+) : StorageUseCase {
+    private val log = KotlinLogging.logger {  }
+
+    override fun upload(path: String, bytes: ByteArray, filename: String, contentType: String): String {
+        val key = "$path/${UUID.randomUUID()}.${filename.substringAfterLast('.', "")}"
+
+        try {
+            s3Client.putObject(
+                PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType(contentType)
+                    .build(),
+                RequestBody.fromBytes(bytes)
+            )
+            return "$publicUrl/$key"
+        } catch (e: Exception) {
+            log.error(e) { "R2 upload failed: $key" }
+            throw BusinessException(STORAGE_UPLOAD_FAILED)
+        }
+    }
+
+    override fun update(path: String, bytes: ByteArray, filename: String, contentType: String, oldFileUrl: String): String {
+        val newUrl = upload(path, bytes, filename, contentType)
+        try {
+            delete(oldFileUrl)
+        } catch (e: Exception) {
+            log.warn(e) { "R2 delete failed: $oldFileUrl" }
+        }
+        return newUrl
+    }
+
+    override fun delete(fileUrl: String) {
+        val key = fileUrl.substringAfter("$publicUrl/")
+        try {
+            s3Client.deleteObject(
+                DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build()
+            )
+        } catch (e: Exception) {
+            log.error(e) { "R2 delete failed: $fileUrl" }
+            throw BusinessException(STORAGE_DELETE_FAILED)
+        }
+    }
+}
