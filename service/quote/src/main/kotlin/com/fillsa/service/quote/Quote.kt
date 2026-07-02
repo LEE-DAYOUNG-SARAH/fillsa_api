@@ -24,4 +24,14 @@ class Quote (
 
     @Column(nullable = true)
     var category: String? = null,
-): BaseEntity()
+
+    /** 소프트 삭제 플래그. 'Y' 이면 앱 조회에서 제외된다. */
+    @Column(name = "DEL_YN", nullable = false, columnDefinition = "char(1)")
+    var delYn: String = "N",
+): BaseEntity() {
+    fun isDeleted(): Boolean = delYn == "Y"
+
+    fun softDelete() {
+        this.delYn = "Y"
+    }
+}

@@ -24,6 +24,7 @@ interface MemberQuoteRepository: JpaRepository<MemberQuote, Long> {
             join fetch dq.quote q
         where m = :member
             and dq.quoteDate between :beginQuoteDate and :endQuoteDate
+            and q.delYn = 'N'
     """)
     fun findAllByMemberAndQuoteDateBetween(
         member: Member,
@@ -39,6 +40,7 @@ interface MemberQuoteRepository: JpaRepository<MemberQuote, Long> {
             join fetch dq.quote q
         where m = :member
             and dq.quoteDate between :startDate and :endDate
+            and q.delYn = 'N'
         order by dq.quoteDate desc
     """)
     fun findAllByMemberAndCreatedAtBetween(member: Member, startDate: LocalDate, endDate: LocalDate): List<MemberQuote>

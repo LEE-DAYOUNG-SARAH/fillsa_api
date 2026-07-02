@@ -16,6 +16,7 @@ enum class ErrorCode(
     UNEXPECTED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, 1006, "An unexpected error has occurred."),
     UNSUPPORTED_APP_VERSION(HttpStatus.INTERNAL_SERVER_ERROR, 1007, "Unsupported app version."),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, 1010, "Service under maintenance."),
+    CONFLICT(HttpStatus.CONFLICT, 1011, "Resource conflict"),
     CUSTOM_ERROR_MESSAGE(HttpStatus.BAD_REQUEST, 1999, "커스텀 메세지가 들어갑니다."),
 
     // oauth login
@@ -29,6 +30,12 @@ enum class ErrorCode(
     JWT_REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, 3002, "Jwt refresh token invalid"),
     JWT_ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 3003, "Jwt access token expired"),
     JWT_REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 3004, "Jwt refresh token expired"),
+
+    // admin auth
+    ADMIN_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, 3101, "Admin login failed"),
+    ADMIN_ACCOUNT_INACTIVE(HttpStatus.UNAUTHORIZED, 3102, "Admin account is inactive"),
+    ADMIN_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, 3103, "Admin token invalid"),
+    ADMIN_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 3104, "Admin token expired"),
 
     // file
     FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, 5001, "File upload failed"),

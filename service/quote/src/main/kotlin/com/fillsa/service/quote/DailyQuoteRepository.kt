@@ -11,6 +11,7 @@ interface DailyQuoteRepository: JpaRepository<DailyQuote, Long> {
         from DailyQuote dq
             join fetch dq.quote q
         where dq.quoteDate = :quoteDate
+            and q.delYn = 'N'
     """)
     fun findByQuoteDate(quoteDate: LocalDate): DailyQuote?
 
@@ -18,7 +19,8 @@ interface DailyQuoteRepository: JpaRepository<DailyQuote, Long> {
         select dq
         from DailyQuote dq
             join fetch dq.quote q
-        where dq.quoteDate between :startDate and :endDate   
+        where dq.quoteDate between :startDate and :endDate
+            and q.delYn = 'N'
         order by dq.quoteDate asc
     """)
     fun findAllByQuoteDateBetween(startDate: LocalDate, endDate: LocalDate): List<DailyQuote>
@@ -28,6 +30,7 @@ interface DailyQuoteRepository: JpaRepository<DailyQuote, Long> {
         from DailyQuote dq
             join fetch dq.quote q
         where dq.dailyQuoteSeq = :dailyQuoteSeq
+            and q.delYn = 'N'
     """)
     fun findByDailQuoteSeq(dailyQuoteSeq: Long): DailyQuote?
 
@@ -36,6 +39,7 @@ interface DailyQuoteRepository: JpaRepository<DailyQuote, Long> {
         from DailyQuote dq
             join fetch dq.quote q
         where dq.dailyQuoteSeq in :dailyQuoteSeqs
+            and q.delYn = 'N'
     """)
     fun findAllByDailQuoteSeqIn(dailyQuoteSeqs: List<Long>): List<DailyQuote>
 }

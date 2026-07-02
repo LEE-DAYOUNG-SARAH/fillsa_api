@@ -1,0 +1,1424 @@
+openapi: 3.0.3
+info:
+  title: FILLSA Admin API
+  version: 0.1.0
+  description: |
+    FILLSA 어드민 콘솔 API 계약 (contract-first).
+    - 기능정의서: fillsa-wiki/wiki/Services/admin.md
+    - 인증: /auth/login 제외 전 엔드포인트 어드민 JWT(Bearer) 필수
+    - 페이징: Spring Pageable 관례 (page=0-base, size, sort=필드,방향) / 응답은 content + page 구조 (Spring Boot PagedModel 직렬화)
+    - 에러 응답: 기존 fillsa-api 공통 형식 (timestamp, httpStatus, errorCode, message)
+    - 강제 탈퇴 API는 보류 (앱 탈퇴 플로우 확인 후 추가 예정)
+servers:
+  - url: /
+    description: admin BFF (bff/admin)
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: auth
+    description: 어드민 인증
+  - name: dashboard
+    description: 대시보드
+  - name: quotes
+    description: 명언 관리
+  - name: daily-quotes
+    description: 일별 명언 배정
+  - name: notices
+    description: 공지사항
+  - name: popups
+    description: 팝업 관리
+  - name: members
+    description: 회원 관리
+  - name: member-quotes
+    description: 필사 기록
+  - name: member-streaks
+    description: 연속 필사
+  - name: app-version
+    description: 앱 버전
+  - name: cache
+    description: 캐시 관리
+
+paths:
+  # ========== auth ==========
+  /api/admin/v1/auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      summary: 어드민 로그인
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/v1/auth/logout:
+    post:
+      tags: [auth]
+      operationId: logout
+      summary: 로그아웃 (토큰 무효화)
+      responses:
+        '204':
+          description: 로그아웃 완료
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/v1/auth/refresh:
+    post:
+      tags: [auth]
+      operationId: refreshToken
+      summary: 토큰 재발급
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 재발급 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ========== dashboard ==========
+  /api/admin/v1/dashboard/summary:
+    get:
+      tags: [dashboard]
+      operationId: getDashboardSummary
+      summary: KPI 요약 (전체 회원 / 오늘 필사 완료 / 등록 명언)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummaryResponse'
+
+  /api/admin/v1/dashboard/completion-trend:
+    get:
+      tags: [dashboard]
+      operationId: getCompletionTrend
+      summary: 최근 N일 필사 완료 추이 (todayCompleted 기준 일별 집계)
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 14
+            maximum: 90
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompletionTrendResponse'
+
+  /api/admin/v1/dashboard/streak-distribution:
+    get:
+      tags: [dashboard]
+      operationId: getStreakDistribution
+      summary: 연속 필사 분포 (currentStreak 구간별)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreakDistributionResponse'
+
+  # ========== quotes ==========
+  /api/admin/v1/quotes:
+    get:
+      tags: [quotes]
+      operationId: getQuotes
+      summary: 명언 목록 (기본 정렬 quoteSeq,desc)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - name: keyword
+          in: query
+          description: 명언·작가 검색어
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotePageResponse'
+    post:
+      tags: [quotes]
+      operationId: createQuote
+      summary: 명언 등록
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteSaveRequest'
+      responses:
+        '201':
+          description: 생성됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteResponse'
+
+  /api/admin/v1/quotes/{quoteSeq}:
+    put:
+      tags: [quotes]
+      operationId: updateQuote
+      summary: 명언 수정
+      parameters:
+        - $ref: '#/components/parameters/QuoteSeq'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteSaveRequest'
+      responses:
+        '200':
+          description: 수정됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [quotes]
+      operationId: deleteQuote
+      summary: 명언 삭제 (soft delete — DEL_YN)
+      description: 일별 배정(daily_quotes) 이력이 있으면 409. 삭제는 soft delete로 처리하며 앱 조회에서 제외된다.
+      parameters:
+        - $ref: '#/components/parameters/QuoteSeq'
+      responses:
+        '204':
+          description: 삭제됨
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: 배정 이력이 있어 삭제 불가
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ========== daily-quotes ==========
+  /api/admin/v1/daily-quotes:
+    get:
+      tags: [daily-quotes]
+      operationId: getDailyQuotes
+      summary: 월별 배정 현황 (캘린더용)
+      parameters:
+        - name: yearMonth
+          in: query
+          required: true
+          example: '2026-06'
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyQuoteMonthResponse'
+
+  /api/admin/v1/daily-quotes/{date}:
+    put:
+      tags: [daily-quotes]
+      operationId: assignDailyQuote
+      summary: 특정 날짜 명언 배정/변경 (quoteDayOfWeek 서버 자동 계산)
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quoteSeq]
+              properties:
+                quoteSeq:
+                  type: integer
+                  format: int64
+      responses:
+        '200':
+          description: 배정됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyQuoteDayResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/v1/daily-quotes/auto-assign:
+    post:
+      tags: [daily-quotes]
+      operationId: autoAssignDailyQuotes
+      summary: 미배정 날짜 자동 배정 (미사용 명언 우선, 소진 시 배정 횟수 적은 순)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [yearMonth]
+              properties:
+                yearMonth:
+                  type: string
+                  pattern: '^\d{4}-\d{2}$'
+                  example: '2026-06'
+      responses:
+        '200':
+          description: 자동 배정 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [assignedCount, assignedDates]
+                properties:
+                  assignedCount:
+                    type: integer
+                  assignedDates:
+                    type: array
+                    items:
+                      type: string
+                      format: date
+
+  # ========== notices ==========
+  /api/admin/v1/notices:
+    get:
+      tags: [notices]
+      operationId: getNotices
+      summary: 공지 목록 (기본 정렬 noticeSeq,desc)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - name: keyword
+          in: query
+          description: 제목 검색어
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoticePageResponse'
+    post:
+      tags: [notices]
+      operationId: createNotice
+      summary: 공지 작성
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoticeSaveRequest'
+      responses:
+        '201':
+          description: 생성됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoticeResponse'
+
+  /api/admin/v1/notices/{noticeSeq}:
+    put:
+      tags: [notices]
+      operationId: updateNotice
+      summary: 공지 수정
+      parameters:
+        - $ref: '#/components/parameters/NoticeSeq'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoticeSaveRequest'
+      responses:
+        '200':
+          description: 수정됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoticeResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [notices]
+      operationId: deleteNotice
+      summary: 공지 삭제
+      parameters:
+        - $ref: '#/components/parameters/NoticeSeq'
+      responses:
+        '204':
+          description: 삭제됨
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== popups ==========
+  /api/admin/v1/popups:
+    get:
+      tags: [popups]
+      operationId: getPopups
+      summary: 팝업 목록 (기본 정렬 popupSeq,desc)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - name: popupType
+          in: query
+          schema:
+            $ref: '#/components/schemas/PopupType'
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+        - name: keyword
+          in: query
+          description: 제목 검색어
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PopupPageResponse'
+    post:
+      tags: [popups]
+      operationId: createPopup
+      summary: 팝업 등록
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PopupSaveRequest'
+      responses:
+        '201':
+          description: 생성됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PopupResponse'
+
+  /api/admin/v1/popups/{popupSeq}:
+    put:
+      tags: [popups]
+      operationId: updatePopup
+      summary: 팝업 수정
+      parameters:
+        - $ref: '#/components/parameters/PopupSeq'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PopupSaveRequest'
+      responses:
+        '200':
+          description: 수정됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PopupResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [popups]
+      operationId: deletePopup
+      summary: 팝업 삭제
+      parameters:
+        - $ref: '#/components/parameters/PopupSeq'
+      responses:
+        '204':
+          description: 삭제됨
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/v1/popups/{popupSeq}/active:
+    patch:
+      tags: [popups]
+      operationId: togglePopupActive
+      summary: 팝업 활성 토글 (목록 스위치용)
+      parameters:
+        - $ref: '#/components/parameters/PopupSeq'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isActive]
+              properties:
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: 변경됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PopupResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== members ==========
+  /api/admin/v1/members:
+    get:
+      tags: [members]
+      operationId: getMembers
+      summary: 회원 목록 (기본 정렬 createdAt,desc)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - name: keyword
+          in: query
+          description: 닉네임·OAuth ID 검색어
+          schema:
+            type: string
+        - name: oauthProvider
+          in: query
+          schema:
+            $ref: '#/components/schemas/OAuthProvider'
+        - name: withdrawalYn
+          in: query
+          schema:
+            $ref: '#/components/schemas/YnFlag'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPageResponse'
+
+  /api/admin/v1/members/summary:
+    get:
+      tags: [members]
+      operationId: getMemberSummary
+      summary: 회원 통계 카드 (전체/활성/탈퇴/팀원)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberSummaryResponse'
+
+  /api/admin/v1/members/{memberSeq}:
+    get:
+      tags: [members]
+      operationId: getMember
+      summary: 회원 상세 (스트릭·누적 필사·디바이스 포함)
+      parameters:
+        - $ref: '#/components/parameters/MemberSeq'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/v1/members/{memberSeq}/admin-role:
+    put:
+      tags: [members]
+      operationId: updateMemberAdminRole
+      summary: 팀원(관리자) 표시 지정/해제 (members.adminYn 토글)
+      parameters:
+        - $ref: '#/components/parameters/MemberSeq'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [adminYn]
+              properties:
+                adminYn:
+                  $ref: '#/components/schemas/YnFlag'
+      responses:
+        '200':
+          description: 변경됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberListItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== member-quotes ==========
+  /api/admin/v1/member-quotes:
+    get:
+      tags: [member-quotes]
+      operationId: getMemberQuotes
+      summary: 필사 기록 목록 (기본 정렬 quoteDate,desc)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - name: keyword
+          in: query
+          description: 회원 닉네임·명언 검색어
+          schema:
+            type: string
+        - name: quoteDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: completed
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberQuotePageResponse'
+
+  /api/admin/v1/member-quotes/{memberQuoteSeq}:
+    get:
+      tags: [member-quotes]
+      operationId: getMemberQuote
+      summary: 필사 기록 상세 (원문·타이핑·메모·이미지)
+      parameters:
+        - name: memberQuoteSeq
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberQuoteDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== member-streaks ==========
+  /api/admin/v1/member-streaks:
+    get:
+      tags: [member-streaks]
+      operationId: getMemberStreaks
+      summary: 연속 필사 랭킹 (기본 정렬 currentStreak,desc)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+        - name: keyword
+          in: query
+          description: 닉네임 검색어
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberStreakPageResponse'
+
+  /api/admin/v1/member-streaks/summary:
+    get:
+      tags: [member-streaks]
+      operationId: getStreakSummary
+      summary: 연속 필사 통계 카드
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreakSummaryResponse'
+
+  # ========== app-version ==========
+  /api/admin/v1/app-version:
+    get:
+      tags: [app-version]
+      operationId: getAppVersion
+      summary: 버전 정보 조회
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppVersionResponse'
+    put:
+      tags: [app-version]
+      operationId: updateAppVersion
+      summary: 버전 정보 수정 (blank 필드는 무시)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                minVersion:
+                  type: string
+                  example: '2.1.0'
+                nowVersion:
+                  type: string
+                  example: '2.3.0'
+      responses:
+        '200':
+          description: 수정됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppVersionResponse'
+
+  # ========== cache ==========
+  /api/admin/v1/cache/daily-quotes:
+    get:
+      tags: [cache]
+      operationId: getCachedDailyQuotes
+      summary: 캐시된 일별 명언 미리보기
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CachedDailyQuotesResponse'
+    delete:
+      tags: [cache]
+      operationId: evictDailyQuoteCache
+      summary: 캐시 전체 삭제 (다음 요청 시 DB 재로딩)
+      responses:
+        '204':
+          description: 삭제됨
+
+  /api/admin/v1/cache/daily-quotes/refresh:
+    post:
+      tags: [cache]
+      operationId: refreshDailyQuoteCache
+      summary: 캐시 갱신 (date 없으면 전체)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: 특정 날짜만 갱신. 생략 시 전체 갱신
+      responses:
+        '200':
+          description: 갱신 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [refreshedCount]
+                properties:
+                  refreshedCount:
+                    type: integer
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    Size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        default: 20
+        maximum: 100
+    Sort:
+      name: sort
+      in: query
+      description: '정렬: 필드,방향 (예: createdAt,desc). 생략 시 화면별 기본 정렬'
+      schema:
+        type: string
+    QuoteSeq:
+      name: quoteSeq
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    NoticeSeq:
+      name: noticeSeq
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    PopupSeq:
+      name: popupSeq
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    MemberSeq:
+      name: memberSeq
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    Unauthorized:
+      description: 인증 실패 (미로그인·토큰 만료·권한 없음)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: 대상 없음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    YnFlag:
+      type: string
+      enum: [Y, N]
+
+    OAuthProvider:
+      type: string
+      enum: [KAKAO, GOOGLE]
+
+    PopupType:
+      type: string
+      enum: [NOTICE, VERSION_UPDATE, EVENT]
+
+    AdminRole:
+      type: string
+      enum: [SUPER, ADMIN, OPERATOR]
+
+    ErrorResponse:
+      type: object
+      description: fillsa-api 공통 에러 형식
+      required: [timestamp, httpStatus, errorCode, message]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        httpStatus:
+          type: integer
+          example: 404
+        errorCode:
+          type: integer
+          example: 1001
+        message:
+          type: string
+
+    PageInfo:
+      type: object
+      description: Spring Boot PagedModel 직렬화 형식
+      required: [number, size, totalElements, totalPages]
+      properties:
+        number:
+          type: integer
+          description: 현재 페이지 (0-base)
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
+    # ----- auth -----
+    LoginRequest:
+      type: object
+      required: [loginId, password]
+      properties:
+        loginId:
+          type: string
+        password:
+          type: string
+          format: password
+
+    TokenResponse:
+      type: object
+      required: [accessToken, admin]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+          description: access token 유효 시간 (초)
+        admin:
+          $ref: '#/components/schemas/AdminProfile'
+
+    AdminProfile:
+      type: object
+      required: [adminSeq, loginId, name, role]
+      properties:
+        adminSeq:
+          type: integer
+          format: int64
+        loginId:
+          type: string
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/AdminRole'
+        lastLoginAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    # ----- dashboard -----
+    DashboardSummaryResponse:
+      type: object
+      required: [totalMembers, newMembersThisMonth, todayCompletedCount, totalQuotes]
+      properties:
+        totalMembers:
+          type: integer
+          format: int64
+        newMembersThisMonth:
+          type: integer
+        todayCompletedCount:
+          type: integer
+        totalQuotes:
+          type: integer
+          format: int64
+
+    CompletionTrendResponse:
+      type: object
+      required: [days]
+      properties:
+        days:
+          type: array
+          items:
+            type: object
+            required: [date, completedCount]
+            properties:
+              date:
+                type: string
+                format: date
+              completedCount:
+                type: integer
+
+    StreakDistributionResponse:
+      type: object
+      required: [buckets, maxStreak]
+      properties:
+        buckets:
+          type: array
+          description: 구간 순서 고정 — 30+, 14-29, 7-13, 1-6, 0
+          items:
+            type: object
+            required: [label, count]
+            properties:
+              label:
+                type: string
+                example: '30+'
+              count:
+                type: integer
+        maxStreak:
+          type: integer
+          description: 전체 최장 연속 기록
+
+    # ----- quotes -----
+    QuoteSaveRequest:
+      type: object
+      properties:
+        korQuote:
+          type: string
+        engQuote:
+          type: string
+        korAuthor:
+          type: string
+        engAuthor:
+          type: string
+        category:
+          type: string
+
+    QuoteResponse:
+      type: object
+      required: [quoteSeq, createdAt, assignedCount]
+      properties:
+        quoteSeq:
+          type: integer
+          format: int64
+        korQuote:
+          type: string
+          nullable: true
+        engQuote:
+          type: string
+          nullable: true
+        korAuthor:
+          type: string
+          nullable: true
+        engAuthor:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        assignedCount:
+          type: integer
+          description: 일별 배정 이력 수 (0보다 크면 삭제 불가)
+        createdAt:
+          type: string
+          format: date-time
+
+    QuotePageResponse:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteResponse'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    # ----- daily-quotes -----
+    DailyQuoteDayResponse:
+      type: object
+      required: [date, dayOfWeek, assigned]
+      properties:
+        date:
+          type: string
+          format: date
+        dayOfWeek:
+          type: string
+          description: 요일 (quoteDayOfWeek)
+        assigned:
+          type: boolean
+        dailyQuoteSeq:
+          type: integer
+          format: int64
+          nullable: true
+        quote:
+          allOf:
+            - $ref: '#/components/schemas/QuoteResponse'
+          description: 미배정이면 필드 생략
+
+    DailyQuoteMonthResponse:
+      type: object
+      required: [yearMonth, assignedCount, unassignedCount, days]
+      properties:
+        yearMonth:
+          type: string
+          example: '2026-06'
+        assignedCount:
+          type: integer
+        unassignedCount:
+          type: integer
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyQuoteDayResponse'
+
+    # ----- notices -----
+    NoticeSaveRequest:
+      type: object
+      required: [title, content]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+
+    NoticeResponse:
+      type: object
+      required: [noticeSeq, title, content, createdAt]
+      properties:
+        noticeSeq:
+          type: integer
+          format: int64
+        title:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NoticePageResponse:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoticeResponse'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    # ----- popups -----
+    PopupSaveRequest:
+      type: object
+      required: [popupType, title, content, startDateTime, endDateTime, isActive]
+      properties:
+        popupType:
+          $ref: '#/components/schemas/PopupType'
+        title:
+          type: string
+          maxLength: 200
+        content:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+          maxLength: 500
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+        isActive:
+          type: boolean
+        targetVersion:
+          type: string
+          nullable: true
+          maxLength: 20
+          description: VERSION_UPDATE 타입일 때 대상 버전
+
+    PopupResponse:
+      allOf:
+        - $ref: '#/components/schemas/PopupSaveRequest'
+        - type: object
+          required: [popupSeq, createdAt]
+          properties:
+            popupSeq:
+              type: integer
+              format: int64
+            createdAt:
+              type: string
+              format: date-time
+
+    PopupPageResponse:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PopupResponse'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    # ----- members -----
+    MemberSummaryResponse:
+      type: object
+      required: [totalCount, activeCount, withdrawnCount, adminCount]
+      properties:
+        totalCount:
+          type: integer
+          format: int64
+        activeCount:
+          type: integer
+          format: int64
+        withdrawnCount:
+          type: integer
+          format: int64
+        adminCount:
+          type: integer
+          description: adminYn = Y (팀원)
+
+    MemberListItem:
+      type: object
+      required: [memberSeq, oauthProvider, adminYn, withdrawalYn, currentStreak, createdAt]
+      properties:
+        memberSeq:
+          type: integer
+          format: int64
+        nickname:
+          type: string
+          nullable: true
+        profileImageUrl:
+          type: string
+          nullable: true
+        oauthProvider:
+          $ref: '#/components/schemas/OAuthProvider'
+        adminYn:
+          $ref: '#/components/schemas/YnFlag'
+        withdrawalYn:
+          $ref: '#/components/schemas/YnFlag'
+        currentStreak:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+          description: 가입일
+
+    MemberPageResponse:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberListItem'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    MemberDeviceResponse:
+      type: object
+      required: [memberDeviceSeq, osType, activeYn]
+      properties:
+        memberDeviceSeq:
+          type: integer
+          format: int64
+        deviceModel:
+          type: string
+          nullable: true
+        osType:
+          type: string
+          enum: [ANDROID, IOS]
+        osVersion:
+          type: string
+          nullable: true
+        appVersion:
+          type: string
+          nullable: true
+        activeYn:
+          $ref: '#/components/schemas/YnFlag'
+        updatedAt:
+          type: string
+          format: date-time
+
+    MemberDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/MemberListItem'
+        - type: object
+          required: [oauthId, maxStreak, totalCompletedCount, devices]
+          properties:
+            oauthId:
+              type: string
+            withdrawalAt:
+              type: string
+              format: date-time
+              nullable: true
+            maxStreak:
+              type: integer
+            totalCompletedCount:
+              type: integer
+              description: 누적 필사 완료 건수 (completed = true)
+            devices:
+              type: array
+              items:
+                $ref: '#/components/schemas/MemberDeviceResponse'
+
+    # ----- member-quotes -----
+    MemberQuoteListItem:
+      type: object
+      required: [memberQuoteSeq, memberSeq, quoteDate, typingYn, imageYn, likeYn, completed, todayCompleted]
+      properties:
+        memberQuoteSeq:
+          type: integer
+          format: int64
+        memberSeq:
+          type: integer
+          format: int64
+        nickname:
+          type: string
+          nullable: true
+        quoteDate:
+          type: string
+          format: date
+        korQuote:
+          type: string
+          nullable: true
+          description: 원문 (요약 표시용)
+        typingYn:
+          $ref: '#/components/schemas/YnFlag'
+        imageYn:
+          $ref: '#/components/schemas/YnFlag'
+        likeYn:
+          $ref: '#/components/schemas/YnFlag'
+        completed:
+          type: boolean
+        todayCompleted:
+          type: boolean
+
+    MemberQuotePageResponse:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberQuoteListItem'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    MemberQuoteDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/MemberQuoteListItem'
+        - type: object
+          properties:
+            typingKorQuote:
+              type: string
+              nullable: true
+            typingEngQuote:
+              type: string
+              nullable: true
+            memo:
+              type: string
+              nullable: true
+            imagePath:
+              type: string
+              nullable: true
+            quote:
+              $ref: '#/components/schemas/QuoteResponse'
+
+    # ----- member-streaks -----
+    MemberStreakListItem:
+      type: object
+      required: [memberSeq, currentStreak, maxStreak, todayWritten]
+      properties:
+        memberSeq:
+          type: integer
+          format: int64
+        nickname:
+          type: string
+          nullable: true
+        currentStreak:
+          type: integer
+          description: 조회 시점 기준 보정값 (lastWrittenDate가 어제/오늘이 아니면 0)
+        maxStreak:
+          type: integer
+        lastWrittenDate:
+          type: string
+          format: date
+          nullable: true
+        todayWritten:
+          type: boolean
+
+    MemberStreakPageResponse:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberStreakListItem'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    StreakSummaryResponse:
+      type: object
+      required: [maxStreak, avgCurrentStreak, todayWrittenCount, over30Count]
+      properties:
+        maxStreak:
+          type: integer
+        avgCurrentStreak:
+          type: number
+          format: double
+        todayWrittenCount:
+          type: integer
+        over30Count:
+          type: integer
+
+    # ----- app-version -----
+    AppVersionResponse:
+      type: object
+      required: [minVersion, nowVersion, updatedAt]
+      properties:
+        minVersion:
+          type: string
+          example: '2.1.0'
+        nowVersion:
+          type: string
+          example: '2.3.0'
+        updatedAt:
+          type: string
+          format: date-time
+
+    # ----- cache -----
+    CachedDailyQuotesResponse:
+      type: object
+      required: [count, entries]
+      properties:
+        count:
+          type: integer
+          description: 캐시된 일수
+        entries:
+          type: array
+          items:
+            type: object
+            required: [date]
+            properties:
+              date:
+                type: string
+                format: date
+              korQuote:
+                type: string
+                nullable: true
+              korAuthor:
+                type: string
+                nullable: true
