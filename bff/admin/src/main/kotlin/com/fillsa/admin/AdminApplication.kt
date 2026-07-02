@@ -13,7 +13,7 @@ import java.util.TimeZone
  */
 @SpringBootApplication(scanBasePackages = ["com.fillsa.admin", "com.fillsa.service"])
 @EntityScan(basePackages = ["com.fillsa.service"])
-@EnableJpaRepositories(basePackages = ["com.fillsa.service"])
+@EnableJpaRepositories(basePackages = ["com.fillsa.admin", "com.fillsa.service"])
 class AdminApplication
 
 fun main(args: Array<String>) {

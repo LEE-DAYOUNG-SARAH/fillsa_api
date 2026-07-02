@@ -18,6 +18,12 @@ spring:
       hibernate:
         format_sql: true
 
+# 어드민 전용 JWT. bff:app 의 jwt.secret 과 반드시 다른 키를 사용해 토큰을 분리한다.
+admin-jwt:
+  secret: ${ADMIN_JWT_SECRET:YWRtaW4tc2VjcmV0LWtleS1mb3ItZmlsbHNhLWFkbWluLWp3dC12ZXJ5LWxvbmctYW5kLXNlY3VyZS1rZXktZGVmYXVsdA==}
+  access-token-validity: 10800000    # 3시간
+  refresh-token-validity: 86400000   # 1일
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

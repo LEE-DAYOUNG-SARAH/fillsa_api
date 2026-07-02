@@ -1,5 +1,8 @@
 package com.fillsa.admin.config
 
+import com.fillsa.admin.common.security.AdminAuthenticationEntryPoint
+import com.fillsa.admin.common.security.AdminJwtAuthenticationFilter
+import com.fillsa.admin.common.security.AdminJwtTokenProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.Customizer
@@ -10,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -18,14 +22,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
  * 어드민 BFF 보안 설정. 앱(bff:app)의 OAuth 인증과 독립적으로 동작합니다.
  * 인증 주체는 service:admin 의 admins 테이블입니다.
  *
- * TODO(다음 단계): 어드민 JWT 인증 필터 추가
- *   - POST /api/admin/auth/login : loginId/password 검증(BCrypt) → 액세스 토큰 발급
- *   - 이후 요청은 토큰 검증 필터가 SecurityContext 에 ROLE_* 주입
+ * 토큰 분리: bff:app 과 다른 서명 키(admin-jwt.secret) + tokenType=ADMIN 클레임을 사용하므로
+ * 앱 회원 토큰으로는 어드민 엔드포인트에 인증할 수 없습니다.
  */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-class AdminSecurityConfig {
+class AdminSecurityConfig(
+    private val adminJwtTokenProvider: AdminJwtTokenProvider,
+    private val adminAuthenticationEntryPoint: AdminAuthenticationEntryPoint,
+) {
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -39,7 +45,8 @@ class AdminSecurityConfig {
                 req
                     .requestMatchers(
                         "/ping",
-                        "/api/admin/auth/**",
+                        "/api/admin/v1/auth/login",
+                        "/api/admin/v1/auth/refresh",
                         "/actuator/health",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
@@ -47,6 +54,11 @@ class AdminSecurityConfig {
                     ).permitAll()
                     .anyRequest().authenticated()
             }
+            .exceptionHandling { it.authenticationEntryPoint(adminAuthenticationEntryPoint) }
+            .addFilterBefore(
+                AdminJwtAuthenticationFilter(adminJwtTokenProvider),
+                UsernamePasswordAuthenticationFilter::class.java,
+            )
         return http.build()
     }
 
