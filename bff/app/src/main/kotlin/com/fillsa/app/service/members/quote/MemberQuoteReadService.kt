@@ -9,7 +9,7 @@ import com.fillsa.util.exception.BusinessException
 import com.fillsa.util.exception.ErrorCode
 import com.fillsa.util.exception.ErrorCode.NOT_FOUND
 import com.fillsa.service.member.Member
-import com.fillsa.app.api.members.quote.dto.*
+import com.fillsa.app.api.members.quote.*
 import com.fillsa.service.member.MemberQuote
 import com.fillsa.service.member.MemberQuoteRepository
 import com.fillsa.app.service.quote.DailyQuoteService

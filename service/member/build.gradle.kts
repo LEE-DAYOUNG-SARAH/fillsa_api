@@ -19,6 +19,8 @@ dependencies {
     // MemberQuote / MemberStreak 가 quote 도메인(DailyQuote)을 참조
     implementation(project(":service:quote"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion")
+    // Member 가 Spring Security UserDetails 를 구현하므로 security-core 필요
+    implementation("org.springframework.security:spring-security-core:6.0.3")
 }
 
 allOpen {
