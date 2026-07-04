@@ -1,6 +1,9 @@
 package com.fillsa.admin.api.auth
 
 import com.fillsa.admin.service.auth.AdminAuthService
+import com.fillsa.admin.service.auth.LoginRequest
+import com.fillsa.admin.service.auth.RefreshRequest
+import com.fillsa.admin.service.auth.TokenResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

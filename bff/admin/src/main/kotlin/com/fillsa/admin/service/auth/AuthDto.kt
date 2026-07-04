@@ -1,4 +1,4 @@
-package com.fillsa.admin.api.auth
+package com.fillsa.admin.service.auth
 
 import com.fillsa.service.admin.AdminEntity
 import com.fillsa.service.admin.AdminRole

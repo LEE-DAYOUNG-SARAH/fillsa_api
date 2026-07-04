@@ -1,10 +1,7 @@
 package com.fillsa.admin.service.quote
 
-import com.fillsa.admin.api.quote.QuoteResponse
-import com.fillsa.admin.api.quote.QuoteSaveRequest
 import com.fillsa.admin.common.dto.PageEnvelope
-import com.fillsa.admin.repository.DailyQuoteAdminRepository
-import com.fillsa.admin.repository.QuoteAdminRepository
+import com.fillsa.admin.service.dailyquote.DailyQuoteAdminQueryRepository
 import com.fillsa.service.quote.Quote
 import com.fillsa.util.exception.BusinessException
 import com.fillsa.util.exception.ErrorCode
@@ -16,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class QuoteAdminService(
-    private val quoteAdminRepository: QuoteAdminRepository,
-    private val dailyQuoteAdminRepository: DailyQuoteAdminRepository,
+    private val quoteAdminRepository: QuoteAdminQueryRepository,
+    private val dailyQuoteAdminRepository: DailyQuoteAdminQueryRepository,
 ) {
 
     @Transactional(readOnly = true)

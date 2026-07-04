@@ -1,7 +1,6 @@
 package com.fillsa.admin.service.quote
 
 import com.fillsa.admin.fixture.AdminFixtures
-import com.fillsa.admin.repository.QuoteAdminRepository
 import com.fillsa.util.exception.BusinessException
 import com.fillsa.util.exception.ErrorCode
 import org.assertj.core.api.Assertions.assertThat
@@ -20,7 +19,7 @@ import java.time.LocalDate
 class QuoteAdminServiceTest @Autowired constructor(
     private val sut: QuoteAdminService,
     private val adminFixtures: AdminFixtures,
-    private val quoteAdminRepository: QuoteAdminRepository,
+    private val quoteAdminRepository: QuoteAdminQueryRepository,
 ) {
 
     @Test

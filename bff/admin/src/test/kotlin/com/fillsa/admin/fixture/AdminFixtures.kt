@@ -1,7 +1,7 @@
 package com.fillsa.admin.fixture
 
-import com.fillsa.admin.repository.DailyQuoteAdminRepository
-import com.fillsa.admin.repository.QuoteAdminRepository
+import com.fillsa.admin.service.dailyquote.DailyQuoteAdminQueryRepository
+import com.fillsa.admin.service.quote.QuoteAdminQueryRepository
 import com.fillsa.service.admin.AdminEntity
 import com.fillsa.service.admin.AdminRepository
 import com.fillsa.service.admin.AdminRole
@@ -14,8 +14,8 @@ import java.time.LocalDate
 @Component
 class AdminFixtures(
     private val adminRepository: AdminRepository,
-    private val quoteAdminRepository: QuoteAdminRepository,
-    private val dailyQuoteAdminRepository: DailyQuoteAdminRepository,
+    private val quoteAdminRepository: QuoteAdminQueryRepository,
+    private val dailyQuoteAdminRepository: DailyQuoteAdminQueryRepository,
     private val passwordEncoder: PasswordEncoder,
 ) {
     fun admin(

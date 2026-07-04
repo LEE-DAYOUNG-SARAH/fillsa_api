@@ -1,6 +1,11 @@
 package com.fillsa.admin.api.dailyquote
 
+import com.fillsa.admin.service.dailyquote.AssignDailyQuoteRequest
+import com.fillsa.admin.service.dailyquote.AutoAssignRequest
+import com.fillsa.admin.service.dailyquote.AutoAssignResponse
 import com.fillsa.admin.service.dailyquote.DailyQuoteAdminService
+import com.fillsa.admin.service.dailyquote.DailyQuoteDayResponse
+import com.fillsa.admin.service.dailyquote.DailyQuoteMonthResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.format.annotation.DateTimeFormat

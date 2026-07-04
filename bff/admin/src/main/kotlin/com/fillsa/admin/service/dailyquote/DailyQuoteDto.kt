@@ -1,6 +1,6 @@
-package com.fillsa.admin.api.dailyquote
+package com.fillsa.admin.service.dailyquote
 
-import com.fillsa.admin.api.quote.QuoteResponse
+import com.fillsa.admin.service.quote.QuoteResponse
 import java.time.DayOfWeek
 import java.time.LocalDate
 

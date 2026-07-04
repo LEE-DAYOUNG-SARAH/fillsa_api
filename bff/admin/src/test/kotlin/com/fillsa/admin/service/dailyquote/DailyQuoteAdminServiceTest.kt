@@ -1,8 +1,6 @@
 package com.fillsa.admin.service.dailyquote
 
-import com.fillsa.admin.api.dailyquote.AssignDailyQuoteRequest
 import com.fillsa.admin.fixture.AdminFixtures
-import com.fillsa.admin.repository.DailyQuoteAdminRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +15,7 @@ import java.time.LocalDate
 class DailyQuoteAdminServiceTest @Autowired constructor(
     private val sut: DailyQuoteAdminService,
     private val adminFixtures: AdminFixtures,
-    private val dailyQuoteAdminRepository: DailyQuoteAdminRepository,
+    private val dailyQuoteAdminRepository: DailyQuoteAdminQueryRepository,
 ) {
 
     @Test

@@ -1,13 +1,7 @@
 package com.fillsa.admin.service.dailyquote
 
-import com.fillsa.admin.api.dailyquote.AssignDailyQuoteRequest
-import com.fillsa.admin.api.dailyquote.AutoAssignResponse
-import com.fillsa.admin.api.dailyquote.DailyQuoteDayResponse
-import com.fillsa.admin.api.dailyquote.DailyQuoteMonthResponse
-import com.fillsa.admin.api.dailyquote.KoreanDayOfWeek
-import com.fillsa.admin.api.quote.QuoteResponse
-import com.fillsa.admin.repository.DailyQuoteAdminRepository
-import com.fillsa.admin.repository.QuoteAdminRepository
+import com.fillsa.admin.service.quote.QuoteAdminQueryRepository
+import com.fillsa.admin.service.quote.QuoteResponse
 import com.fillsa.service.quote.DailyQuote
 import com.fillsa.util.exception.BusinessException
 import com.fillsa.util.exception.ErrorCode
@@ -19,8 +13,8 @@ import java.time.format.DateTimeParseException
 
 @Service
 class DailyQuoteAdminService(
-    private val dailyQuoteAdminRepository: DailyQuoteAdminRepository,
-    private val quoteAdminRepository: QuoteAdminRepository,
+    private val dailyQuoteAdminRepository: DailyQuoteAdminQueryRepository,
+    private val quoteAdminRepository: QuoteAdminQueryRepository,
 ) {
 
     @Transactional(readOnly = true)

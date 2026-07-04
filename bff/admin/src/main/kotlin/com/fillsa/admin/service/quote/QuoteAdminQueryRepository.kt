@@ -1,4 +1,4 @@
-package com.fillsa.admin.repository
+package com.fillsa.admin.service.quote
 
 import com.fillsa.service.quote.Quote
 import org.springframework.data.domain.Page
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
-interface QuoteAdminRepository : JpaRepository<Quote, Long> {
+interface QuoteAdminQueryRepository : JpaRepository<Quote, Long> {
 
     /**
      * 어드민 명언 목록. 삭제(delYn='Y') 제외. keyword 는 명언(kor/eng)·작가(kor/eng) 부분일치,

@@ -1,4 +1,4 @@
-package com.fillsa.admin.repository
+package com.fillsa.admin.service.dailyquote
 
 import com.fillsa.service.quote.DailyQuote
 import org.springframework.data.jpa.repository.JpaRepository
@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDate
 
-interface DailyQuoteAdminRepository : JpaRepository<DailyQuote, Long> {
+interface DailyQuoteAdminQueryRepository : JpaRepository<DailyQuote, Long> {
 
     /** 특정 quote 를 참조하는 daily_quotes 배정 건수. 삭제 가능 여부(=0) 판단에 사용. */
     fun countByQuoteQuoteSeq(quoteSeq: Long): Long

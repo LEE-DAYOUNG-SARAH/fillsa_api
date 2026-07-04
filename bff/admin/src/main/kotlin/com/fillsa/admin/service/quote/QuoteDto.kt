@@ -1,4 +1,4 @@
-package com.fillsa.admin.api.quote
+package com.fillsa.admin.service.quote
 
 import com.fillsa.service.quote.Quote
 import java.time.LocalDateTime
