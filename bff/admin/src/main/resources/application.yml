@@ -17,6 +17,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 # 어드민 전용 JWT. bff:app 의 jwt.secret 과 반드시 다른 키를 사용해 토큰을 분리한다.
 admin-jwt:

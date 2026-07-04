@@ -42,6 +42,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-log4j2:$springBootVersion")
 
+    // redis (캐시 관리 — bff:app 과 동일한 daily-quotes 캐시를 다룸)
+    implementation("org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion")
+
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")

@@ -42,4 +42,13 @@ interface DailyQuoteRepository: JpaRepository<DailyQuote, Long> {
             and q.delYn = 'N'
     """)
     fun findAllByDailQuoteSeqIn(dailyQuoteSeqs: List<Long>): List<DailyQuote>
+
+    @Query("""
+        select dq
+        from DailyQuote dq
+            join fetch dq.quote q
+        where q.delYn = 'N'
+        order by dq.quoteDate asc
+    """)
+    fun findAllOrderByQuoteDateAsc(): List<DailyQuote>
 }
