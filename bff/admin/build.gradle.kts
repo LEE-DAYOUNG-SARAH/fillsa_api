@@ -33,7 +33,7 @@ dependencies {
     implementation(project(":service:popup"))
     implementation(project(":service:notice"))
     implementation(project(":service:appVersion"))
-    // 필요 시 추가: implementation(project(":service:member")) 등
+    implementation(project(":service:member"))
 
     implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-security:$springBootVersion")

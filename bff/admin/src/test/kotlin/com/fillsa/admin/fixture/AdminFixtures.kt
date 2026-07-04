@@ -1,6 +1,10 @@
 package com.fillsa.admin.fixture
 
 import com.fillsa.admin.service.dailyquote.DailyQuoteAdminQueryRepository
+import com.fillsa.admin.service.member.MemberAdminQueryRepository
+import com.fillsa.admin.service.member.MemberDeviceAdminQueryRepository
+import com.fillsa.admin.service.member.MemberQuoteCompletionRepository
+import com.fillsa.admin.service.member.MemberStreakLookupRepository
 import com.fillsa.admin.service.notice.NoticeAdminQueryRepository
 import com.fillsa.admin.service.popup.PopupAdminQueryRepository
 import com.fillsa.admin.service.quote.QuoteAdminQueryRepository
@@ -9,6 +13,10 @@ import com.fillsa.service.admin.AdminRepository
 import com.fillsa.service.admin.AdminRole
 import com.fillsa.service.appversion.AppVersion
 import com.fillsa.service.appversion.AppVersionRepository
+import com.fillsa.service.member.Member
+import com.fillsa.service.member.MemberDevice
+import com.fillsa.service.member.MemberQuote
+import com.fillsa.service.member.MemberStreak
 import com.fillsa.service.notice.Notice
 import com.fillsa.service.popup.Popup
 import com.fillsa.service.quote.DailyQuote
@@ -26,6 +34,10 @@ class AdminFixtures(
     private val noticeAdminRepository: NoticeAdminQueryRepository,
     private val popupAdminRepository: PopupAdminQueryRepository,
     private val appVersionRepository: AppVersionRepository,
+    private val memberAdminRepository: MemberAdminQueryRepository,
+    private val memberDeviceAdminRepository: MemberDeviceAdminQueryRepository,
+    private val memberQuoteAdminRepository: MemberQuoteCompletionRepository,
+    private val memberStreakAdminRepository: MemberStreakLookupRepository,
     private val passwordEncoder: PasswordEncoder,
 ) {
     fun admin(
@@ -104,5 +116,79 @@ class AdminFixtures(
         nowVersion: String = "1.0.0",
     ): AppVersion = appVersionRepository.save(
         AppVersion(minVersion = minVersion, nowVersion = nowVersion),
+    )
+
+    fun member(
+        nickname: String? = "회원",
+        oauthProvider: Member.OAuthProvider = Member.OAuthProvider.KAKAO,
+        oauthId: String = "oauth-" + System.nanoTime(),
+        withdrawalYn: String = "N",
+        adminYn: String = "N",
+    ): Member = memberAdminRepository.save(
+        Member(
+            oauthProvider = oauthProvider,
+            oauthId = oauthId,
+            nickname = nickname,
+            withdrawalYn = withdrawalYn,
+            adminYn = adminYn,
+        ),
+    )
+
+    fun memberDevice(
+        member: Member,
+        deviceId: String = "device-" + System.nanoTime(),
+        osType: MemberDevice.OsType = MemberDevice.OsType.ANDROID,
+        deviceModel: String = "테스트 기기",
+        appVersion: String = "1.0.0",
+        osVersion: String = "14",
+        activeYn: String = "Y",
+    ): MemberDevice = memberDeviceAdminRepository.save(
+        MemberDevice(
+            deviceId = deviceId,
+            member = member,
+            osType = osType,
+            deviceModel = deviceModel,
+            appVersion = appVersion,
+            osVersion = osVersion,
+            activeYn = activeYn,
+        ),
+    )
+
+    fun memberQuote(
+        member: Member,
+        dailyQuote: DailyQuote,
+        typingKorQuote: String? = null,
+        typingEngQuote: String? = null,
+        imagePath: String? = null,
+        memo: String? = null,
+        likeYn: String = "N",
+        completed: Boolean = false,
+        todayCompleted: Boolean = false,
+    ): MemberQuote = memberQuoteAdminRepository.save(
+        MemberQuote(
+            member = member,
+            dailyQuote = dailyQuote,
+            typingKorQuote = typingKorQuote,
+            typingEngQuote = typingEngQuote,
+            imagePath = imagePath,
+            memo = memo,
+            likeYn = likeYn,
+            completed = completed,
+            todayCompleted = todayCompleted,
+        ),
+    )
+
+    fun memberStreak(
+        member: Member,
+        currentStreak: Int = 0,
+        maxStreak: Int = 0,
+        lastWrittenDate: LocalDate? = null,
+    ): MemberStreak = memberStreakAdminRepository.save(
+        MemberStreak(
+            member = member,
+            currentStreak = currentStreak,
+            maxStreak = maxStreak,
+            lastWrittenDate = lastWrittenDate,
+        ),
     )
 }
