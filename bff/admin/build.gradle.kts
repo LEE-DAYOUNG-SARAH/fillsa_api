@@ -30,6 +30,9 @@ dependencies {
     implementation(project(":util"))
     implementation(project(":service:admin"))
     implementation(project(":service:quote"))
+    implementation(project(":service:popup"))
+    implementation(project(":service:notice"))
+    implementation(project(":service:appVersion"))
     // 필요 시 추가: implementation(project(":service:member")) 등
 
     implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
