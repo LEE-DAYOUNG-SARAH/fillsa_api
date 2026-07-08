@@ -188,6 +188,10 @@ class QuoteAdminController(
 - **커밋 메시지**: 한글 conventional commits — `feat:` / `fix:` / `refactor:` / `test:` / `chore:` 접두사 + "무엇을" 한 줄. 필요 시 본문에 상세.
 - 🔴 **AI 공동작업 문구 금지**: 커밋 메시지에 `Co-Authored-By: Claude`, `Generated with Claude Code`, `🤖`, "Claude.ai와 함께" 등 **AI/도구 관련 서명·꼬리말을 절대 넣지 않는다.** 기본 템플릿에 그런 줄이 붙으면 항상 제거하고 커밋한다.
 - 민감정보(비밀번호·키·토큰) 커밋 금지. 루트의 `application-*.yml`, `.pem`은 절대 노출하지 않는다.
+- **로컬 실행 준비 (gitignore된 설정 파일)**: 아래는 git에 올리지 않으므로(gitignore) 클론에 안 딸려온다. 로컬/운영 프로파일을 띄우려면 **같은 경로에 수동 배치**해야 한다. 컴퓨터 간엔 git이 아니라 안전한 채널(AirDrop/1Password 등)로 옮긴다.
+  - `bff/admin/src/main/resources/application-local.yml` · `application-prod.yml`
+  - `bff/app/src/main/resources/application-local.yml` · `application-prod.yml`
+- **저장소는 iCloud 등 클라우드 동기화 폴더 밖에 클론**한다(예: `~/dev/fillsa`). iCloud가 `.git`을 동기화하면 객체가 손상된다(전례: `bad tree object`).
 
 ---
 
