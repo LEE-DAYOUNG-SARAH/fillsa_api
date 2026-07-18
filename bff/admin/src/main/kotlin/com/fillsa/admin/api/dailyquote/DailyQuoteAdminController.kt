@@ -1,8 +1,6 @@
 package com.fillsa.admin.api.dailyquote
 
 import com.fillsa.admin.service.dailyquote.AssignDailyQuoteRequest
-import com.fillsa.admin.service.dailyquote.AutoAssignRequest
-import com.fillsa.admin.service.dailyquote.AutoAssignResponse
 import com.fillsa.admin.service.dailyquote.DailyQuoteAdminService
 import com.fillsa.admin.service.dailyquote.DailyQuoteDayResponse
 import com.fillsa.admin.service.dailyquote.DailyQuoteMonthResponse
@@ -12,7 +10,6 @@ import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -39,9 +36,4 @@ class DailyQuoteAdminController(
         @RequestBody request: AssignDailyQuoteRequest,
     ): ResponseEntity<DailyQuoteDayResponse> =
         ResponseEntity.ok(dailyQuoteAdminService.assign(date, request))
-
-    @PostMapping("/auto-assign")
-    @Operation(summary = "미배정 날짜 자동 배정 (미사용 명언 우선, 소진 시 배정 횟수 적은 순)")
-    fun autoAssignDailyQuotes(@RequestBody request: AutoAssignRequest): ResponseEntity<AutoAssignResponse> =
-        ResponseEntity.ok(dailyQuoteAdminService.autoAssign(request.yearMonth))
 }

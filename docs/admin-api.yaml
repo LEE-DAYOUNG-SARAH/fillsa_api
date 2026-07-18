@@ -287,40 +287,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/admin/v1/daily-quotes/auto-assign:
-    post:
-      tags: [daily-quotes]
-      operationId: autoAssignDailyQuotes
-      summary: 미배정 날짜 자동 배정 (미사용 명언 우선, 소진 시 배정 횟수 적은 순)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [yearMonth]
-              properties:
-                yearMonth:
-                  type: string
-                  pattern: '^\d{4}-\d{2}$'
-                  example: '2026-06'
-      responses:
-        '200':
-          description: 자동 배정 결과
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [assignedCount, assignedDates]
-                properties:
-                  assignedCount:
-                    type: integer
-                  assignedDates:
-                    type: array
-                    items:
-                      type: string
-                      format: date
-
   # ========== notices ==========
   /api/admin/v1/notices:
     get:

@@ -48,19 +48,6 @@ interface DailyQuoteAdminQueryRepository : JpaRepository<DailyQuote, Long> {
         """,
     )
     fun findByQuoteDate(@Param("quoteDate") quoteDate: LocalDate): DailyQuote?
-
-    /** 미사용 우선 자동 배정: 삭제되지 않은 명언별 배정 횟수(0 포함)를 오름차순으로 반환. */
-    @Query(
-        """
-        select q.quoteSeq as quoteSeq, count(dq) as assignedCount
-        from Quote q
-            left join DailyQuote dq on dq.quote = q
-        where q.delYn = 'N'
-        group by q.quoteSeq
-        order by count(dq) asc, q.quoteSeq asc
-        """,
-    )
-    fun findAssignableQuoteStats(): List<AssignedCountProjection>
 }
 
 interface AssignedCountProjection {

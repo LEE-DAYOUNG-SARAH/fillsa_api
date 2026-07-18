@@ -40,12 +40,3 @@ data class DailyQuoteMonthResponse(
 data class AssignDailyQuoteRequest(
     val quoteSeq: Long,
 )
-
-data class AutoAssignRequest(
-    val yearMonth: String,
-)
-
-data class AutoAssignResponse(
-    val assignedCount: Int,
-    val assignedDates: List<LocalDate>,
-)

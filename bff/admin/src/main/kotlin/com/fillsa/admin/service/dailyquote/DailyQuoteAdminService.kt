@@ -70,54 +70,6 @@ class DailyQuoteAdminService(
         )
     }
 
-    /**
-     * 미배정 날짜 자동 배정. 미사용(배정 0회) 명언 우선, 소진 시 배정 횟수 적은 순.
-     * 삭제된 명언은 제외. 이미 배정된 날짜는 건너뛴다(idempotent).
-     */
-    @Transactional
-    fun autoAssign(yearMonth: String): AutoAssignResponse {
-        val ym = parseYearMonth(yearMonth)
-        val startDate = ym.atDay(1)
-        val endDate = ym.atEndOfMonth()
-
-        val assignedDatesSet = dailyQuoteAdminRepository.findAllByQuoteDateBetween(startDate, endDate)
-            .map { it.quoteDate }
-            .toSet()
-
-        val unassignedDates = (1..ym.lengthOfMonth())
-            .map { ym.atDay(it) }
-            .filter { it !in assignedDatesSet }
-
-        if (unassignedDates.isEmpty()) {
-            return AutoAssignResponse(assignedCount = 0, assignedDates = emptyList())
-        }
-
-        // 배정 횟수 오름차순(미사용 우선)으로 정렬된 후보. 가변 카운트로 라운드 진행.
-        val candidates = dailyQuoteAdminRepository.findAssignableQuoteStats()
-            .map { MutableCandidate(it.quoteSeq, it.assignedCount) }
-            .toMutableList()
-
-        if (candidates.isEmpty()) {
-            throw BusinessException(ErrorCode.INVALID_REQUEST, "배정 가능한 명언이 없습니다.")
-        }
-
-        val quoteCache = quoteAdminRepository.findAllById(candidates.map { it.quoteSeq }).associateBy { it.quoteSeq }
-
-        val assignedDates = mutableListOf<LocalDate>()
-        for (date in unassignedDates) {
-            val candidate = candidates.minByOrNull { it.assignedCount }!!
-            val quote = quoteCache.getValue(candidate.quoteSeq)
-
-            dailyQuoteAdminRepository.save(
-                DailyQuote(quote = quote, quoteDate = date, quoteDayOfWeek = KoreanDayOfWeek.of(date)),
-            )
-            candidate.assignedCount += 1
-            assignedDates.add(date)
-        }
-
-        return AutoAssignResponse(assignedCount = assignedDates.size, assignedDates = assignedDates)
-    }
-
     private fun toDayResponse(
         date: LocalDate,
         assignment: DailyQuote?,
@@ -148,6 +100,4 @@ class DailyQuoteAdminService(
         } catch (e: DateTimeParseException) {
             throw BusinessException(ErrorCode.INVALID_REQUEST, "잘못된 yearMonth 형식: $yearMonth")
         }
-
-    private class MutableCandidate(val quoteSeq: Long, var assignedCount: Long)
 }
