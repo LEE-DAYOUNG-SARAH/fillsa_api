@@ -3,6 +3,7 @@ package com.fillsa.admin.config
 import com.fillsa.admin.common.security.AdminAuthenticationEntryPoint
 import com.fillsa.admin.common.security.AdminJwtAuthenticationFilter
 import com.fillsa.admin.common.security.AdminJwtTokenProvider
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.Customizer
@@ -31,6 +32,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 class AdminSecurityConfig(
     private val adminJwtTokenProvider: AdminJwtTokenProvider,
     private val adminAuthenticationEntryPoint: AdminAuthenticationEntryPoint,
+    // 어드민 콘솔 오리진. 콤마로 다중 지정 가능 (local 기본: Vite 개발 서버 / prod: admin-cors.allowed-origins 로 override)
+    @Value("\${admin-cors.allowed-origins:http://localhost:5173}")
+    private val allowedOriginsValue: String,
 ) {
 
     @Bean
@@ -68,8 +72,7 @@ class AdminSecurityConfig(
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration().apply {
-            // Vite 개발 서버 + 배포 도메인(추후 추가)
-            allowedOrigins = listOf("http://localhost:5173")
+            allowedOrigins = allowedOriginsValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
             allowCredentials = true
