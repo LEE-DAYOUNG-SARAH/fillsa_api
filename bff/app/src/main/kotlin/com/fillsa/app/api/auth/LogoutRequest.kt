@@ -1,0 +1,8 @@
+package com.fillsa.app.api.auth
+
+import io.swagger.v3.oas.annotations.media.Schema
+
+data class LogoutRequest(
+    @Schema(description = "디바이스 id", required = true)
+    val deviceId: String
+)

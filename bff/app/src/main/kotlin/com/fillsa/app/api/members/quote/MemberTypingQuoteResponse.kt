@@ -1,0 +1,32 @@
+package com.fillsa.app.api.members.quote
+
+import io.swagger.v3.oas.annotations.media.Schema
+import com.fillsa.service.member.MemberQuote
+import com.fillsa.service.quote.DailyQuote
+
+data class MemberTypingQuoteResponse(
+    @Schema(description = "국문 명언")
+    val korQuote: String?,
+
+    @Schema(description = "영문 명언")
+    val engQuote: String?,
+
+    @Schema(description = "타이핑 국문 명언")
+    val typingKorQuote: String?,
+
+    @Schema(description = "타이핑 영문 명언")
+    val typingEngQuote: String?,
+
+    @Schema(description = "좋아요 여부(Y/N)")
+    val likeYn: String
+) {
+    companion object {
+        fun from(dailyQuote: DailyQuote, memberQuote: MemberQuote?) = MemberTypingQuoteResponse(
+            korQuote = dailyQuote.quote.korQuote,
+            engQuote = dailyQuote.quote.engQuote,
+            typingKorQuote = memberQuote?.typingKorQuote,
+            typingEngQuote = memberQuote?.typingEngQuote,
+            likeYn = memberQuote?.likeYn ?: "N"
+        )
+    }
+}

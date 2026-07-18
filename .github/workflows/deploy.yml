@@ -1,5 +1,11 @@
 name: Build & Deploy
 
+# BFF 분리 배포 (docs/deploy-plan.md)
+# - 이미지 2개(fillsa-app / fillsa-admin) 빌드 → OCI VM 에 컨테이너 2개 + nginx 리버스 프록시
+# - EC2_* 시크릿은 이름만 EC2 — 실제로는 OCI VM(fillsa-vm) 접속 정보다
+# - 필요한 GH Secrets: DOCKER_USERNAME, DOCKER_PASSWORD, EC2_HOST, EC2_USERNAME, EC2_SSH_KEY,
+#                      PROD_YML_APP(base64, R2 실값 포함), PROD_YML_ADMIN(base64)
+
 on:
   push:
     branches: [ main ]
@@ -18,51 +24,123 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3) Gradle 빌드
+      # 3) Gradle 빌드 (bff:app + bff:admin 산출물 모두 생성)
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew clean build -x test --no-daemon --parallel
 
-      # 4) Docker 멀티 플랫폼 빌드 & 푸시
+      # 4) Docker 멀티 플랫폼 빌드 & 푸시 (OCI A1 은 arm64)
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - uses: docker/build-push-action@v5
+
+      - name: Build & push app image
+        uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: fillsaapp/fillsa:main-${{ github.run_number }}
+          build-args: MODULE=app
+          tags: fillsaapp/fillsa-app:main-${{ github.run_number }}
 
-      # 5) EC2 배포
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1
-        env:
-          BUILD_TAG: main-${{ github.run_number }}
-          PROD_YML_B64: ${{ secrets.PROD_YML }}
+      - name: Build & push admin image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: MODULE=admin
+          tags: fillsaapp/fillsa-admin:main-${{ github.run_number }}
+
+      # 5) nginx conf 전송 (infra/nginx/default.conf → ~/app/nginx/default.conf)
+      - name: Copy nginx conf
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: BUILD_TAG,PROD_YML_B64
-          script: |
-            # prod.yml 디코딩 & 배치
-            sudo mkdir -p /home/ubuntu/app/config
-            sudo chown ubuntu:ubuntu /home/ubuntu/app/config
-            echo "$PROD_YML_B64" | base64 -d > /home/ubuntu/app/config/application-prod.yml
+          source: "infra/nginx/default.conf"
+          target: "/home/${{ secrets.EC2_USERNAME }}/app/nginx"
+          strip_components: 2
 
-            # 컨테이너 재기동
-            docker pull fillsaapp/fillsa:$BUILD_TAG
-            docker stop fillsa-container || true
-            docker rm fillsa-container || true
+      # 6) OCI VM 배포 (app + admin + nginx)
+      - name: Deploy to OCI VM
+        uses: appleboy/ssh-action@v1
+        env:
+          BUILD_TAG: main-${{ github.run_number }}
+          PROD_YML_APP_B64: ${{ secrets.PROD_YML_APP }}
+          PROD_YML_ADMIN_B64: ${{ secrets.PROD_YML_ADMIN }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: BUILD_TAG,PROD_YML_APP_B64,PROD_YML_ADMIN_B64
+          script: |
+            set -e
+
+            # prod yml 디코딩 & 배치 (Spring Boot 는 컨테이너 workdir 기준 ./config/ 를 자동 탐색)
+            mkdir -p ~/app/config-app ~/app/config-admin ~/app/logs-app ~/app/logs-admin ~/app/nginx
+            echo "$PROD_YML_APP_B64" | base64 -d > ~/app/config-app/application-prod.yml
+            echo "$PROD_YML_ADMIN_B64" | base64 -d > ~/app/config-admin/application-prod.yml
+
+            docker network create fillsa-net 2>/dev/null || true
+
+            docker pull fillsaapp/fillsa-app:$BUILD_TAG
+            docker pull fillsaapp/fillsa-admin:$BUILD_TAG
+
+            # 구 단일 컨테이너(80 직점유) 제거 — BFF 전환 최초 배포 시에만 존재
+            docker rm -f fillsa-container 2>/dev/null || true
+
+            # 앱 BFF (api.fillsa.com → :8080, 힙 상한 §3-E1)
+            docker rm -f fillsa-app 2>/dev/null || true
             docker run -d \
-              --name fillsa-container \
+              --name fillsa-app \
               --network fillsa-net \
-              -v /home/ubuntu/app/logs:/app/logs \
-              -v /home/ubuntu/app/config:/config \
+              --restart unless-stopped \
+              -v $HOME/app/logs-app:/logs \
+              -v $HOME/app/config-app:/config \
               -e SPRING_PROFILES_ACTIVE=prod \
-              -p 80:8080 \
               -e TZ=Asia/Seoul \
-              fillsaapp/fillsa:$BUILD_TAG
+              -e JAVA_OPTS="-Xmx1536m -XX:MaxMetaspaceSize=256m" \
+              fillsaapp/fillsa-app:$BUILD_TAG
+
+            # 어드민 BFF (admin-api.fillsa.com → :8081) — 어드민 사용자 ~3명이라 힙 최소(512m)
+            docker rm -f fillsa-admin 2>/dev/null || true
+            docker run -d \
+              --name fillsa-admin \
+              --network fillsa-net \
+              --restart unless-stopped \
+              -v $HOME/app/logs-admin:/logs \
+              -v $HOME/app/config-admin:/config \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e TZ=Asia/Seoul \
+              -e JAVA_OPTS="-Xmx512m -XX:MaxMetaspaceSize=256m" \
+              fillsaapp/fillsa-admin:$BUILD_TAG
+
+            # nginx (80 수신, server_name 으로 app/admin 분기)
+            # 컨테이너 재생성으로 IP 가 바뀌므로 매 배포마다 reload 로 재해석한다
+            if docker ps --format '{{.Names}}' | grep -q '^fillsa-nginx$'; then
+              docker exec fillsa-nginx nginx -s reload
+            else
+              docker rm -f fillsa-nginx 2>/dev/null || true
+              docker run -d \
+                --name fillsa-nginx \
+                --network fillsa-net \
+                --restart unless-stopped \
+                -p 80:80 \
+                -v $HOME/app/nginx:/etc/nginx/conf.d:ro \
+                nginx:alpine
+            fi
+
+            # 헬스체크 (앱·어드민 둘 다 200 이어야 성공)
+            APP=000; ADMIN=000
+            for i in $(seq 1 30); do
+              APP=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: api.fillsa.com' http://localhost/actuator/health || true)
+              ADMIN=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: admin-api.fillsa.com' http://localhost/actuator/health || true)
+              if [ "$APP" = "200" ] && [ "$ADMIN" = "200" ]; then break; fi
+              sleep 5
+            done
+            echo "health: app=$APP admin=$ADMIN"
+            [ "$APP" = "200" ] && [ "$ADMIN" = "200" ]

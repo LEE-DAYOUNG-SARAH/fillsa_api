@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: fillsa-admin-bff
+  datasource:
+    url: jdbc:h2:mem:fillsa_admin_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6380
+
+admin-jwt:
+  secret: YWRtaW4tdGVzdC1zZWNyZXQta2V5LWZvci1maWxsc2EtYWRtaW4tand0LXZlcnktbG9uZy1hbmQtc2VjdXJlLWtleS1mb3ItdGVzdA==
+  access-token-validity: 10800000
+  refresh-token-validity: 86400000
+
+# 앱(bff:app) 토큰과 동일한 키 구조지만 값이 다름을 검증하기 위한 참조용 키.
+# 테스트에서 앱 토큰을 흉내낼 때 사용한다.
+app-jwt:
+  secret: dGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbi12ZXJ5LWxvbmctYW5kLXNlY3VyZS1rZXktZm9yLXRlc3QtZW52aXJvbm1lbnQ=
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

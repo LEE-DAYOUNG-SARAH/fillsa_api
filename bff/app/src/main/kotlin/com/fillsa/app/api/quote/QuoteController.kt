@@ -1,0 +1,44 @@
+package com.fillsa.app.api.quote
+
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import com.fillsa.app.common.exception.ApiErrorResponses
+import com.fillsa.util.exception.ErrorCode.NOT_FOUND
+import com.fillsa.app.api.quote.DailyQuoteResponse
+import com.fillsa.app.api.quote.MonthlyQuoteResponse
+import com.fillsa.app.service.quote.QuoteService
+import java.time.LocalDate
+import java.time.YearMonth
+
+
+@RestController
+@RequestMapping("/api/v1/quotes")
+@Tag(name = "(비회원) 명언 조회")
+class QuoteController(
+    private val quoteService: QuoteService
+) {
+
+    @ApiErrorResponses(NOT_FOUND)
+    @GetMapping("/daily")
+    @Operation(summary = "[2.home] 일별 명언 조회 api")
+    fun dailyQuote(
+        @Parameter(description = "조회 일자", example = "yyyy-MM-dd")
+        quoteDate: LocalDate
+    ): ResponseEntity<DailyQuoteResponse> = ResponseEntity.ok(
+        quoteService.getDailyQuote(quoteDate)
+    )
+
+    @GetMapping("/monthly")
+    @Operation(summary = "[2.home] 월별 명언 조회 api")
+    fun dailyQuote(
+        @Parameter(description = "조회 월", example = "yyyy-MM")
+        yearMonth: YearMonth
+    ): ResponseEntity<List<MonthlyQuoteResponse>> = ResponseEntity.ok(
+        quoteService.monthlyQuotes(yearMonth)
+    )
+}

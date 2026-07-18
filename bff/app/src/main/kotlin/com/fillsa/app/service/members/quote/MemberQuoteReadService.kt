@@ -1,0 +1,130 @@
+package com.fillsa.app.service.members.quote
+
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import com.fillsa.app.common.dto.PageResponse
+import com.fillsa.util.exception.BusinessException
+import com.fillsa.util.exception.ErrorCode
+import com.fillsa.util.exception.ErrorCode.NOT_FOUND
+import com.fillsa.service.member.Member
+import com.fillsa.app.api.members.quote.*
+import com.fillsa.service.member.MemberQuote
+import com.fillsa.service.member.MemberQuoteRepository
+import com.fillsa.app.service.quote.DailyQuoteService
+import java.time.LocalDate
+import java.time.YearMonth
+
+@Service
+class MemberQuoteReadService(
+    private val memberQuoteRepository: MemberQuoteRepository,
+    private val dailyQuoteService: DailyQuoteService,
+    @Value("\${fillsa.ko-author-url}")
+    private val koAuthorUrl: String,
+    @Value("\${fillsa.en-author-url}")
+    private val enAuthorUrl: String,
+) {
+
+    @Transactional(readOnly = true)
+    fun dailyQuote(member: Member, quoteDate: LocalDate): MemberDailyQuoteResponse {
+        val dailyQuote = dailyQuoteService.getDailyQuoteByQuoteDate(quoteDate)
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 quoteDate: $quoteDate")
+
+        val memberQuote = memberQuoteRepository.findByMemberAndDailyQuote(member, dailyQuote)
+
+        return MemberDailyQuoteResponse.from(koAuthorUrl, enAuthorUrl, dailyQuote, memberQuote)
+    }
+
+    @Transactional(readOnly = true)
+    fun monthlyQuotes(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponse {
+        if(yearMonth.isAfter(YearMonth.now())) {
+            throw BusinessException(ErrorCode.INVALID_REQUEST, "현재 월 이후는 조회할 수 없습니다.")
+        }
+
+        val startDate = yearMonth.atDay(1)
+        val endDate = if (yearMonth == YearMonth.now())
+            LocalDate.now() else yearMonth.atEndOfMonth()
+
+        val quotes = dailyQuoteService.getDailyQuoteByQuotMonth(startDate, endDate)
+        val memberQuotes = getMemberQuotesWithContentByMonth(member, startDate, endDate)
+
+        return MemberMonthlyQuoteResponse.from(quotes, memberQuotes)
+    }
+
+    @Transactional(readOnly = true)
+    fun monthlyQuotesV2(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponseV2 {
+        if(yearMonth.isAfter(YearMonth.now())) {
+            throw BusinessException(ErrorCode.INVALID_REQUEST, "현재 월 이후는 조회할 수 없습니다.")
+        }
+
+        val startDate = yearMonth.atDay(1)
+        val endDate = if (yearMonth == YearMonth.now())
+            LocalDate.now() else yearMonth.atEndOfMonth()
+
+        val quotes = dailyQuoteService.getDailyQuoteByQuotMonth(startDate, endDate)
+        val memberQuotes = getMemberQuotesWithContentByMonth(member, startDate, endDate)
+
+        return MemberMonthlyQuoteResponseV2.from(quotes, memberQuotes)
+    }
+
+    private fun getMemberQuotesWithContentByMonth(
+        member: Member,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<MemberQuote> {
+        val memberQuotes = memberQuoteRepository.findAllByMemberAndQuoteDateBetween(
+            member = member,
+            beginQuoteDate = startDate,
+            endQuoteDate = endDate
+        )
+
+        return memberQuotes.filter { it.isViewQuoteData() }
+    }
+
+    @Transactional(readOnly = true)
+    fun memberQuotes(
+        member: Member,
+        pageable: Pageable,
+        request: MemberQuotesCommonRequest
+    ): PageResponse<MemberQuotesResponse> {
+        val memberQuotes = getMemberQuotesWithContentByRequest(member, request)
+
+        return PageResponse.fromList(memberQuotes, pageable) { memberQuote ->
+            MemberQuotesResponse.from(koAuthorUrl, enAuthorUrl, memberQuote)
+        }
+    }
+
+    private fun getMemberQuotesWithContentByRequest(
+        member: Member,
+        request: MemberQuotesCommonRequest
+    ): List<MemberQuote> {
+        val memberQuotes =
+            memberQuoteRepository.findAllByMemberAndCreatedAtBetween(member, request.startDate, request.endDate)
+
+        return if(request.likeYn == "Y") {
+            memberQuotes.filter { it.likeYn == "Y" }
+        } else {
+            memberQuotes.filter { it.isViewQuoteData() }
+        }
+    }
+
+    @Transactional(readOnly = true)
+    fun typingQuote(member: Member, dailyQuoteSeq: Long): MemberTypingQuoteResponse {
+        val dailyQuote = dailyQuoteService.getDailyQuoteByDailQuoteSeq(dailyQuoteSeq)
+            ?: throw BusinessException(NOT_FOUND, "존재하지 않는 dailyQuoteSeq: $dailyQuoteSeq")
+        val memberQuote = getMemberQuoteByDailyQuoteSeq(member, dailyQuote.dailyQuoteSeq)
+
+        return MemberTypingQuoteResponse.from(dailyQuote, memberQuote)
+    }
+
+    @Transactional(readOnly = true)
+    fun getMemberQuoteByDailyQuoteSeq(member: Member, dailyQuoteSeq: Long): MemberQuote? {
+        return memberQuoteRepository.findByMemberAndDailyQuoteDailyQuoteSeq(member, dailyQuoteSeq)
+    }
+
+    @Transactional(readOnly = true)
+    fun getMemberQuoteByMemberQuoteSeq(member: Member, memberQuoteSeq: Long): MemberQuote? {
+        return memberQuoteRepository.findByMemberAndMemberQuoteSeq(member, memberQuoteSeq)
+    }
+}

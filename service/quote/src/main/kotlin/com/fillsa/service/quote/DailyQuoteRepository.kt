@@ -1,0 +1,54 @@
+package com.fillsa.service.quote
+
+import com.fillsa.service.quote.DailyQuote
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import java.time.LocalDate
+
+interface DailyQuoteRepository: JpaRepository<DailyQuote, Long> {
+    @Query("""
+        select dq
+        from DailyQuote dq
+            join fetch dq.quote q
+        where dq.quoteDate = :quoteDate
+            and q.delYn = 'N'
+    """)
+    fun findByQuoteDate(quoteDate: LocalDate): DailyQuote?
+
+    @Query("""
+        select dq
+        from DailyQuote dq
+            join fetch dq.quote q
+        where dq.quoteDate between :startDate and :endDate
+            and q.delYn = 'N'
+        order by dq.quoteDate asc
+    """)
+    fun findAllByQuoteDateBetween(startDate: LocalDate, endDate: LocalDate): List<DailyQuote>
+
+    @Query("""
+        select dq
+        from DailyQuote dq
+            join fetch dq.quote q
+        where dq.dailyQuoteSeq = :dailyQuoteSeq
+            and q.delYn = 'N'
+    """)
+    fun findByDailQuoteSeq(dailyQuoteSeq: Long): DailyQuote?
+
+    @Query("""
+        select dq
+        from DailyQuote dq
+            join fetch dq.quote q
+        where dq.dailyQuoteSeq in :dailyQuoteSeqs
+            and q.delYn = 'N'
+    """)
+    fun findAllByDailQuoteSeqIn(dailyQuoteSeqs: List<Long>): List<DailyQuote>
+
+    @Query("""
+        select dq
+        from DailyQuote dq
+            join fetch dq.quote q
+        where q.delYn = 'N'
+        order by dq.quoteDate asc
+    """)
+    fun findAllOrderByQuoteDateAsc(): List<DailyQuote>
+}

@@ -66,27 +66,32 @@ Fillsa API는 Kotlin 기반의 Spring Boot 애플리케이션으로, Fillsa 서�
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 
-## 프로젝트 구조
+## 프로젝트 구조 (멀티모듈 BFF)
 
 ```
-src/
-├── main/
-│   ├── kotlin/
-│   │   └── store/fillsa/fillsa_api/
-│   │       ├── common/          # 공통 설정 및 유틸리티
-│   │       ├── domain/          # 도메인별 비즈니스 로직
-│   │       │   ├── auth/        # 인증/인가
-│   │       │   ├── members/     # 회원 관리
-│   │       │   ├── quote/       # 명언 관리
-│   │       │   └── notice/      # 공지사항
-│   │       └── FillsaApiApplication.kt
-│   └── resources/
-│       ├── application.yml      # 메인 설정 파일
-│       └── application-*.yml    # 환경별 설정 파일
-└── test/
-    ├── kotlin/                  # 테스트 코드
-    └── resources/
-        └── application-test.yml # 테스트 설정
+fillsa_api/                  # 루트(애그리게이터) — settings.gradle.kts / build.gradle.kts
+├── util/                    # 전 모듈 공통 (응답 래퍼, 공통 예외, BaseEntity 등)
+├── service/                 # 도메인 로직 모듈 (Entity/Repository/Service, 컨트롤러 없음)
+│   ├── member/
+│   ├── quote/               # 명언(필사 콘텐츠)
+│   ├── notice/
+│   ├── popup/
+│   ├── appVersion/
+│   └── admin/               # 어드민 계정(별도 admins 테이블)
+└── bff/                     # 프론트별 BFF (부팅 가능한 Spring Boot 앱)
+    ├── app/                 # 기존 모바일 앱 API (현재 기존 코드 전체 보유, :8080)
+    └── admin/               # 필사 어드민 API (:8081)
+```
+
+> 의존 방향: `bff:*` → `service:*` → `util` (단방향).
+> 도메인 로직은 `bff:app` 에서 `service:*` 로 점진 추출합니다.
+
+### 빌드/실행 (멀티모듈)
+
+```bash
+./gradlew build                 # 전체 모듈 빌드
+./gradlew :bff:app:bootRun      # 앱 BFF 실행 (8080)
+./gradlew :bff:admin:bootRun    # 어드민 BFF 실행 (8081, 로컬은 H2)
 ```
 
 ## 환경 설정
