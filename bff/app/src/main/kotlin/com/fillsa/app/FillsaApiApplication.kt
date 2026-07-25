@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.runApplication
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.scheduling.annotation.EnableScheduling
 
 /**
  * 필사 앱 BFF 진입점.
@@ -16,6 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @EntityScan(basePackages = ["com.fillsa.service"])
 @EnableJpaRepositories(basePackages = ["com.fillsa.app", "com.fillsa.service"])
 @EnableJpaAuditing
+@EnableScheduling // 일별 명언 푸시 스케줄러 (DailyQuotePushScheduler)
 class FillsaApiApplication
 
 fun main(args: Array<String>) {

@@ -79,6 +79,9 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jwtVersion")
 
+    // FCM (iOS 포함 푸시 발송 — Firebase 프로젝트에 APNs 키 등록 필요)
+    implementation("com.google.firebase:firebase-admin:9.3.0")
+
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
