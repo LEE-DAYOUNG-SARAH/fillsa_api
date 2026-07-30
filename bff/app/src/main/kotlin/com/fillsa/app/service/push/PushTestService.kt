@@ -35,7 +35,7 @@ class PushTestService(
 
         val quote = runCatching { quoteService.getDailyQuote(LocalDate.now()) }.getOrNull()
         val success = pushService.sendToToken(
-            title = "오늘의 필사",
+            title = "오늘의 문장",
             body = quote?.korQuote ?: "테스트 푸시입니다",
             token = token,
         )

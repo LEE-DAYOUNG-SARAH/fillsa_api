@@ -55,7 +55,7 @@ class DailyQuotePushScheduler(
     }
 
     companion object {
-        private const val PUSH_TITLE = "오늘의 필사"
+        private const val PUSH_TITLE = "오늘의 문장" // 안드로이드 로컬 알림·위젯과 용어 통일
         private const val PUSH_BODY_FALLBACK = "오늘의 명언이 도착했어요"
     }
 }
