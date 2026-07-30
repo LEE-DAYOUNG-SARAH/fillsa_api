@@ -39,7 +39,7 @@ class Member(
     var adminYn: String = "N",
 ): BaseEntity(), UserDetails {
     enum class OAuthProvider {
-        KAKAO, GOOGLE;
+        KAKAO, GOOGLE, APPLE;
 
         companion object {
             fun fromPath(path: String): OAuthProvider =

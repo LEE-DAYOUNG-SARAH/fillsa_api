@@ -58,7 +58,13 @@ data class LoginRequest(
         val osVersion: String,
 
         @Schema(description = "디바이스 모델", example = "Galaxy S24", required = true)
-        val deviceModel: String
+        val deviceModel: String,
+
+        @Schema(description = "FCM 푸시 토큰 (iOS, 선택)")
+        val pushToken: String? = null,
+
+        @Schema(description = "푸시 수신 동의 여부 (선택)")
+        val pushAgreed: Boolean? = null,
     ) {
         fun toEntity(member: Member) = MemberDevice(
             member = member,

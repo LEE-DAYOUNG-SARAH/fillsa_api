@@ -68,6 +68,14 @@ oauth:
     redirect-uri:
     token-uri: https://oauth2.googleapis.com/token
     user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+  # Sign in with Apple — 탈퇴 시 토큰 폐기(revoke) 전용. 로그인은 앱이 수행(서버 미관여).
+  apple:
+    team-id:
+    key-id:
+    client-id:      # iOS 앱 번들 ID
+    private-key:    # AuthKey_<keyId>.p8 내용 (PEM 헤더 포함 가능)
+    token-uri: https://appleid.apple.com/auth/token
+    revoke-uri: https://appleid.apple.com/auth/revoke
 
 cloud:
   r2:
@@ -76,6 +84,10 @@ cloud:
     secret-key:
     bucket:
     public-url:
+
+# FCM 발송 설정 — 서비스 계정 JSON(base64 또는 원문). 비우면 푸시 발송 비활성(부팅 무관).
+fcm:
+  service-account-json:
 
 fillsa:
   security:

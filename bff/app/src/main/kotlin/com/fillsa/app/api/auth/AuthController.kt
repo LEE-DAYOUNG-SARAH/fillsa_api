@@ -66,10 +66,11 @@ class AuthController(
     )
 
     @DeleteMapping("/withdraw")
-    @Operation(summary = "[modal_delete ID] 앱 탈퇴 api")
+    @Operation(summary = "[modal_delete ID] 앱 탈퇴 api", description = "Apple 회원은 appleCode(재인증 authorizationCode) 전달 시 Apple 토큰을 폐기한다")
     fun withdraw(
-        @AuthenticationPrincipal member: Member
+        @AuthenticationPrincipal member: Member,
+        @RequestParam(required = false) appleCode: String?,
     ) {
-        authService.withdrawByApp(member)
+        authService.withdrawByApp(member, appleCode)
     }
 }
