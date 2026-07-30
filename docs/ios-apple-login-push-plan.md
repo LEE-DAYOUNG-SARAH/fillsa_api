@@ -11,9 +11,9 @@
 |---|---|
 | 백엔드 구현 (Apple 로그인·탈퇴·푸시 API·FCM·스케줄러) | ✅ **완료 + 로컬 E2E 검증** |
 | 로컬 DB DDL (member_devices 푸시 컬럼) | ✅ 적용 |
-| 운영 TiDB DDL | ⬜ 배포 전 적용 (언제든 무해) |
-| Firebase 준비 (보훈님 3건) | ⬜ 요청함 — §4 |
-| prod yml 기입 + 시크릿 재등록 | ⬜ 서비스 계정 JSON 수령 후 |
+| 운영 TiDB DDL | ✅ 2026-07-30 적용·검증 완료 |
+| Firebase 준비 (보훈님 3건) | ✅ 서비스 계정 JSON 수령 (2026-07-30) — ①②는 TestFlight 때 최종 확인 |
+| prod yml 기입 + 시크릿 재등록 | ✅ 2026-07-30 완료 (Firebase 초기화 로컬 실검증 통과) |
 | PR 머지 → 배포 | ⬜ 위 완료 후 |
 | 앱(iOS) 개발 | ⬜ 병렬 진행 가능 (서버 계약 확정) |
 
@@ -62,9 +62,9 @@
 
 ## 5. 남은 실행 순서
 
-1. ⬜ 보훈님 §4 완료 → **서비스 계정 JSON 수령**
-2. ⬜ app prod yml에 `fcm.service-account-json`(base64) 기입 → `PROD_YML_APP` 시크릿 재등록
-3. ⬜ 운영 TiDB에 member_devices DDL 적용 (지금 미리 해도 무해)
-4. ⬜ PR 머지(`feature/ios-apple-push` → main) = 자동 배포
+1. ✅ 서비스 계정 JSON 수령 (2026-07-30)
+2. ✅ prod yml 기입 + `PROD_YML_APP` 시크릿 재등록 — FirebaseApp 초기화 로컬 실검증 통과
+3. ✅ 운영 TiDB member_devices DDL 적용·검증
+4. ⬜ **PR 머지(`feature/ios-apple-push` → main) = 자동 배포** ← 다음 단계 (다영 결정)
 5. ⬜ TestFlight 검증: Apple 로그인 → 푸시 토큰 등록 → 09시(또는 cron 임시 변경으로 즉시) 실수신 확인
 6. (심사 리젝 시에만) Apple 키 발급 → `oauth.apple.*` 기입 → 시크릿 재등록 → revoke 자동 활성화

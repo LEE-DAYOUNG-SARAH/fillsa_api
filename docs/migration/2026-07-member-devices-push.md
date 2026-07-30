@@ -18,4 +18,4 @@ SELECT PUSH_AGREED_YN, COUNT(*) FROM member_devices GROUP BY PUSH_AGREED_YN;  --
 
 적용 이력:
 - 로컬: 2026-07-25 적용
-- 운영(TiDB): ⬜ 미적용 — iOS 서버 배포 전 실행
+- 운영(TiDB): ✅ 2026-07-30 적용·검증 완료 (3컬럼 스키마 일치 확인)
