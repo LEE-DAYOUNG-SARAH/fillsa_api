@@ -17,6 +17,25 @@ class PushService {
 
     fun isEnabled(): Boolean = FirebaseApp.getApps().isNotEmpty()
 
+    /** 단건 발송 (테스트 발송용). @return 성공 여부 */
+    fun sendToToken(title: String, body: String, token: String): Boolean {
+        if (!isEnabled()) {
+            log.warn { "FirebaseApp 미초기화 — 단건 푸시 스킵" }
+            return false
+        }
+        return try {
+            val message = com.google.firebase.messaging.Message.builder()
+                .setNotification(Notification.builder().setTitle(title).setBody(body).build())
+                .setToken(token)
+                .build()
+            FirebaseMessaging.getInstance().send(message)
+            true
+        } catch (e: com.google.firebase.messaging.FirebaseMessagingException) {
+            log.warn { "단건 푸시 실패 [${e.messagingErrorCode}] token=${token.take(12)}…" }
+            false
+        }
+    }
+
     /**
      * 토큰 목록에 알림 발송 (500개 단위 배치).
      * @return 무효 판정 토큰 목록 (UNREGISTERED / INVALID_ARGUMENT — 호출부에서 정리)
