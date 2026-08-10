@@ -25,6 +25,14 @@ class Quote (
     @Column(nullable = true)
     var category: String? = null,
 
+    /** AI 회고 질문 (한국어) — 명언별 저널링 질문. [[회고질문]] 기획 */
+    @Column(name = "QUESTION_KO", nullable = true, columnDefinition = "text")
+    var questionKo: String? = null,
+
+    /** AI 회고 질문 (영어) */
+    @Column(name = "QUESTION_EN", nullable = true, columnDefinition = "text")
+    var questionEn: String? = null,
+
     /** 소프트 삭제 플래그. 'Y' 이면 앱 조회에서 제외된다. */
     @Column(name = "DEL_YN", nullable = false, columnDefinition = "char(1)")
     var delYn: String = "N",

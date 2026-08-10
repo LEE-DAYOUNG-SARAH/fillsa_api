@@ -41,6 +41,8 @@ class QuoteAdminService(
             korAuthor = request.korAuthor,
             engAuthor = request.engAuthor,
             category = null, // 카테고리 기능 제거 — 항상 null 저장
+            questionKo = request.questionKo,
+            questionEn = request.questionEn,
         )
         val saved = quoteAdminRepository.save(quote)
         return QuoteResponse.from(saved, 0)
@@ -54,6 +56,8 @@ class QuoteAdminService(
         quote.korAuthor = request.korAuthor
         quote.engAuthor = request.engAuthor
         quote.category = null // 카테고리 기능 제거 — 항상 null 저장
+        quote.questionKo = request.questionKo
+        quote.questionEn = request.questionEn
 
         val assignedCount = dailyQuoteAdminRepository.countByQuoteQuoteSeq(quoteSeq).toInt()
         return QuoteResponse.from(quote, assignedCount)

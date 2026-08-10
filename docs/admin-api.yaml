@@ -965,6 +965,12 @@ components:
           type: string
         category:
           type: string
+        questionKo:
+          type: string
+          description: AI 회고 질문 (한국어)
+        questionEn:
+          type: string
+          description: AI 회고 질문 (영어)
 
     QuoteResponse:
       type: object
@@ -988,6 +994,14 @@ components:
         category:
           type: string
           nullable: true
+        questionKo:
+          type: string
+          nullable: true
+          description: AI 회고 질문 (한국어)
+        questionEn:
+          type: string
+          nullable: true
+          description: AI 회고 질문 (영어)
         assignedCount:
           type: integer
           description: 일별 배정 이력 수 (0보다 크면 삭제 불가)

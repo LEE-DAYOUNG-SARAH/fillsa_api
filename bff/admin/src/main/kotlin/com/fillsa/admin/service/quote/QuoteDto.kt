@@ -9,6 +9,8 @@ data class QuoteSaveRequest(
     val korAuthor: String? = null,
     val engAuthor: String? = null,
     val category: String? = null,
+    val questionKo: String? = null,
+    val questionEn: String? = null,
 )
 
 data class QuoteResponse(
@@ -18,6 +20,8 @@ data class QuoteResponse(
     val korAuthor: String?,
     val engAuthor: String?,
     val category: String?,
+    val questionKo: String?,
+    val questionEn: String?,
     val assignedCount: Int,
     val createdAt: LocalDateTime,
 ) {
@@ -29,6 +33,8 @@ data class QuoteResponse(
             korAuthor = quote.korAuthor,
             engAuthor = quote.engAuthor,
             category = quote.category,
+            questionKo = quote.questionKo,
+            questionEn = quote.questionEn,
             assignedCount = assignedCount,
             createdAt = quote.createdAt,
         )
