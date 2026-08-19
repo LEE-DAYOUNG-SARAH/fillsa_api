@@ -92,7 +92,11 @@ jobs:
             # prod yml 을 base64 로 넘기는 것과 같은 이유·같은 관례.
             # nginx 는 conf.d/*.conf 만 설정으로 읽으므로 .htpasswd 는 같은 디렉터리에 둬도 안전하다.
             echo "$LOGS_HTPASSWD_B64" | base64 -d > ~/app/nginx/.htpasswd
-            chmod 600 ~/app/nginx/.htpasswd
+            # 644 여야 한다 — nginx 워커는 컨테이너 내 nginx 유저(uid 101)로 돌고,
+            # 이 파일은 배포 유저(uid 1000) 소유다. 600 이면 워커가 못 읽어
+            # 자격증명이 실린 요청에서만 500 이 난다(무자격 요청은 파일을 안 읽어 401 → 원인 파악이 헷갈림).
+            # 내용은 평문이 아니라 apr1 해시이고 배포 유저 홈 안이라 644 로 충분하다.
+            chmod 644 ~/app/nginx/.htpasswd
 
             docker network create fillsa-net 2>/dev/null || true
 
