@@ -72,11 +72,12 @@ jobs:
           BUILD_TAG: main-${{ github.run_number }}
           PROD_YML_APP_B64: ${{ secrets.PROD_YML_APP }}
           PROD_YML_ADMIN_B64: ${{ secrets.PROD_YML_ADMIN }}
+          LOGS_HTPASSWD_B64: ${{ secrets.LOGS_HTPASSWD_B64 }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: BUILD_TAG,PROD_YML_APP_B64,PROD_YML_ADMIN_B64
+          envs: BUILD_TAG,PROD_YML_APP_B64,PROD_YML_ADMIN_B64,LOGS_HTPASSWD_B64
           script: |
             set -e
 
@@ -84,6 +85,14 @@ jobs:
             mkdir -p ~/app/config-app ~/app/config-admin ~/app/logs-app ~/app/logs-admin ~/app/nginx
             echo "$PROD_YML_APP_B64" | base64 -d > ~/app/config-app/application-prod.yml
             echo "$PROD_YML_ADMIN_B64" | base64 -d > ~/app/config-admin/application-prod.yml
+
+            # 로그 뷰어 basic auth 자격증명 (htpasswd 한 줄을 base64 로 담은 Secret)
+            # base64 로 넘기는 이유: apr1 해시가 "fillsa:$apr1$xxx$yyy" 처럼 $ 를 포함해서
+            # env 를 큰따옴표로 넘기는 경로를 타면 셸이 변수로 확장해 해시가 뭉개진다.
+            # prod yml 을 base64 로 넘기는 것과 같은 이유·같은 관례.
+            # nginx 는 conf.d/*.conf 만 설정으로 읽으므로 .htpasswd 는 같은 디렉터리에 둬도 안전하다.
+            echo "$LOGS_HTPASSWD_B64" | base64 -d > ~/app/nginx/.htpasswd
+            chmod 600 ~/app/nginx/.htpasswd
 
             docker network create fillsa-net 2>/dev/null || true
 
@@ -104,6 +113,7 @@ jobs:
               -e SPRING_PROFILES_ACTIVE=prod \
               -e TZ=Asia/Seoul \
               -e JAVA_OPTS="-Xmx1536m -XX:MaxMetaspaceSize=256m" \
+              --log-opt max-size=50m --log-opt max-file=3 \
               fillsaapp/fillsa-app:$BUILD_TAG
 
             # 어드민 BFF (admin-api.fillsa.com → :8081) — 어드민 사용자 ~3명이라 힙 최소(512m)
@@ -117,7 +127,38 @@ jobs:
               -e SPRING_PROFILES_ACTIVE=prod \
               -e TZ=Asia/Seoul \
               -e JAVA_OPTS="-Xmx512m -XX:MaxMetaspaceSize=256m" \
+              --log-opt max-size=50m --log-opt max-file=3 \
               fillsaapp/fillsa-admin:$BUILD_TAG
+
+            # docker 소켓 프록시 — 로그 뷰어에 소켓을 직접 물리면 컨테이너가 호스트 root 권한을
+            # 갖게 되므로, 조회 계열 API 만 통과시키는 프록시를 앞에 둔다.
+            # POST=0 이라 컨테이너 생성·실행·삭제가 전부 차단된다(읽기 전용).
+            # 소켓은 이 컨테이너만 쥐고, dozzle 은 fillsa-net 내부에서 HTTP 로만 접근한다.
+            docker rm -f docker-socket-proxy 2>/dev/null || true
+            docker run -d \
+              --name docker-socket-proxy \
+              --network fillsa-net \
+              --restart unless-stopped \
+              -v /var/run/docker.sock:/var/run/docker.sock:ro \
+              -e CONTAINERS=1 \
+              -e INFO=1 \
+              -e EVENTS=1 \
+              -e POST=0 \
+              --log-opt max-size=10m --log-opt max-file=2 \
+              tecnativa/docker-socket-proxy:v0.5.0
+
+            # 로그 뷰어 dozzle (logs.fillsa.com, nginx basic auth 뒤에 둔다)
+            # 소켓 미마운트 — DOZZLE_REMOTE_HOST 로 위 프록시만 바라본다
+            docker rm -f fillsa-dozzle 2>/dev/null || true
+            docker run -d \
+              --name fillsa-dozzle \
+              --network fillsa-net \
+              --restart unless-stopped \
+              -e DOZZLE_REMOTE_HOST=tcp://docker-socket-proxy:2375 \
+              -e DOZZLE_NO_ANALYTICS=true \
+              -e TZ=Asia/Seoul \
+              --log-opt max-size=10m --log-opt max-file=2 \
+              amir20/dozzle:v10.7.2
 
             # nginx (80 수신, server_name 으로 app/admin 분기)
             # 컨테이너 재생성으로 IP 가 바뀌므로 매 배포마다 reload 로 재해석한다
