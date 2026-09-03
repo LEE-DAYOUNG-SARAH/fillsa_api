@@ -10,9 +10,9 @@
 - `bff/app` : `spring.jpa.hibernate.ddl-auto=none` → 운영 스키마는 수동 DDL 로 관리.
 - `bff/admin` : `ddl-auto=update` (로컬 H2), 테스트: `create-drop`.
 
-따라서 운영 MySQL 에는 아래 DDL 을 수동으로 적용해야 한다.
+따라서 운영 DB(TiDB)에는 아래 DDL 을 수동으로 적용해야 한다.
 
-## DDL (MySQL)
+## DDL (TiDB — MySQL 호환 문법)
 ```sql
 ALTER TABLE quotes
     ADD COLUMN DEL_YN CHAR(1) NOT NULL DEFAULT 'N';

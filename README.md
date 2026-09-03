@@ -7,7 +7,7 @@ Fillsa API는 Kotlin 기반의 Spring Boot 애플리케이션으로, Fillsa 서�
 
 - **Language**: Kotlin 1.9
 - **Framework**: Spring Boot 3
-- **Database**: MySQL, Redis
+- **Database**: TiDB (MySQL 호환), Redis
 - **ORM**: Spring Data JPA
 - **Authentication**: JWT, OAuth 2.0
 - **Documentation**: Swagger/OpenAPI
@@ -25,7 +25,7 @@ Fillsa API는 Kotlin 기반의 Spring Boot 애플리케이션으로, Fillsa 서�
 - 회원, 명언, 공지사항 관련 CRUD API 제공
 - AWS S3를 통한 파일 저장
 - Redis를 활용한 캐시 및 토큰 관리
-- Spring Data JPA 기반 MySQL 연동
+- Spring Data JPA 기반 TiDB 연동 (MySQL 드라이버·방언 사용)
 - Swagger/OpenAPI 문서 제공
 - Docker 기반 배포 지원
 
