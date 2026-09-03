@@ -24,19 +24,20 @@ spring:
     open-in-view: false
 
   # 스키마 마이그레이션 — bff:app 만 소유한다. admin 은 같은 DB 에 붙으므로 비활성.
-  # 운영 DB 에는 이미 스키마와 데이터가 있으므로 baseline 으로 진입한다.
-  #  - baseline-on-migrate: 이력 테이블이 없고 스키마가 비어있지 않으면 baseline 을 찍고 시작
-  #  - baseline-version 1  : 기존 스키마 = V1 로 간주. 신규 마이그레이션은 V2 부터.
-  # 이력 테이블(flyway_schema_history) 생성 외에 기존 스키마를 건드리지 않는다.
+  # 신규 마이그레이션은 V2 부터. V1 은 Flyway 도입 이전의 기존 스키마를 가리킨다.
   #
-  # ⚠️ 현재 비활성. TiDB 에서 baseline 이 실패한다.
-  #    Flyway 의 MySQL 드라이버가 이력 테이블을 만들 때 CREATE TABLE ... AS SELECT 를 쓰는데
-  #    TiDB 가 이 구문을 지원하지 않는다 (ErrorCode 1105, 'CREATE TABLE ... SELECT' is not implemented yet).
-  #    기동 시 flywayInitializer 빈 생성이 실패해 애플리케이션이 뜨지 않는다.
-  #    재활성화 조건은 docs/flyway-adoption.md 참고 — 이력 테이블을 수동 생성한 뒤
-  #    반드시 TiDB 에서 먼저 검증할 것.
+  # ⚠️ 운영 DB(TiDB)에는 부트스트랩 SQL 을 먼저 적용해야 한다.
+  #    docs/migration/2026-09-flyway-bootstrap.md
+  #
+  #    Flyway 가 이력 테이블을 스스로 만들 때 CREATE TABLE ... AS SELECT 를 쓰는데
+  #    TiDB 가 이 구문을 지원하지 않아 기동이 실패한다(ErrorCode 1105).
+  #    이력 테이블과 baseline 행을 미리 넣어두면 Flyway 가 생성 구문을 타지 않는다.
+  #
+  #    baseline-on-migrate 는 이력 테이블이 "없을 때"만 동작하므로, 부트스트랩을
+  #    적용한 뒤에는 관여하지 않는다. 그래도 남겨두는 이유는 신규 환경(로컬 MySQL 등)에서
+  #    이력 테이블 없이 뜨는 경우를 위해서다.
   flyway:
-    enabled: false
+    enabled: true
     baseline-on-migrate: true
     baseline-version: 1
     baseline-description: "existing schema before flyway"

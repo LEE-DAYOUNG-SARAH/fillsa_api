@@ -16,12 +16,25 @@ fillsa_api(앱 + 어드민 백엔드)의 코드 컨벤션과 아키텍처 규칙
 | 언어 | **Kotlin 1.9.25** (버전 핀 — Spring BOM 강등 방지, `build.gradle.kts` 주석 참고) |
 | 프레임워크 | Spring Boot 3.4.4, Spring Data JPA, Spring Security |
 | 빌드 | Gradle (Kotlin DSL), 멀티모듈 |
-| DB | MySQL 8.0 / 캐시 Redis / 파일 S3→Cloudflare |
+| DB | **TiDB** (TiDB Cloud, MySQL 8.0 호환 — MySQL 이 아니다) / 캐시 Redis / 파일 S3→Cloudflare |
 | 인증 | 앱 = OAuth+JWT / 어드민 = ID·PW + 어드민 전용 JWT |
 | API 문서 | springdoc (Swagger) |
 
 - **QueryDSL·Lombok 사용 안 함** (참고 프로젝트는 Java+QueryDSL+Lombok이지만 여기선 Kotlin data class + Spring Data JPA). 참고 프로젝트에서 가져오는 건 **구조·네이밍·레이어 규칙**이지 라이브러리가 아니다.
 - Java 소스를 추가하지 않는다. 전부 Kotlin.
+
+> ⚠️ **운영 DB 는 MySQL 이 아니라 TiDB 다.**
+> MySQL 드라이버(`com.mysql.cj`)와 `MySQLDialect` 를 쓰고 `SELECT VERSION()` 이
+> `8.0.11-TiDB-...` 로 나와서 MySQL 처럼 보이지만, 엔진이 다른 분산 DB 다.
+> **MySQL 에서 되는 SQL 이 TiDB 에서 안 될 수 있다.**
+> 예: `CREATE TABLE ... AS SELECT` 미지원 (ErrorCode 1105)
+>
+> 스키마·SQL 변경을 검증할 때 **MySQL 컨테이너로 갈음하지 말 것.**
+> 운영과 같은 버전으로 띄워서 확인한다.
+> ```bash
+> docker run -d -p 14000:4000 pingcap/tidb:v8.5.3 --store=unistore --path=""
+> ```
+> 2026-09 에 이 구분을 놓쳐 배포 장애가 있었다 — `docs/migration/2026-09-flyway-bootstrap.md`
 
 ---
 
