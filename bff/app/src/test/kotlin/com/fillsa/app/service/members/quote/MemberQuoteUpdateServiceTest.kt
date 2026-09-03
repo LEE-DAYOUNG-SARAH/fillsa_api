@@ -42,8 +42,8 @@ class MemberQuoteUpdateServiceTest @Autowired constructor(
 
         // then
         assertThat(result.memberQuoteSeq).isEqualTo(memberQuote.memberQuoteSeq)
-        assertThat(result.completed).isFalse()
-        assertThat(result.todayCompleted).isFalse()
+        assertThat(result.completedChanged).isFalse()
+        assertThat(result.todayCompletedChanged).isFalse()
 
         val updatedMemberQuote = memberQuoteRepository.findById(memberQuote.memberQuoteSeq).get()
         assertThat(updatedMemberQuote.typingKorQuote).isEqualTo(request.typingKorQuote)
@@ -65,8 +65,8 @@ class MemberQuoteUpdateServiceTest @Autowired constructor(
 
         // then
         assertThat(result).isNotNull()
-        assertThat(result.completed).isFalse()
-        assertThat(result.todayCompleted).isFalse()
+        assertThat(result.completedChanged).isFalse()
+        assertThat(result.todayCompletedChanged).isFalse()
 
         val createdMemberQuote = memberQuoteRepository.findById(result.memberQuoteSeq).get()
         assertThat(createdMemberQuote.member).isEqualTo(member)
@@ -181,8 +181,8 @@ class MemberQuoteUpdateServiceTest @Autowired constructor(
         val result = sut.typingQuote(member, dailyQuote.dailyQuoteSeq, request)
 
         // then
-        assertThat(result.completed).isTrue()
-        assertThat(result.todayCompleted).isTrue()
+        assertThat(result.completedChanged).isTrue()
+        assertThat(result.todayCompletedChanged).isTrue()
 
         val createdMemberQuote = memberQuoteRepository.findById(result.memberQuoteSeq).get()
         assertThat(createdMemberQuote.completed).isTrue()
@@ -230,8 +230,8 @@ class MemberQuoteUpdateServiceTest @Autowired constructor(
         val result = sut.typingQuote(memberQuote.member, dailyQuote.dailyQuoteSeq, request)
 
         // then
-        assertThat(result.completed).isFalse()
-        assertThat(result.todayCompleted).isFalse()
+        assertThat(result.completedChanged).isFalse()
+        assertThat(result.todayCompletedChanged).isFalse()
     }
     
     @Test
