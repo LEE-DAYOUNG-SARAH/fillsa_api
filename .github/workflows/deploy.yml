@@ -161,6 +161,7 @@ jobs:
               -e DOZZLE_REMOTE_HOST=tcp://docker-socket-proxy:2375 \
               -e DOZZLE_NO_ANALYTICS=true \
               -e TZ=Asia/Seoul \
+              -e DOZZLE_ENABLE_MCP=true \
               --log-opt max-size=10m --log-opt max-file=2 \
               amir20/dozzle:v10.7.2
 
