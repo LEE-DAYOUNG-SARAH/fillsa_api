@@ -51,6 +51,11 @@ dependencies {
     implementation("com.mysql:mysql-connector-j:$mysqlConnectorVersion")
     runtimeOnly("com.h2database:h2")
 
+    // 스키마 마이그레이션. bff:app 만 소유한다 (admin 은 같은 DB 라 비활성)
+    // Flyway 10 부터 MySQL 계열은 flyway-mysql 모듈이 별도로 필요하다
+    implementation("org.flywaydb:flyway-core")
+    runtimeOnly("org.flywaydb:flyway-mysql")
+
     // kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")

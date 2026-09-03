@@ -21,6 +21,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  # 스키마 마이그레이션은 bff:app 이 소유한다.
+  # admin 은 운영에서 같은 DB 에 붙으므로, 양쪽이 동시에 마이그레이션하면 충돌한다.
+  # (현재 admin 에는 flyway 의존성이 없어 자동 설정이 뜨지 않지만, 의도를 명시해 둔다)
+  flyway:
+    enabled: false
+
   data:
     redis:
       host: localhost

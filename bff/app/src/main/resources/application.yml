@@ -23,6 +23,22 @@ spring:
       ddl-auto: none
     open-in-view: false
 
+  # 스키마 마이그레이션 — bff:app 만 소유한다. admin 은 같은 DB 에 붙으므로 비활성.
+  # 운영 DB 에는 이미 스키마와 데이터가 있으므로 baseline 으로 진입한다.
+  #  - baseline-on-migrate: 이력 테이블이 없고 스키마가 비어있지 않으면 baseline 을 찍고 시작
+  #  - baseline-version 1  : 기존 스키마 = V1 로 간주. 신규 마이그레이션은 V2 부터.
+  # 이력 테이블(flyway_schema_history) 생성 외에 기존 스키마를 건드리지 않는다.
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+    baseline-description: "existing schema before flyway"
+    locations: classpath:db/migration
+    # 이미 적용된 마이그레이션 파일을 나중에 수정하면 부팅을 실패시킨다.
+    validate-on-migrate: true
+    # 운영 스키마를 임의로 정리하지 않는다.
+    clean-disabled: true
+
   jackson:
     time-zone: Asia/Seoul
 

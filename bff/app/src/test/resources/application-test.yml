@@ -17,6 +17,11 @@ spring:
     hibernate:
       ddl-auto: create-drop
 
+  # 테스트는 H2 이고 스키마를 엔티티에서 생성한다(create-drop).
+  # 마이그레이션 스크립트는 MySQL/TiDB 방언이라 H2 에서 실행하면 깨진다.
+  flyway:
+    enabled: false
+
   jackson:
     time-zone: Asia/Seoul
 
