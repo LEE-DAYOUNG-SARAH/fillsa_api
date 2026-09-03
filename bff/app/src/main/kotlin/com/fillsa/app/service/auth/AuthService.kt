@@ -60,6 +60,11 @@ class AuthService(
 
         val memberSeq = jwtTokenProvider.getMemberSeqFromToken(request.refreshToken)
 
+        // 저장된 토큰과 대조한다. 서명·만료만 보면 로그아웃한 토큰도 유효기간 내내 재발급에 쓸 수 있다.
+        if (!refreshTokenCacheService.isValidRefreshToken(memberSeq, request.deviceId, request.refreshToken)) {
+            throw BusinessException(JWT_REFRESH_TOKEN_INVALID)
+        }
+
         val member = memberService.getActiveMemberBySeq(memberSeq)
         return createToken(member.memberSeq, request.deviceId)
     }
