@@ -57,6 +57,14 @@ cloud:
       static: test
     s3:
       bucket: test
+  # R2 전환 시 테스트 프로필 설정이 누락되어 s3Client 빈 생성이 실패했다.
+  # 실제 호출은 하지 않으므로 더미값으로 컨텍스트만 뜨게 한다.
+  r2:
+    account-id: test
+    access-key: test
+    secret-key: test
+    bucket: test
+    public-url: https://test.r2.local
 
 springdoc:
   swagger-ui:

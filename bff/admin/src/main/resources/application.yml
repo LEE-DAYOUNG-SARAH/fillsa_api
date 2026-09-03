@@ -12,7 +12,11 @@ spring:
     password: ""
   jpa:
     hibernate:
-      ddl-auto: update
+      # 운영 안전 기본값(fail-safe). admin 은 운영에서 앱과 같은 DB(TiDB)에 붙으므로
+      # Hibernate 가 스키마를 자동 변경해서는 안 된다. 스키마는 수동 DDL(docs/migration/)로만 관리한다.
+      # prod yml 이 ddl-auto 를 명시하지 않아도 안전하도록 기본값을 none 으로 둔다.
+      # 로컬 H2 부팅 검증은 local 프로필(application-local.yml)에서 update 로 덮어쓴다.
+      ddl-auto: none
     open-in-view: false
     properties:
       hibernate:
@@ -43,3 +47,16 @@ management:
     web:
       exposure:
         include: health,info
+
+---
+# 로컬 부팅 검증용. 인메모리 H2 라 스키마를 매번 생성해야 한다.
+#   ./gradlew :bff:admin:bootRun --args='--spring.profiles.active=local'
+#
+# application-local.yml 은 .gitignore 대상이라 공유되지 않으므로 여기에 둔다.
+spring:
+  config:
+    activate:
+      on-profile: local
+  jpa:
+    hibernate:
+      ddl-auto: update
