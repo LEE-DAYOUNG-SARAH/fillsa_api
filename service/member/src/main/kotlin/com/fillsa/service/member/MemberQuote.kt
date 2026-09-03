@@ -5,6 +5,7 @@ import com.fillsa.util.entity.BaseEntity
 import com.fillsa.service.member.Member
 import com.fillsa.service.quote.DailyQuote
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 @Table(
@@ -43,7 +44,14 @@ class MemberQuote(
     var completed: Boolean = false,
 
     @Column(nullable = false)
-    var todayCompleted: Boolean = false
+    var todayCompleted: Boolean = false,
+
+    /** 오늘의 질문 답변 (최대 200자). 필사 완료·연속에는 반영하지 않는다 — docs/home-renewal-api-plan.md §11-1 */
+    @Column(nullable = true, length = 200)
+    var answer: String? = null,
+
+    @Column(nullable = true)
+    var answeredAt: LocalDateTime? = null
 ): BaseEntity() {
     fun updateImagePath(imagePath: String?) {
         this.imagePath = imagePath
@@ -61,6 +69,17 @@ class MemberQuote(
     fun updateLikeYn(likeYn: String) {
         this.likeYn = likeYn
     }
+
+    /**
+     * 오늘의 질문 답변 등록·수정.
+     * 답변은 필사 완료(completed)·연속(streak)에 영향을 주지 않는다 — 별개 기록이다.
+     */
+    fun updateAnswer(answer: String) {
+        this.answer = answer
+        this.answeredAt = LocalDateTime.now()
+    }
+
+    fun hasAnswer() = !answer.isNullOrBlank()
 
     fun getTypingYn() = if(hasTypingQuotes() || hasImgPath()) "Y" else "N"
 
@@ -106,5 +125,9 @@ class MemberQuote(
         }
     }
 
-    fun isViewQuoteData() = completed || likeYn == "Y"
+    /**
+     * 조회 응답에 실어줄 대상인지. '필사 완료' 판정과는 별개다.
+     * 답변만 작성한 날도 응답에 포함되어야 한다 — docs/home-renewal-api-plan.md §5-2
+     */
+    fun isViewQuoteData() = completed || likeYn == "Y" || hasAnswer()
 }

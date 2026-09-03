@@ -36,6 +36,53 @@ class MemberQuoteReadService(
         return MemberDailyQuoteResponse.from(koAuthorUrl, enAuthorUrl, dailyQuote, memberQuote)
     }
 
+    /**
+     * 홈 상단 롤링 7일 조회. endDate 를 마지막 칸으로 하는 7일 창(endDate-6 ~ endDate)을 반환한다.
+     *
+     * - endDate 생략 시 서버 기준 오늘
+     * - 오늘보다 미래면 오늘로 clamp — 미래 문장이 노출되지 않게 한다
+     */
+    @Transactional(readOnly = true)
+    fun weeklyQuotes(member: Member, endDate: LocalDate?): WeeklyQuoteResponse {
+        val today = LocalDate.now()
+        val windowEnd = (endDate ?: today).coerceAtMost(today)
+        val windowStart = windowEnd.minusDays(WeeklyQuoteResponse.WINDOW_SIZE - 1)
+
+        val dailyQuotes = dailyQuoteService.getDailyQuotesInRange(windowStart, windowEnd)
+            .associateBy { it.quoteDate }
+        val memberQuotes = memberQuoteRepository
+            .findAllByMemberAndQuoteDateBetween(member, windowStart, windowEnd)
+            .associateBy { it.dailyQuote.quoteDate }
+
+        val days = (0 until WeeklyQuoteResponse.WINDOW_SIZE)
+            .map { windowStart.plusDays(it) }
+            .map { date ->
+                dailyQuotes[date]
+                    ?.let { DayQuoteData.from(koAuthorUrl, enAuthorUrl, it, memberQuotes[date], today) }
+                    ?: DayQuoteData.empty(date, today)
+            }
+
+        return WeeklyQuoteResponse.of(windowStart, windowEnd, days)
+    }
+
+    /**
+     * 단일 날짜 조회(V2). 응답은 주간 조회의 days[] 원소와 동일한 형태다.
+     * 저장 후 단일 날짜 갱신·딥링크 진입 등 보조 경로에서 사용한다.
+     */
+    @Transactional(readOnly = true)
+    fun dailyQuoteV2(member: Member, quoteDate: LocalDate): DayQuoteData {
+        val today = LocalDate.now()
+        if (quoteDate.isAfter(today)) {
+            return DayQuoteData.future(quoteDate)
+        }
+
+        val dailyQuote = dailyQuoteService.getDailyQuoteByQuoteDate(quoteDate)
+            ?: return DayQuoteData.empty(quoteDate, today)
+        val memberQuote = memberQuoteRepository.findByMemberAndDailyQuote(member, dailyQuote)
+
+        return DayQuoteData.from(koAuthorUrl, enAuthorUrl, dailyQuote, memberQuote, today)
+    }
+
     @Transactional(readOnly = true)
     fun monthlyQuotes(member: Member, yearMonth: YearMonth): MemberMonthlyQuoteResponse {
         if(yearMonth.isAfter(YearMonth.now())) {
@@ -65,7 +112,7 @@ class MemberQuoteReadService(
         val quotes = dailyQuoteService.getDailyQuoteByQuotMonth(startDate, endDate)
         val memberQuotes = getMemberQuotesWithContentByMonth(member, startDate, endDate)
 
-        return MemberMonthlyQuoteResponseV2.from(quotes, memberQuotes)
+        return MemberMonthlyQuoteResponseV2.from(koAuthorUrl, enAuthorUrl, quotes, memberQuotes)
     }
 
     private fun getMemberQuotesWithContentByMonth(

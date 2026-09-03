@@ -7,6 +7,7 @@ import com.fillsa.service.member.Member
 import com.fillsa.service.member.MemberStreak
 import com.fillsa.app.fixture.member.entity.MemberEntityFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class QuoteEntityFactory {
     companion object {
@@ -44,6 +45,8 @@ class QuoteEntityFactory {
             likeYn: String = "N",
             completed: Boolean = false,
             todayCompleted: Boolean = false,
+            answer: String? = null,
+            answeredAt: LocalDateTime? = null,
         ) = MemberQuote(
             member = member,
             dailyQuote = dailyQuote,
@@ -54,6 +57,8 @@ class QuoteEntityFactory {
             likeYn = likeYn,
             completed = completed,
             todayCompleted = todayCompleted,
+            answer = answer,
+            answeredAt = answeredAt,
         )
 
         fun memberStreak(
