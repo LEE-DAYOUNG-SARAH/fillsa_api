@@ -50,4 +50,19 @@ class MemberDeviceService(
     fun logout(member: Member, deviceId: String) {
         getMemberDevice(member, deviceId)?.logout()
     }
+
+    /**
+     * 탈퇴 시 해당 회원의 모든 디바이스를 비활성화하고 푸시 토큰을 제거한다.
+     *
+     * 이 처리가 없으면 탈퇴 후에도 푸시가 계속 발송된다.
+     * 발송 대상 조회(findAllByOsTypeAndActiveYnAndPushAgreedYn)가 회원의 탈퇴 여부를 보지 않기 때문이다.
+     * 같은 기기로 재가입하면 옛 디바이스 행이 남아 동일 토큰으로 중복 발송되는 문제도 있었다.
+     */
+    @Transactional
+    fun withdrawAllDevices(member: Member) {
+        memberDeviceRepository.findAllByMember(member).forEach {
+            it.logout()
+            it.clearPushToken()
+        }
+    }
 }
