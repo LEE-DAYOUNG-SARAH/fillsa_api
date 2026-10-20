@@ -14,11 +14,20 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+    # 커넥션을 처음부터 auto-commit=false 로 둔다. 기본값(true)이면 트랜잭션마다
+    # `SET autocommit=0` / `SET autocommit=1` 이 TiDB 로 왕복한다(1회 ≈ 80ms).
+    # 아래 hibernate.connection.provider_disables_autocommit 과 반드시 짝으로 쓴다.
+    hikari:
+      auto-commit: false
 
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        # 풀이 이미 auto-commit=false 를 보장하므로 Hibernate 가 확인·전환하지 않게 한다.
+        # 부수 효과로 커넥션 획득이 첫 쿼리 시점까지 늦춰진다.
+        connection:
+          provider_disables_autocommit: true
     hibernate:
       ddl-auto: none
     open-in-view: false
@@ -135,3 +144,25 @@ springdoc:
 
 swagger:
   server-url: http://localhost:8080
+
+---
+# 운영(TiDB) 전용 — MySQL 드라이버의 세션 상태 왕복 제거.
+# application-prod.yml(GitHub Secret PROD_YML_APP)을 수정하지 않고 여기서 덧붙인다.
+# H2 테스트 프로필에 섞이면 H2 가 알 수 없는 속성으로 거부하므로 prod 로 한정한다.
+#
+# 2026-10-20 실측: 쿼리 없는 읽기 트랜잭션 1개 ≈ 480ms (TiDB 왕복 ≈ 80ms × 6회).
+#   read only 설정 → autocommit=0 → (쿼리) → commit → autocommit=1 → read write
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    hikari:
+      data-source-properties:
+        # 드라이버가 세션 상태(autocommit 등)를 로컬에 기억해, 값이 같으면 서버로 보내지 않는다
+        useLocalSessionState: true
+        # 실행한 문장이 없으면 commit/rollback 을 서버로 보내지 않는다
+        useLocalTransactionState: true
+        # @Transactional(readOnly = true) 의 set read only / read write 를 서버로 보내지 않는다.
+        # 읽기 전용 강제는 Hibernate(FlushMode.MANUAL)·코드 레벨에서만 유지된다.
+        readOnlyPropagatesToServer: false
