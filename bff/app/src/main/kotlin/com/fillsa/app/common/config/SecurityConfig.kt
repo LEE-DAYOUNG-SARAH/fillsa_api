@@ -13,6 +13,7 @@ import com.fillsa.app.common.logging.RequestLoggingFilter
 import com.fillsa.app.common.security.CustomUserDetailsService
 import com.fillsa.app.common.security.JwtAuthenticationFilter
 import com.fillsa.app.common.security.JwtTokenProvider
+import com.fillsa.app.common.security.MemberAuthCache
 import com.fillsa.app.common.security.PublicEndpoint
 import com.fillsa.app.service.members.member.MemberService
 
@@ -23,6 +24,7 @@ class SecurityConfig(
     private val publicEndpoint: PublicEndpoint,
     private val jwtTokenProvider: JwtTokenProvider,
     private val memberService: MemberService,
+    private val memberAuthCache: MemberAuthCache,
 ) {
 
     @Bean
@@ -37,7 +39,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .userDetailsService(customUserDetailsService)
             .addFilterBefore(requestLoggingFilter, WebAsyncManagerIntegrationFilter::class.java)
-            .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider, memberService, publicEndpoint), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider, memberService, publicEndpoint, memberAuthCache), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }

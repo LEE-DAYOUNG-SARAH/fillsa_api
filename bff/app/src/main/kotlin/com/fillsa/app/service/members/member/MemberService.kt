@@ -10,18 +10,22 @@ import com.fillsa.app.api.auth.LoginRequest
 import com.fillsa.service.member.Member
 import com.fillsa.service.member.MemberRepository
 import com.fillsa.app.service.members.quote.MemberStreakService
+import com.fillsa.app.common.security.MemberAuthCache
 
 @Service
 class MemberService(
     private val memberRepository: MemberRepository,
     private val memberDeviceService: MemberDeviceService,
-    private val memberStreakService: MemberStreakService
+    private val memberStreakService: MemberStreakService,
+    private val memberAuthCache: MemberAuthCache,
 ) {
     @Transactional
     fun signUp(request: LoginRequest.LoginData): Member {
         val member = create(request.userData)
         memberDeviceService.create(member, request.deviceData)
         memberStreakService.create(member)
+        // 재로그인 시 닉네임·프로필이 갱신될 수 있으므로 인증 캐시를 비운다
+        memberAuthCache.evict(member.memberSeq)
 
         return member
     }
@@ -51,6 +55,8 @@ class MemberService(
 
         findMember.withdrawal()
         memberDeviceService.withdrawAllDevices(findMember)
+        // 캐시에 남아 있으면 탈퇴 후에도 최대 TTL 동안 토큰이 통과한다 → 커밋 직후까지 확실히 지운다
+        memberAuthCache.evict(findMember.memberSeq)
     }
 
     @Transactional(readOnly = true)

@@ -8,6 +8,9 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import com.fillsa.app.api.auth.LoginRequest
+import com.fillsa.app.common.security.MemberAuthCache
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import com.fillsa.util.exception.BusinessException
 import com.fillsa.service.member.Member
 import com.fillsa.service.member.MemberDevice
 import com.fillsa.service.member.MemberDeviceRepository
@@ -27,6 +30,7 @@ class MemberServiceTest @Autowired constructor(
     val memberStreakRepository: MemberStreakRepository,
     val memberPersistFactory: MemberPersistFactory,
     val quotePersistFactory: QuotePersistFactory,
+    val memberAuthCache: MemberAuthCache,
     val sut: MemberService
 ) {
     @Test
@@ -117,5 +121,20 @@ class MemberServiceTest @Autowired constructor(
 
         val resultMemberStreak = memberStreakRepository.existsByMember(resultMember)
         assertThat(resultMemberStreak).isTrue()
+    }
+
+    @Test
+    fun `탈퇴하면 인증 캐시에서 지워져 다음 요청은 DB 기준으로 차단된다`() {
+        // given — 인증 필터 경로로 한 번 조회해 캐시에 올린다
+        val member = memberPersistFactory.createMember()
+        memberAuthCache.getOrLoad(member.memberSeq, sut::getActiveMemberBySeq)
+
+        // when
+        sut.withdraw(member)
+
+        // then — 캐시가 비었으므로 다시 조회하고, 탈퇴 회원이라 예외가 난다
+        assertThatThrownBy {
+            memberAuthCache.getOrLoad(member.memberSeq, sut::getActiveMemberBySeq)
+        }.isInstanceOf(BusinessException::class.java)
     }
 }

@@ -25,6 +25,7 @@ class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider,
     private val memberService: MemberService,
     private val publicEndpoint: PublicEndpoint,
+    private val memberAuthCache: MemberAuthCache,
 ) : OncePerRequestFilter() {
     val log = KotlinLogging.logger {  }
     val objectMapper = jacksonObjectMapper()
@@ -43,7 +44,8 @@ class JwtAuthenticationFilter(
                 val memberSeq = jwtTokenProvider.getMemberSeqFromToken(token)
                 log.info { "REQUEST memberSeq: $memberSeq" }
 
-                val member = memberService.getActiveMemberBySeq(memberSeq)
+                // 캐시 미스일 때만 DB 조회(트랜잭션 1회). 탈퇴 회원은 캐시에 담기지 않고 예외로 차단된다.
+                val member = memberAuthCache.getOrLoad(memberSeq, memberService::getActiveMemberBySeq)
 
                 val authentication = createAuthentication(member)
                 SecurityContextHolder.getContext().authentication = authentication
