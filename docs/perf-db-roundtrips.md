@@ -157,6 +157,13 @@ rollback        ← NOT_FOUND 예외 케이스라 rollback. 정상이면 commit
 - 같이 고친 것: `MemberQuoteReadServiceTest` "내용이 있는 모든 명언 조회" 는 230e22c 에서
   목록 노출 규칙이 `completed || likeYn == "Y" || hasAnswer()` 로 바뀐 걸 반영 못 한 낡은 테스트였다.
   완료·좋아요·답변 각 1건은 노출되고 미완료 타이핑·빈 건은 제외되는 걸 검증하도록 고쳤다(`98189e6`).
+- **Flyway + `auto-commit=false` 기동 확인(로컬 TiDB v8.5.3).** 운영과 같은 조건
+  (이력 테이블·baseline 행 부트스트랩, `flyway.enabled=true`, prod 드라이버 옵션 3개)으로 이 브랜치 빌드를 띄웠다.
+  `Successfully validated 1 migration` → `Current version of schema: 1` → `Schema is up to date` 로 정상 기동.
+- 운영 `application-prod.yml`(로컬 사본 기준)은 `hikari.*`·`hibernate.connection.*`·`flyway.*` 키를 갖지 않아
+  이 PR 의 설정과 충돌하지 않는다. 배포는 `SPRING_PROFILES_ACTIVE=prod` 라 prod 전용 드라이버 옵션이 적용된다.
+- 트랜잭션 밖 JDBC 쓰기(`JdbcTemplate`·`EntityManager`·네이티브 `@Modifying`)는 없다.
+  `auto-commit=false` 에서 이런 코드는 커밋되지 않고 조용히 롤백되므로 확인했다. 스케줄러는 `@Transactional`.
 - 남은 실패 1건 `JwtTokenProviderTest` 는 `@ActiveProfiles("local")` 로 실제 로컬 DB 에 붙으려는
   환경 의존 테스트다(Connection refused). 테스트 파일과 `JwtTokenProvider` 모두 이 브랜치에서 건드리지 않았다.
 
@@ -164,7 +171,7 @@ rollback        ← NOT_FOUND 예외 케이스라 rollback. 정상이면 commit
 
 ## 5. 배포 후 확인
 
-1. dozzle 에서 Flyway 기동 로그 확인 — `auto-commit=false` 환경에서 마이그레이션이 정상 완료되는지
+1. dozzle 에서 Flyway 기동 로그 확인 — 로컬 TiDB 로는 검증했지만(§4) 운영은 Flyway 가 TiDB 를 MySQL 로 판정하는 차이가 있다
 2. 아래로 TTFB 재측정해 §3 예상치와 비교하고 이 문서 요약표의 "예상" 을 실측으로 바꾼다
 
 ```bash
