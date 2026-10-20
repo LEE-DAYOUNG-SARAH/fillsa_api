@@ -22,6 +22,7 @@ import com.fillsa.app.fixture.member.persist.MemberPersistFactory
 import com.fillsa.app.fixture.quote.entity.QuoteEntityFactory
 import com.fillsa.app.fixture.quote.persist.QuotePersistFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 @SpringBootTest
@@ -199,48 +200,67 @@ class MemberQuoteReadServiceTest @Autowired constructor(
     }
     
     @Test
-    fun `회원 명언 목록 조회 성공 - 내용이 있는 모든 명언 조회`() {
+    fun `회원 명언 목록 조회 성공 - 완료·좋아요·답변 중 하나라도 있는 명언만 조회`() {
         // given
+        // 목록 노출 규칙(MemberQuote.isViewQuoteData): completed || likeYn == "Y" || hasAnswer()
+        // 타이핑 텍스트만 있고 completed 가 아닌 건은 노출 대상이 아니다.
         val member = memberPersistFactory.createMember()
         val pageable = PageRequest.of(0, 10)
         val request = MemberQuotesCommonRequest.fromV1(MemberQuotesRequest(likeYn = "N"))
-        
-        val (savedQuote1, savedDailyQuote1) = quotePersistFactory.createQuoteWithDailyQuote()
-        val (savedQuote2, savedDailyQuote2) = quotePersistFactory.createQuoteWithDailyQuote()
-        val (savedQuote3, savedDailyQuote3) = quotePersistFactory.createQuoteWithDailyQuote()
-        
-        val memberQuote1 = quotePersistFactory.createMemberQuote(
+
+        val (_, likedDailyQuote) = quotePersistFactory.createQuoteWithDailyQuote()
+        val (_, completedDailyQuote) = quotePersistFactory.createQuoteWithDailyQuote()
+        val (_, answeredDailyQuote) = quotePersistFactory.createQuoteWithDailyQuote()
+        val (_, typingOnlyDailyQuote) = quotePersistFactory.createQuoteWithDailyQuote()
+        val (_, emptyDailyQuote) = quotePersistFactory.createQuoteWithDailyQuote()
+
+        val liked = quotePersistFactory.createMemberQuote(
             QuoteEntityFactory.memberQuote(
                 member = member,
-                dailyQuote = savedDailyQuote1,
+                dailyQuote = likedDailyQuote,
                 likeYn = "Y",
                 memo = "좋아요한 명언"
             )
         )
-        val memberQuote2 = quotePersistFactory.createMemberQuote(
+        val completed = quotePersistFactory.createMemberQuote(
             QuoteEntityFactory.memberQuote(
                 member = member,
-                dailyQuote = savedDailyQuote2,
-                likeYn = "N",
-                typingKorQuote = "타이핑 명언"
+                dailyQuote = completedDailyQuote,
+                typingKorQuote = "필사 완료한 명언",
+                completed = true
             )
         )
-        val memberQuote3 = quotePersistFactory.createMemberQuote(
+        val answered = quotePersistFactory.createMemberQuote(
             QuoteEntityFactory.memberQuote(
                 member = member,
-                dailyQuote = savedDailyQuote3,
-                likeYn = "N"
+                dailyQuote = answeredDailyQuote,
+                answer = "오늘의 질문 답변",
+                answeredAt = LocalDateTime.now()
+            )
+        )
+        quotePersistFactory.createMemberQuote(
+            QuoteEntityFactory.memberQuote(
+                member = member,
+                dailyQuote = typingOnlyDailyQuote,
+                typingKorQuote = "완료되지 않은 타이핑"
+            )
+        )
+        quotePersistFactory.createMemberQuote(
+            QuoteEntityFactory.memberQuote(
+                member = member,
+                dailyQuote = emptyDailyQuote
             )
         )
 
         every { dailyQuoteCacheService.getMonthlyQuotes(any(), any()) } returns emptyList()
         every { dailyQuoteCacheService.cacheMonthlyQuotes(any()) } just Runs
-        
+
         // when
         val result = sut.memberQuotes(member, pageable, request)
-        
+
         // then
-        assertThat(result.content).hasSize(2)
+        assertThat(result.content.map { it.memberQuoteSeq })
+            .containsExactlyInAnyOrder(liked.memberQuoteSeq, completed.memberQuoteSeq, answered.memberQuoteSeq)
     }
     
     @Test
