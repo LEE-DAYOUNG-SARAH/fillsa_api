@@ -44,7 +44,7 @@ class DailyQuotePushScheduler(
 
         val invalidTokens = pushService.sendToTokens(
             title = PUSH_TITLE,
-            body = quote.korQuote ?: PUSH_BODY_FALLBACK,
+            body = buildBody(quote.korQuote, quote.korAuthor),
             tokens = devices.mapNotNull { it.pushToken },
         ).toSet()
 
@@ -55,7 +55,14 @@ class DailyQuotePushScheduler(
     }
 
     companion object {
-        private const val PUSH_TITLE = "오늘의 문장" // 안드로이드 로컬 알림·위젯과 용어 통일
+        // 안드로이드 로컬 알림(DailyNotificationWorker)과 동일 포맷: 제목 "오늘의 필사 문장", 본문 "{korQuote} - {korAuthor}"
+        private const val PUSH_TITLE = "오늘의 필사 문장"
         private const val PUSH_BODY_FALLBACK = "오늘의 명언이 도착했어요"
+
+        internal fun buildBody(korQuote: String?, korAuthor: String?): String {
+            val quote = korQuote?.takeIf { it.isNotBlank() } ?: return PUSH_BODY_FALLBACK
+            val author = korAuthor?.takeIf { it.isNotBlank() } ?: return quote
+            return "$quote - $author"
+        }
     }
 }
