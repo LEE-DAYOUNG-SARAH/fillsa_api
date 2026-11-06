@@ -81,6 +81,70 @@ class MemberServiceTest @Autowired constructor(
     }
 
     @Test
+    fun `재로그인 시 빈 닉네임이 오면 기존 닉네임을 유지한다 - Apple 재로그인`() {
+        // given — Apple 은 이름을 최초 로그인 1회만 내려주므로 재로그인 땐 앱이 빈 닉네임을 보낼 수 있다
+        val existedUser = memberPersistFactory.createMember(
+            MemberEntityFactory.member(oAuthProvider = Member.OAuthProvider.APPLE, nickname = "사라")
+        )
+        val existedDevice = memberPersistFactory.createMemberDevice(
+            MemberEntityFactory.memberDevice(member = existedUser)
+        )
+
+        // when
+        val userData = LoginRequest.UserData(
+            oAuthProvider = Member.OAuthProvider.APPLE,
+            oAuthId = existedUser.oauthId,
+            nickname = "",
+            profileImageUrl = null
+        )
+        val deviceData = LoginRequest.DeviceData(
+            deviceId = existedDevice.deviceId,
+            osType = existedDevice.osType,
+            appVersion = "newAppVersion",
+            osVersion = "newOsVersion",
+            deviceModel = existedDevice.deviceModel
+        )
+        val resultMember = sut.signUp(LoginRequest.LoginData(userData, deviceData))
+
+        // then
+        assertThat(resultMember.memberSeq).isEqualTo(existedUser.memberSeq)
+        assertThat(memberRepository.findByIdOrNull(existedUser.memberSeq)?.nickname).isEqualTo("사라")
+        assertThat(memberRepository.count()).isEqualTo(1)
+    }
+
+    @Test
+    fun `재로그인 시 닉네임이 오면 갱신한다`() {
+        // given
+        val existedUser = memberPersistFactory.createMember(
+            MemberEntityFactory.member(nickname = "oldNick")
+        )
+        val existedDevice = memberPersistFactory.createMemberDevice(
+            MemberEntityFactory.memberDevice(member = existedUser)
+        )
+
+        // when
+        val userData = LoginRequest.UserData(
+            oAuthProvider = existedUser.oauthProvider,
+            oAuthId = existedUser.oauthId,
+            nickname = "newNick",
+            profileImageUrl = "newUrl"
+        )
+        val deviceData = LoginRequest.DeviceData(
+            deviceId = existedDevice.deviceId,
+            osType = existedDevice.osType,
+            appVersion = "newAppVersion",
+            osVersion = "newOsVersion",
+            deviceModel = existedDevice.deviceModel
+        )
+        sut.signUp(LoginRequest.LoginData(userData, deviceData))
+
+        // then
+        val saved = memberRepository.findByIdOrNull(existedUser.memberSeq)
+        assertThat(saved?.nickname).isEqualTo("newNick")
+        assertThat(saved?.profileImageUrl).isEqualTo("newUrl")
+    }
+
+    @Test
     fun `회원가입 성공 - 신규 회원`() {
         // given
         assertThat(memberRepository.count()).isEqualTo(0)

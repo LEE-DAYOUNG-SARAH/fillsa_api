@@ -55,8 +55,15 @@ class Member(
 
     fun isWithdrawal() = this.withdrawalYn == "Y"
 
+    /**
+     * 재로그인 시 프로필 갱신.
+     * Apple은 이름을 최초 로그인 1회만 제공하므로, 이후 로그인에서 앱이 빈 닉네임을 보내도
+     * 기존 닉네임을 지우지 않는다. 프로필 이미지는 기존대로 그대로 덮어쓴다.
+     */
     fun update(nickname: String, profileImageUrl: String?) {
-        this.nickname = nickname
+        if (nickname.isNotBlank()) {
+            this.nickname = nickname
+        }
         this.profileImageUrl = profileImageUrl
     }
 
