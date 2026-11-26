@@ -27,6 +27,12 @@ spring:
   flyway:
     enabled: false
 
+  # 이미지 업로드(팝업 등). 서비스 단에서 4MB 로 다시 검증한다. nginx client_max_body_size(5m) 와 맞춘다.
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
   data:
     redis:
       host: localhost
@@ -41,6 +47,16 @@ admin-jwt:
   secret: ${ADMIN_JWT_SECRET:YWRtaW4tc2VjcmV0LWtleS1mb3ItZmlsbHNhLWFkbWluLWp3dC12ZXJ5LWxvbmctYW5kLXNlY3VyZS1rZXktZGVmYXVsdA==}
   access-token-validity: 10800000    # 3시간
   refresh-token-validity: 86400000   # 1일
+
+# Cloudflare R2 (bff:app 과 같은 버킷). 실값은 application-prod.yml(PROD_YML_ADMIN)에만 둔다.
+# 비워 두면 어드민은 정상 부팅하고 업로드 API 만 실패한다.
+cloud:
+  r2:
+    account-id:
+    access-key:
+    secret-key:
+    bucket:
+    public-url:
 
 springdoc:
   swagger-ui:

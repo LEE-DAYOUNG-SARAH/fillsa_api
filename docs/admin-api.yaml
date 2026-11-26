@@ -39,6 +39,8 @@ tags:
     description: 앱 버전
   - name: cache
     description: 캐시 관리
+  - name: uploads
+    description: 이미지 업로드
 
 paths:
   # ========== auth ==========
@@ -362,6 +364,41 @@ paths:
           $ref: '#/components/responses/NotFound'
 
   # ========== popups ==========
+  /api/admin/v1/uploads/images:
+    post:
+      tags: [uploads]
+      operationId: uploadImage
+      summary: 이미지 업로드 (팝업 imageUrl 등에 사용할 URL 발급)
+      description: |
+        PNG, JPEG 이미지만 업로드할 수 있다 (최대 4MB).
+        확장자·Content-Type 이 아니라 파일 내용(매직 바이트)으로 형식을 검증한다.
+        응답의 `url` 을 팝업 `imageUrl` 에 그대로 넣는다.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: PNG 또는 JPEG 이미지 파일 (최대 4MB)
+      responses:
+        '201':
+          description: 업로드됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          description: 빈 파일 / PNG·JPEG 가 아님 / 4MB 초과
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/admin/v1/popups:
     get:
       tags: [popups]
@@ -840,6 +877,15 @@ components:
         message:
           type: string
 
+    UploadResponse:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          description: 업로드된 이미지의 공개 URL
+          example: https://img.fillsa.com/admin/images/0b6f1c2e-....png
+
     PageInfo:
       type: object
       description: Spring Boot PagedModel 직렬화 형식
@@ -1113,6 +1159,7 @@ components:
           type: string
           nullable: true
           maxLength: 500
+          description: 팝업 이미지 URL. PNG/JPEG 만 사용 — POST /api/admin/v1/uploads/images 로 업로드해 받은 url 을 넣는다.
         startDateTime:
           type: string
           format: date-time

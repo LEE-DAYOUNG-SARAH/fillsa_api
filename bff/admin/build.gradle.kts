@@ -24,6 +24,7 @@ val jwtVersion = "0.11.5"
 val jacksonVersion = "2.14.2"
 val kotlinVersion = "1.8.22"
 val kotlinLoggingVersion = "3.0.5"
+val s3Version = "2.20.40"
 
 dependencies {
     // 공통 + 어드민이 노출할 도메인 모듈
@@ -49,6 +50,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+
+    // Cloudflare R2 업로드 (S3 호환 — bff:app 과 같은 AWS SDK v2 버전)
+    implementation("software.amazon.awssdk:s3:$s3Version")
 
     // swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
