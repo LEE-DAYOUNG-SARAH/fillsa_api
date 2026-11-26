@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MaxUploadSizeExceededException
 
 @Hidden
 @RestControllerAdvice
@@ -32,6 +33,18 @@ class GlobalExceptionHandler {
 
         val response = ErrorResponse.from(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_REQUEST, errorMessage)
         return ResponseEntity(response, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException::class)
+    fun handleMaxUploadSize(ex: MaxUploadSizeExceededException): ResponseEntity<ErrorResponse> {
+        log.warn { "[MaxUploadSizeExceeded] ${ex.message}" }
+
+        val response = ErrorResponse.from(
+            HttpStatus.PAYLOAD_TOO_LARGE,
+            ErrorCode.INVALID_REQUEST,
+            "파일이 너무 큽니다. 이미지는 최대 4MB까지 업로드할 수 있습니다",
+        )
+        return ResponseEntity(response, HttpStatus.PAYLOAD_TOO_LARGE)
     }
 
     @ExceptionHandler(Exception::class)
